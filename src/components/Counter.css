@@ -1,0 +1,64 @@
+.counter-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.counter-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  font-family: var(--font-outfit);
+}
+.counter-value { font-size: 1.75rem; font-weight: 700; color: var(--accent-primary); }
+.counter-divider { font-size: 1.2rem; color: var(--text-muted); }
+.counter-target { font-size: 1rem; color: var(--text-muted); }
+
+.counter-dots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.counter-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition-medium);
+}
+.counter-dot.filled {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.counter-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 0.85rem;
+  transition: all var(--transition-fast);
+}
+.counter-add-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.counter-done {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--success);
+  font-weight: 500;
+  font-size: 0.9rem;
+}

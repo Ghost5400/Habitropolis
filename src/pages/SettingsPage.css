@@ -1,0 +1,88 @@
+.settings-page {
+  max-width: 600px;
+  animation: slideUp 0.4s ease;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.settings-icon { color: var(--accent-primary); }
+
+.settings-toast {
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  animation: slideUp 0.3s ease;
+  border-left: 3px solid var(--accent-gold);
+}
+
+.settings-section {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--accent-primary);
+}
+.section-header h3 { font-size: 0.95rem; }
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row.clickable { cursor: pointer; }
+.setting-row.clickable:hover { background: rgba(99, 102, 241, 0.05); margin: 0 -0.5rem; padding: 0.6rem 0.5rem; border-radius: var(--radius-sm); }
+
+.setting-label { font-size: 0.9rem; color: var(--text-secondary); }
+.setting-value { font-size: 0.85rem; color: var(--text-muted); }
+.setting-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* Toggle switch */
+.toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.toggle.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: all var(--transition-fast);
+}
+.toggle.active .toggle-thumb {
+  left: 22px;
+}
+
+.logout-settings-btn {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}

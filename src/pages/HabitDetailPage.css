@@ -1,0 +1,59 @@
+.habit-detail-page { animation: slideUp 0.4s ease; }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+  padding: 0.3rem 0;
+  transition: color var(--transition-fast);
+}
+.back-btn:hover { color: var(--text-primary); }
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.detail-info h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.detail-tags { display: flex; gap: 0.5rem; }
+.tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+.detail-actions { display: flex; gap: 0.5rem; }
+
+.detail-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.25rem;
+  gap: 0.4rem;
+}
+.fire { color: #ef4444; }
+.detail-card-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-outfit); }
+.detail-card-label { font-size: 0.75rem; color: var(--text-muted); }
+
+.detail-heatmap {
+  padding: 1.5rem;
+}
+.detail-heatmap h3 { font-size: 1rem; margin-bottom: 1rem; }

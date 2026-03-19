@@ -1,0 +1,11 @@
+.shield-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+}
+.shield-icon { font-size: 1.25rem; }
+.shield-text { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); }
+.shield-days { font-size: 0.7rem; color: var(--text-muted); }
+.shield-empty { font-size: 0.75rem; color: var(--text-muted); }
+.shield-loading { font-size: 0.75rem; color: var(--text-muted); }

@@ -1,0 +1,81 @@
+.achievements-page { animation: slideUp 0.4s ease; }
+
+.achievements-header { margin-bottom: 1.5rem; }
+.achievements-title-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.trophy-icon { color: var(--accent-gold); }
+
+.achievements-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.progress-text { font-size: 0.9rem; font-weight: 500; }
+.progress-track {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-primary));
+  border-radius: 3px;
+  transition: width var(--transition-medium);
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  transition: all var(--transition-fast);
+}
+.achievement-card:hover { transform: translateY(-2px); }
+.achievement-card.locked { opacity: 0.5; }
+.achievement-card.unlocked {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.03);
+}
+
+.achievement-icon-wrapper { position: relative; flex-shrink: 0; }
+.achievement-icon { font-size: 2rem; }
+.unlock-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+.lock-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.achievement-info { flex: 1; }
+.achievement-name { font-size: 0.95rem; margin-bottom: 0.2rem; }
+.achievement-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+.achievement-reward { display: flex; align-items: center; gap: 0.75rem; }
+.reward-coins { font-size: 0.8rem; color: var(--accent-gold); font-weight: 500; }
+.unlock-date { font-size: 0.7rem; color: var(--text-muted); }

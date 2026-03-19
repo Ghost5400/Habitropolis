@@ -1,0 +1,38 @@
+.habits-page { animation: slideUp 0.4s ease; }
+
+.habits-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+.filter-tab {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 0.8rem;
+  transition: all var(--transition-fast);
+}
+.filter-tab:hover { border-color: var(--accent-primary); color: var(--text-secondary); }
+.filter-tab.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+.habits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}

@@ -1,0 +1,20 @@
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}

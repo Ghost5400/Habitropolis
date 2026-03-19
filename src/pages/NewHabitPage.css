@@ -1,0 +1,13 @@
+.new-habit-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: slideUp 0.4s ease;
+}
+.new-habit-card h1 {
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

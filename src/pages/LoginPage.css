@@ -1,0 +1,53 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+}
+.auth-box h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.auth-box .text-muted { margin-bottom: 1.5rem; }
+
+.text-center { text-align: center; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.cursor-pointer { cursor: pointer; }
+.text-primary-link { color: var(--accent-primary); cursor: pointer; }
+.text-primary-link:hover { text-decoration: underline; }
+
+/* Password toggle */
+.password-wrapper {
+  position: relative;
+}
+.password-wrapper .input {
+  padding-right: 2.8rem;
+}
+.password-toggle {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+.password-toggle:hover {
+  color: var(--text-primary);
+}
