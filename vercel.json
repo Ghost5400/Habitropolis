@@ -1,3 +1,6 @@
 {
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/((?!assets|logo|icons|sw).*)", "destination": "/index.html" }
+  ]
 }
