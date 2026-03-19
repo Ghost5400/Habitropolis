@@ -36,7 +36,7 @@ export default function SignupPage() {
       }
     } catch (err) {
       const msg = err.message || 'Signup failed';
-      if (msg.includes('rate limit') || msg.includes('email')) {
+      if (msg.includes('rate limit') || msg.includes('exceeded')) {
         setError('Too many signups right now. Please wait a minute and try again.');
       } else if (msg.includes('already registered') || msg.includes('already been registered')) {
         setError('This email is already registered. Try logging in instead!');
