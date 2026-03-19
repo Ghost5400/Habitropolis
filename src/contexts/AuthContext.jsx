@@ -64,8 +64,7 @@ export function AuthProvider({ children }) {
         data: { full_name: displayName },
       },
     });
-    if (error) throw error;
-    return data;
+    return { data, error };
   };
 
   const signIn = async (email, password) => {

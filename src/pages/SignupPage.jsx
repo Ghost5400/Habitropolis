@@ -11,7 +11,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -21,35 +20,33 @@ export default function SignupPage() {
     setError('');
 
     try {
-      await signUp(email, password, displayName);
-      setSuccess(true);
+      const { data, error: signUpError } = await signUp(email, password, displayName);
+      
+      if (signUpError) throw signUpError;
+
+      // If email confirmation is disabled, user is auto-logged in → go to dashboard
+      if (data?.user?.identities?.length > 0) {
+        navigate('/dashboard');
+      } else if (data?.user && !data.session) {
+        // Email confirmation is enabled — show message
+        setError('Check your email for a confirmation link, then log in!');
+      } else {
+        // Auto logged in
+        navigate('/dashboard');
+      }
     } catch (err) {
-      setError(err.message || 'Signup failed');
+      const msg = err.message || 'Signup failed';
+      if (msg.includes('rate limit') || msg.includes('email')) {
+        setError('Too many signups right now. Please wait a minute and try again.');
+      } else if (msg.includes('already registered') || msg.includes('already been registered')) {
+        setError('This email is already registered. Try logging in instead!');
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="auth-container glass">
-        <div className="auth-box" style={{ textAlign: 'center' }}>
-          <h2>Check Your Email! 📧</h2>
-          <p className="text-muted" style={{ marginTop: '1rem' }}>
-            We sent a confirmation link to <strong>{email}</strong>.
-            Click it to activate your account.
-          </p>
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: '1.5rem' }}
-            onClick={() => navigate('/login')}
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="auth-container glass">
