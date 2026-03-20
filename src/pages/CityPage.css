@@ -1,3 +1,4 @@
+/* Town Builder Specific Styles */
 .city-page { animation: slideUp 0.4s ease; }
 
 .city-header { margin-bottom: 2rem; }
@@ -6,316 +7,163 @@
 .city-subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
 .city-overview {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-  align-items: center;
+  display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; align-items: center;
 }
 .city-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.75rem 1.25rem;
-  min-width: 100px;
+  display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.25rem; min-width: 100px;
 }
 .city-stat-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-outfit); }
 .city-stat-label { font-size: 0.75rem; color: var(--text-muted); }
 
-/* Decorate button */
+/* Buttons & Toasts */
 .city-decorate-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 1.2rem;
-  cursor: pointer;
-  border: 1px solid var(--accent-gold);
-  background: rgba(245, 158, 11, 0.08);
-  color: var(--accent-gold);
-  font-family: var(--font-inter);
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: 20px;
-  transition: all var(--transition-fast);
+  display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem;
+  border: 1px solid var(--accent-gold); background: rgba(245, 158, 11, 0.08); color: var(--accent-gold);
+  border-radius: 20px; transition: all var(--transition-fast);
 }
-.city-decorate-btn:hover {
-  background: rgba(245, 158, 11, 0.15);
-  transform: translateY(-1px);
-}
-.city-decorate-btn.active {
-  background: var(--accent-gold);
-  color: #000;
-}
+.city-decorate-btn:hover { background: rgba(245, 158, 11, 0.15); transform: translateY(-1px); }
+.city-decorate-btn.active { background: var(--accent-gold); color: #000; }
+.city-toast { padding: 0.75rem 1.25rem; margin-bottom: 1rem; border-left: 3px solid var(--accent-gold); }
 
-/* Toast */
-.city-toast {
-  padding: 0.75rem 1.25rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  animation: slideUp 0.3s ease;
-  border-left: 3px solid var(--accent-gold);
-}
-
-/* Decoration picker panel */
-.decoration-panel {
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-  animation: slideUp 0.3s ease;
-}
-.decoration-panel h3 {
-  font-size: 0.95rem;
-  margin-bottom: 0.75rem;
-  color: var(--accent-gold);
-}
-.decoration-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
+/* Decoration panel */
+.decoration-panel { padding: 1.25rem; margin-bottom: 1.5rem; }
+.decoration-picker { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .decoration-pick-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.6rem 0.8rem;
-  cursor: pointer;
-  border: 1px solid var(--glass-border);
-  background: transparent;
-  color: var(--text-primary);
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-  min-width: 70px;
+  display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.6rem 0.8rem;
+  border: 1px solid var(--glass-border); border-radius: var(--radius-md); min-width: 70px;
 }
-.decoration-pick-btn:hover {
-  border-color: var(--accent-gold);
-  background: rgba(245, 158, 11, 0.08);
-  transform: translateY(-2px);
-}
+.decoration-pick-btn:hover { border-color: var(--accent-gold); background: rgba(245, 158, 11, 0.08); }
 .decoration-pick-emoji { font-size: 1.5rem; }
 .decoration-pick-name { color: var(--text-muted); font-size: 0.65rem; }
 
-.placing-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-.placing-emoji {
-  font-size: 2rem;
-  animation: float 2s ease-in-out infinite;
-}
+.placing-indicator { display: flex; align-items: center; gap: 0.75rem; }
 
-/* ============ GAME SCENE ============ */
-.city-scene {
+
+/* ========================================== */
+/* TOWN BUILDER SCENE (Mathematical 2.5D)     */
+/* ========================================== */
+
+.town-builder-scene {
   position: relative;
-  min-height: 450px;
+  height: 800px;
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--glass-border);
+  background: #111827;
+  cursor: grab;
 }
 
-/* Sky */
-.city-sky {
+.town-builder-scene:active {
+  cursor: grabbing;
+}
+
+/* Environment Sky/Sun */
+.town-sky {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    #0a0a2e 0%,
-    #111144 30%,
-    #1a1a5c 50%,
-    #2a1a4a 70%,
-    #1e3a5f 85%,
-    #2d5a3d 95%
-  );
+  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 60%, #064e3b 100%);
+  z-index: 0;
+}
+.town-sun {
+  position: absolute; top: 40px; right: 80px; width: 60px; height: 60px; border-radius: 50%;
+  background: #fde047; box-shadow: 0 0 80px 20px rgba(253, 224, 71, 0.5);
   z-index: 0;
 }
 
-/* Stars in the sky */
-.sky-star {
+/* Coordinate Grid Container */
+.town-grid-container {
   position: absolute;
-  width: var(--star-size, 3px);
-  height: var(--star-size, 3px);
-  background: white;
-  border-radius: 50%;
-  animation: twinkle 3s ease-in-out infinite;
-}
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10;
+  overflow: auto; 
 }
 
-/* Moon */
-.city-moon {
+/* Base Interactive Tiles */
+.iso-grid-tile {
   position: absolute;
-  top: 30px;
-  right: 60px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fffde8, #f5e6a3, #dbb85a);
-  box-shadow:
-    0 0 15px rgba(255, 253, 232, 0.4),
-    0 0 40px rgba(245, 230, 163, 0.2),
-    0 0 80px rgba(219, 184, 90, 0.1);
+  background: rgba(34, 197, 94, 0.15); /* Grass tile color */
+  border: 1px solid rgba(167, 243, 208, 0.2);
+  /* The clip path creates the diamond without rotating the DOM, keeping drag/drop crisp! */
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  transition: all 0.2s ease;
 }
 
-/* Ground */
-.city-ground {
-  position: relative;
-  z-index: 1;
-  min-height: 350px;
-  display: flex;
-  align-items: flex-end;
-  padding: 0 1rem;
-  padding-bottom: 60px;
+.iso-grid-tile:hover {
+  background: rgba(250, 204, 21, 0.3); /* highlight on hover */
+  border-color: rgba(250, 204, 21, 0.8);
 }
 
-.city-buildings-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 2rem;
+.iso-grid-tile.drag-over {
+  background: rgba(52, 211, 153, 0.6) !important; /* strong green highlight */
+  border: 2px solid #10b981;
+}
+
+/* Draggable Buildings */
+.draggable-building-wrapper {
+  position: absolute;
+  cursor: grab;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.draggable-building-wrapper.is-dragging {
+  opacity: 0.5;
+  filter: brightness(1.5);
+}
+
+.draggable-building-wrapper:active {
+  cursor: grabbing;
+}
+
+.draggable-building-wrapper:hover {
+  transform: translate(-50%, -100%) scale(1.05) translateY(-5px) !important;
+}
+
+/* Decorate Mode animation */
+.draggable-building-wrapper.placeable {
+  animation: slowBounce 2s ease-in-out infinite;
+}
+.draggable-building-wrapper.placeable:hover {
+  filter: drop-shadow(0 0 20px var(--accent-gold));
+}
+
+@keyframes slowBounce {
+  0%, 100% { transform: translate(-50%, -100%) translateY(0); }
+  50% { transform: translate(-50%, -100%) translateY(-10px); }
+}
+
+/* Placed Decorations floating around */
+.placed-decorations-wrapper {
+  position: absolute;
+  bottom: 0px;
   width: 100%;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding-bottom: 20px;
-}
-
-.city-building-slot {
-  position: relative;
-  transition: all var(--transition-fast);
-  cursor: pointer;
-}
-.city-building-slot.placeable {
-  animation: pulse 1.5s ease-in-out infinite;
-}
-.city-building-slot.placeable:hover {
-  transform: scale(1.08);
-  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.5));
-}
-
-/* Decorations around buildings */
-.building-decorations-display {
   display: flex;
-  gap: 2px;
   justify-content: center;
-  flex-wrap: wrap;
-  margin-top: -4px;
-  position: relative;
-  z-index: 2;
-}
-.placed-decoration {
-  font-size: 0.8rem;
-  animation: float 4s ease-in-out infinite;
-  animation-delay: calc(var(--dec-index) * 0.5s);
+  gap: 5px;
+  pointer-events: none;
 }
 
-/* Grass Transition */
-.city-ground-line {
-  position: absolute;
-  bottom: 80px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(180deg, transparent, rgba(22, 101, 52, 0.4));
-  z-index: 1;
+.placed-decoration-badge {
+  font-size: 1.2rem;
+  animation: floatDeco 3s ease-in-out infinite;
+  animation-delay: calc(var(--idx) * 0.4s);
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
 }
 
-/* Grassy Terrain Base */
-.city-road {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(180deg, #14532d 0%, #064e3b 50%, #022c22 100%);
-  z-index: 1;
-  border-top: 4px solid #166534;
-}
-.city-road::before {
-  display: none;
+@keyframes floatDeco {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
-.city-empty {
-  text-align: center;
-  padding: 3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-.city-empty .empty-icon { color: var(--text-muted); }
-
-/* Building detail overlay */
+/* Detail overlay reset */
 .building-detail {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
 }
 .building-detail-content {
-  max-width: 400px;
-  width: 90%;
-  padding: 2rem;
-  border-radius: var(--radius-xl);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
+  max-width: 400px; width: 90%; padding: 2rem; border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
-.building-detail-content h3 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-}
-.detail-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-.detail-stat {
-  display: flex;
-  flex-direction: column;
-}
+.detail-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
 .detail-label { font-size: 0.75rem; color: var(--text-muted); }
 .detail-value { font-size: 1rem; font-weight: 600; }
-
-.detail-progress { margin-top: 0.5rem; }
-.progress-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-.progress-track {
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
-  border-radius: 3px;
-  transition: width var(--transition-medium);
-}
-
-.city-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 50vh;
-  gap: 1rem;
-  color: var(--text-muted);
-}
-
-@media (max-width: 768px) {
-  .city-scene { min-height: 380px; }
-  .city-moon { width: 35px; height: 35px; top: 20px; right: 30px; }
-}
+.progress-track { height: 6px; background: var(--bg-tertiary); border-radius: 3px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold)); }
