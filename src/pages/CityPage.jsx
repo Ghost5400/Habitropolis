@@ -204,9 +204,26 @@ export default function CityPage() {
       {message && <div className="city-toast glass-sm">{message}</div>}
 
       <div className={`town-builder-viewport ${isDay ? 'is-day' : 'is-night'}`}>
+        {/* Sky Engine */}
         <div className="town-sky">
-          {/* Animated Sky Clouds */}
           <div className="sky-clouds" />
+        </div>
+
+        {/* Global Action HUD */}
+        <div className="city-hud">
+          <button 
+            className="stash-all-btn glass-sm"
+            onPointerDown={(e) => e.stopPropagation()} /* Prevents pan logic intercept */
+            onClick={() => {
+              if(window.confirm("Pack up ALL buildings and decorations and return them to the inventory?")) {
+                updateLayout({});
+                showMessage("Entire city stashed!");
+              }
+            }}
+          >
+            <Archive size={18} />
+             Stash All
+          </button>
         </div>
         
         {/* Deep immersive Cloud Bed beneath the grid */}
@@ -272,6 +289,11 @@ export default function CityPage() {
                       onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
                       className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
                       title={info.name}
+                      onPointerEnter={() => setHoveredItem(`deco_${od.id}`)}
+                      onPointerLeave={() => { setHoveredItem(null); handlePointerCancel(od.id); }}
+                      onPointerDown={() => handlePointerDown(od.id, 'decoration')}
+                      onPointerUp={() => handlePointerCancel(od.id)}
+                      onPointerCancel={() => handlePointerCancel(od.id)}
                       style={{
                         left: x, top: `${y}px`, zIndex: zIndex + 2,
                         transform: 'translate(-50%, -50%)',
@@ -282,9 +304,9 @@ export default function CityPage() {
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
                     >
                       {info.emoji}
-                      <div className="building-hover-tooltip">
+                      <div className={`building-hover-tooltip ${hoveredItem === `deco_${od.id}` ? 'show' : ''}`}>
                         <strong>{info.name}</strong>
-                        <span>Decoration</span>
+                        <span>Decoration (Hold to stash)</span>
                       </div>
                     </div>
                   );
@@ -302,12 +324,18 @@ export default function CityPage() {
                       draggable
                       onDragStart={(e) => onDragStart(e, 'building', habit.id)}
                       className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''}`}
+                      onPointerEnter={() => setHoveredItem(habit.id)}
+                      onPointerLeave={() => { setHoveredItem(null); handlePointerCancel(habit.id); }}
+                      onPointerDown={() => handlePointerDown(habit.id, 'building')}
+                      onPointerUp={() => {
+                         handlePointerCancel(habit.id);
+                         setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id);
+                      }}
+                      onPointerCancel={() => handlePointerCancel(habit.id)}
                       style={{
                         left: x, top: `${y}px`, zIndex: zIndex + 10,
                         transform: 'translate(-50%, -70%)'
                       }}
-                      onMouseUp={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
-                      onTouchEnd={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
                       onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
                     >
@@ -318,9 +346,9 @@ export default function CityPage() {
                         isSelected={false}
                         onClick={() => {}}
                       />
-                      <div className="building-hover-tooltip">
+                      <div className={`building-hover-tooltip ${hoveredItem === habit.id ? 'show' : ''}`}>
                         <strong>{habit.name}</strong>
-                        <span>Lvl {building?.level || 1} • {habit.streak}🔥</span>
+                        <span>Lvl {building?.level || 1} • (Hold to stash)</span>
                       </div>
                     </div>
                   );

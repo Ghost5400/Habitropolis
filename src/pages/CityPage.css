@@ -137,6 +137,23 @@
   /* Removed bounce and heavy shadow, sticky geometry only! */
   transition: transform 0.1s linear, filter 0.2s ease;
 }
+/* HUD Logic */
+.city-hud {
+  position: absolute;
+  top: 15px; left: 15px;
+  z-index: 9999;
+}
+.stash-all-btn {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 20px;
+  background: rgba(15, 23, 42, 0.85); color: white;
+  border: 1px solid var(--glass-border);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s ease; pointer-events: auto;
+}
+.stash-all-btn:hover { background: rgba(220, 38, 38, 0.9); }
+
+/* Building Tooltip Graphics */
 .draggable-building-wrapper.is-dragging {
   opacity: 0.6; filter: brightness(1.2); z-index: 9999 !important;
 }
@@ -176,7 +193,7 @@
 .building-hover-tooltip strong { color: var(--accent-gold); font-size: 0.85rem; }
 .building-hover-tooltip span { color: var(--text-muted); font-size: 0.7rem; font-weight: 500; }
 
-.draggable-building-wrapper:hover .building-hover-tooltip {
+.building-hover-tooltip.show {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0px); /* Lifts up magically */
