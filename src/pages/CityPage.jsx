@@ -68,14 +68,18 @@ export default function CityPage() {
   const totalFloors = buildings.reduce((sum, b) => sum + (b.floors || 0), 0);
   const unplacedDecorations = (ownedDecorations || []).filter(od => !od.building_id);
 
-  // Calculate highest city level for Dynamic Grid Sizing
+  // Calculate highest city level
   const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
   const cityLvl = Math.min(7, highestStars + 1);
-  const GRID_SIZE = cityLvl + 3; // L1 = 4x4, L7 = 10x10
+  const GRID_SIZE = cityLvl + 3;
 
   // Filter elements into grid/tray arrays
   const placedHabits = habits.filter(h => layout[h.id] != null);
   const unplacedHabits = habits.filter(h => layout[h.id] == null);
+
+  // Parse standalone decorations
+  const placedDecorations = (ownedDecorations || []).filter(od => layout[`deco_${od.id}`] != null);
+  const unplacedDecorations = (ownedDecorations || []).filter(od => !od.building_id && layout[`deco_${od.id}`] == null);
 
   useEffect(() => {
     if (!user) return;
@@ -93,21 +97,9 @@ export default function CityPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handlePlaceDecoration = async (habitId, decId) => {
-    try {
-      await placeDecoration(habitId, decId);
-      showMessage(`Placed ${DECORATION_CATALOG[decId]?.emoji || '🎨'}!`);
-    } catch (err) {
-      console.error(err);
-      showMessage('Failed to place decoration');
-    }
-  };
-
-  // Drag and Drop
   const onDragStart = (e, type, id) => {
     setDraggedItem({ type, id });
     e.dataTransfer.setData('text/plain', id);
-    // Silent ghost image
     const img = new Image();
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
     e.dataTransfer.setDragImage(img, 0, 0);
@@ -131,49 +123,36 @@ export default function CityPage() {
     setHoverTile(null);
     if (!draggedItem) return;
 
-    if (draggedItem.type === 'building') {
-      const newLayout = { ...layout };
-      const oldSpot = newLayout[draggedItem.id];
-      
-      const occupantEntry = Object.entries(newLayout).find(
-        ([id, p]) => p.col === targetCol && p.row === targetRow && id !== draggedItem.id
-      );
+    const newLayout = { ...layout };
+    const stateKey = draggedItem.type === 'decoration' ? `deco_${draggedItem.id}` : draggedItem.id;
+    const oldSpot = newLayout[stateKey];
+    
+    // Check if the target tile is occupied
+    const occupantEntry = Object.entries(newLayout).find(
+      ([id, p]) => p.col === targetCol && p.row === targetRow && id !== stateKey
+    );
 
-      if (occupantEntry) {
-        if (oldSpot) newLayout[occupantEntry[0]] = oldSpot; // swap
-        else delete newLayout[occupantEntry[0]]; // eject occupant to tray if dragging from tray
-      }
-      
-      newLayout[draggedItem.id] = { col: targetCol, row: targetRow };
-      updateLayout(newLayout);
-
-    } else if (draggedItem.type === 'decoration') {
-      // Find exactly which building is at these coordinates
-      const buildingAtSpot = Object.entries(layout).find(
-        ([id, p]) => p.col === targetCol && p.row === targetRow
-      );
-      if (buildingAtSpot) {
-        handlePlaceDecoration(buildingAtSpot[0], draggedItem.id);
-      } else {
-        showMessage('Drop decorations directly onto a building!');
-      }
+    if (occupantEntry) {
+      if (oldSpot) newLayout[occupantEntry[0]] = oldSpot; // Swap!
+      else delete newLayout[occupantEntry[0]]; // Bump occupant back to tray
     }
+    
+    newLayout[stateKey] = { col: targetCol, row: targetRow };
+    updateLayout(newLayout);
     setDraggedItem(null);
   };
 
   const onDropTray = (e) => {
     e.preventDefault();
     setHoverTile(null);
-    if (!draggedItem || draggedItem.type !== 'building') {
-      setDraggedItem(null);
-      return;
-    }
+    if (!draggedItem) return;
 
     const newLayout = { ...layout };
-    delete newLayout[draggedItem.id];
+    const stateKey = draggedItem.type === 'decoration' ? `deco_${draggedItem.id}` : draggedItem.id;
+    delete newLayout[stateKey];
     updateLayout(newLayout);
     setDraggedItem(null);
-    showMessage('Building safely moved to inventory.');
+    showMessage(`${draggedItem.type === 'building' ? 'Building' : 'Decoration'} returned to inventory.`);
   };
 
   if (habitsLoading) {
@@ -222,7 +201,6 @@ export default function CityPage() {
 
       {message && <div className="city-toast glass-sm">{message}</div>}
 
-      {/* Main Drag/Drop Scene */}
       <div className={`town-builder-viewport ${isDay ? 'is-day' : 'is-night'}`}>
         <div className="town-sky" />
         <div className="town-celestial" />
@@ -230,20 +208,44 @@ export default function CityPage() {
         <div className="town-grid-container">
           {tiles}
 
+          {/* Render Standalone Decorations */}
+          {placedDecorations.map(od => {
+            const pos = layout[`deco_${od.id}`];
+            const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
+            const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
+            
+            return (
+              <div
+                key={`deco_${od.id}`}
+                draggable
+                onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
+                className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
+                style={{
+                  left: x, top: `${y}px`, zIndex: zIndex + 2, // slightly above building bases
+                  transform: 'translate(-50%, -80%)',
+                  fontSize: '4rem',
+                  filter: 'drop-shadow(0 15px 5px rgba(0,0,0,0.3))'
+                }}
+                onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
+                onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
+              >
+                {info.emoji}
+              </div>
+            );
+          })}
+
+          {/* Render Buildings */}
           {placedHabits.map(habit => {
             const building = getBuildingForHabit(habit.id);
             const pos = layout[habit.id];
             const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-
-            // Give visual feedback if this building is being hovered over with a decoration
-            const decHover = draggedItem?.type === 'decoration' && hoverTile?.type === 'grid' && hoverTile.col === pos.col && hoverTile.row === pos.row;
 
             return (
               <div
                 key={habit.id}
                 draggable
                 onDragStart={(e) => onDragStart(e, 'building', habit.id)}
-                className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''} ${decHover ? 'decoration-target' : ''}`}
+                className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''}`}
                 style={{
                   left: x, top: `${y}px`, zIndex: zIndex + 10,
                   transform: 'translate(-50%, -100%)'
@@ -257,7 +259,7 @@ export default function CityPage() {
                   building={building}
                   maxFloors={getMaxFloors(habit.frequency)}
                   isSelected={false}
-                  onClick={() => {}} // Click handled by wrapper
+                  onClick={() => {}}
                 />
               </div>
             );
@@ -272,11 +274,10 @@ export default function CityPage() {
         >
           <div className="dock-title">
             <span>Inventory Tray</span>
-            <small>(Drag onto the Grid)</small>
+            <small>(Drag Items onto the Grass)</small>
           </div>
           
           <div className="dock-items">
-            {/* Unplaced Buildings */}
             {unplacedHabits.map(habit => (
               <div 
                 key={habit.id} 
@@ -295,15 +296,14 @@ export default function CityPage() {
               </div>
             ))}
 
-            {/* Unplaced Decorations */}
             {unplacedDecorations.map((od, i) => {
-              const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: 'Decoration' };
+              const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
               return (
                 <div
                   key={`dec-${i}`}
                   className="dock-item deco-item glass-sm"
                   draggable
-                  onDragStart={(e) => onDragStart(e, 'decoration', od.decoration_id)}
+                  onDragStart={(e) => onDragStart(e, 'decoration', od.id)} // Critical: pass unique instance id
                 >
                   <span className="dock-deco-emoji">{info.emoji}</span>
                   <span className="dock-item-name">{info.name}</span>
