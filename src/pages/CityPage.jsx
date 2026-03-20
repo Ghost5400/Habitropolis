@@ -99,7 +99,6 @@ export default function CityPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const [message, setMessage] = useState('');
   const [hoveredItem, setHoveredItem] = useState(null);
   const holdTimers = useRef({});
 
