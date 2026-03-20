@@ -214,9 +214,28 @@ export default function CityPage() {
           <div className="cloud-puff puff-4" />
           <div className="cloud-puff puff-5" />
           <div className="cloud-puff puff-6" />
+          <div className="cloud-puff puff-7" />
+          <div className="cloud-puff puff-8" />
+          <div className="cloud-puff puff-9" />
+          <div className="cloud-puff puff-10" />
+          <div className="cloud-puff puff-11" />
+          <div className="cloud-puff puff-12" />
         </div>
 
-        <div className="town-celestial" />
+        <div className="town-celestial">
+          {isDay && (
+            <div className="sun-character">
+              <div className="sun-ray-spinner" />
+              <div className="sun-face">
+                <div className="sun-eye left" />
+                <div className="sun-eye right" />
+                <div className="sun-blush left" />
+                <div className="sun-blush right" />
+                <div className="sun-mouth" />
+              </div>
+            </div>
+          )}
+        </div>
         
         <div className="town-grid-container">
           {tiles}

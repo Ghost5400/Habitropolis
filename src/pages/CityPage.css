@@ -31,8 +31,62 @@
 /* Day Mode */
 .is-day .town-sky { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 40%, #047857 100%); }
 .is-day .town-celestial {
-  position: absolute; top: 40px; right: 80px; width: 80px; height: 80px; border-radius: 50%;
-  background: #fde047; box-shadow: 0 0 80px 20px rgba(253, 224, 71, 0.5); z-index: 0;
+  position: absolute; top: 40px; right: 80px; width: 100px; height: 100px; border-radius: 50%;
+  z-index: 10; /* Above back clouds */
+}
+
+/* CARTOON BABY SUN */
+.sun-character {
+  position: relative; width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fffbeb 0%, #fde047 50%, #eab308 100%);
+  box-shadow: 0 0 60px 20px rgba(253, 224, 71, 0.4);
+  animation: giggler 4s ease-in-out infinite;
+}
+
+.sun-ray-spinner {
+  position: absolute; inset: -40px; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(253, 224, 71, 0.3) 15deg 30deg);
+  animation: spinRays 20s linear infinite;
+  z-index: -1;
+}
+
+.sun-face {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.sun-eye {
+  position: absolute; top: 35%; width: 12%; height: 18%; background: #451a03; border-radius: 50%;
+  animation: sunBlink 4s infinite;
+}
+.sun-eye.left { left: 28%; }
+.sun-eye.right { right: 28%; }
+
+.sun-blush {
+  position: absolute; top: 48%; width: 15%; height: 12%; background: rgba(239, 68, 68, 0.5); border-radius: 50%; filter: blur(2px);
+}
+.sun-blush.left { left: 15%; }
+.sun-blush.right { right: 15%; }
+
+.sun-mouth {
+  position: absolute; top: 55%; width: 30%; height: 15%;
+  border-bottom: 4px solid #451a03; border-radius: 0 0 50px 50px;
+}
+
+@keyframes sunBlink {
+  0%, 96% { transform: scaleY(1); }
+  98% { transform: scaleY(0.1); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes giggler {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(2deg); }
+  75% { transform: translateY(3px) rotate(-2deg); }
+}
+
+@keyframes spinRays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Night Mode */
@@ -40,7 +94,7 @@
 .is-night .town-celestial {
   position: absolute; top: 40px; right: 80px; width: 60px; height: 60px; border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fffde8, #f5e6a3, #dbb85a);
-  box-shadow: 0 0 40px rgba(255, 253, 232, 0.4); z-index: 0;
+  box-shadow: 0 0 40px rgba(255, 253, 232, 0.4); z-index: 10;
 }
 
 /* ========================================== */
@@ -52,21 +106,25 @@
   cursor: grab;
   filter: drop-shadow(0 40px 30px rgba(0,0,0,0.6)); /* Massive shadow on the clouds */
 }
-.town-grid-container:active { cursor: grabbing; }
-
+.town-grid-container:active { cursor: grabbing; } /* Grid Tiles */
 .iso-grid-tile {
   position: absolute;
-  background: #65a30d; /* Solid grassy green settlement theme */
-  border: 1px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(34, 197, 94, 0.05); /* Reverting the green sheet back to beautiful invisible glass grid */
+  border: 1px dashed rgba(255, 255, 255, 0.15);
   box-sizing: border-box;
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); /* 2:1 isometric diamond */
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  cursor: pointer;
+  pointer-events: auto;
   transition: all 0.2s ease;
 }
+
 .iso-grid-tile:hover {
-  background: rgba(250, 204, 21, 0.5); border: 2px solid rgba(250, 204, 21, 0.8);
+  background: rgba(52, 211, 153, 0.3); border: 1px dashed white;
+  z-index: 999 !important;
 }
 .iso-grid-tile.drag-over {
-  background: #84cc16 !important; border: 2px dashed white !important;
+  background: rgba(52, 211, 153, 0.6) !important; border: 2px solid white !important;
+  z-index: 999 !important;
 }
 
 /* ========================================== */
@@ -150,10 +208,7 @@
 /* ========================================== */
 .town-cloud-bed {
   position: absolute;
-  top: 60%;
-  left: 0;
-  width: 100%;
-  height: 40%;
+  inset: -100px; /* Expands beyond viewport edges so clouds wrap around everywhere */
   z-index: 5; /* Behind grid but above deep sky */
   pointer-events: none;
   animation: floatBed 20s ease-in-out infinite alternate;
@@ -163,16 +218,23 @@
   position: absolute;
   background: #ffffff;
   border-radius: 50%;
-  opacity: 0.9;
+  opacity: 0.85;
   filter: drop-shadow(0 -10px 15px rgba(255,255,255,0.8));
 }
 
-.puff-1 { width: 400px; height: 150px; bottom: -50px; left: -100px; animation: drift 30s linear infinite; }
-.puff-2 { width: 500px; height: 180px; bottom: -80px; right: -50px; animation: drift 45s linear infinite reverse; }
-.puff-3 { width: 300px; height: 120px; top: -30px; left: 20%; opacity: 0.7; animation: drift 35s linear infinite; }
-.puff-4 { width: 350px; height: 140px; top: 0px; right: 20%; opacity: 0.8; animation: drift 40s linear infinite reverse; }
-.puff-5 { width: 600px; height: 200px; bottom: -100px; left: 30%; animation: drift 50s linear infinite; }
-.puff-6 { width: 250px; height: 100px; top: -50px; left: 50%; opacity: 0.6; animation: drift 25s linear infinite; }
+/* Scattered absolutely everywhere around the island */
+.puff-1 { width: 400px; height: 180px; bottom: 5%; left: -5%; animation: drift 30s linear infinite; }
+.puff-2 { width: 500px; height: 220px; bottom: -5%; right: -5%; animation: drift 45s linear infinite reverse; }
+.puff-3 { width: 300px; height: 140px; top: 10%; left: 5%; opacity: 0.7; animation: drift 35s linear infinite; }
+.puff-4 { width: 350px; height: 160px; top: 15%; right: 5%; opacity: 0.8; animation: drift 40s linear infinite reverse; }
+.puff-5 { width: 600px; height: 250px; bottom: 10%; left: 30%; animation: drift 50s linear infinite; }
+.puff-6 { width: 450px; height: 180px; top: -5%; left: 40%; opacity: 0.6; animation: drift 25s linear infinite; }
+.puff-7 { width: 300px; height: 140px; top: 40%; left: -10%; opacity: 0.75; animation: drift 32s linear infinite reverse; }
+.puff-8 { width: 350px; height: 170px; top: 50%; right: -15%; opacity: 0.7; animation: drift 38s linear infinite; }
+.puff-9 { width: 400px; height: 180px; bottom: 30%; left: 15%; opacity: 0.6; animation: drift 28s linear infinite; }
+.puff-10 { width: 380px; height: 160px; bottom: 40%; right: 20%; opacity: 0.65; animation: drift 34s linear infinite reverse; }
+.puff-11 { width: 500px; height: 210px; top: 20%; left: 60%; opacity: 0.8; animation: drift 42s linear infinite; }
+.puff-12 { width: 300px; height: 130px; bottom: 15%; right: 40%; opacity: 0.75; animation: drift 27s linear infinite reverse; }
 
 .is-night .cloud-puff {
   background: #1e293b;
