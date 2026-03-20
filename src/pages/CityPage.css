@@ -151,6 +151,38 @@
   filter: brightness(1.1);
 }
 
+.building-hover-tooltip {
+  position: absolute;
+  bottom: 80%; /* Spawns just dynamically above the building object */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  text-align: center;
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent-gold);
+  font-family: var(--font-inter);
+  white-space: nowrap;
+  pointer-events: none; /* Passes clicks directly beneath to the underlying building clicker physically */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 5000;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.building-hover-tooltip strong { color: var(--accent-gold); font-size: 0.85rem; }
+.building-hover-tooltip span { color: var(--text-muted); font-size: 0.7rem; font-weight: 500; }
+
+.draggable-building-wrapper:hover .building-hover-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0px); /* Lifts up magically */
+}
+
 /* ========================================== */
 /* INVENTORY DROPPPER DOCK                    */
 /* ========================================== */

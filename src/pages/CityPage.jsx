@@ -271,6 +271,7 @@ export default function CityPage() {
                       draggable
                       onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
                       className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
+                      title={info.name}
                       style={{
                         left: x, top: `${y}px`, zIndex: zIndex + 2,
                         transform: 'translate(-50%, -50%)',
@@ -281,6 +282,10 @@ export default function CityPage() {
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
                     >
                       {info.emoji}
+                      <div className="building-hover-tooltip">
+                        <strong>{info.name}</strong>
+                        <span>Decoration</span>
+                      </div>
                     </div>
                   );
                 })}
@@ -301,7 +306,8 @@ export default function CityPage() {
                         left: x, top: `${y}px`, zIndex: zIndex + 10,
                         transform: 'translate(-50%, -70%)'
                       }}
-                      onClick={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
+                      onMouseUp={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
+                      onTouchEnd={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
                       onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
                     >
@@ -312,6 +318,10 @@ export default function CityPage() {
                         isSelected={false}
                         onClick={() => {}}
                       />
+                      <div className="building-hover-tooltip">
+                        <strong>{habit.name}</strong>
+                        <span>Lvl {building?.level || 1} • {habit.streak}🔥</span>
+                      </div>
                     </div>
                   );
                 })}
