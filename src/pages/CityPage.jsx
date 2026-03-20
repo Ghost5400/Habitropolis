@@ -5,6 +5,8 @@ import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import Building from '../components/Building';
 import { Building2, Sparkles, X, Sunrise, Moon } from 'lucide-react';
+import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import './CityPage.css';
 
 const DECORATION_CATALOG = {
@@ -238,65 +240,82 @@ export default function CityPage() {
           )}
         </div>
         
-        <div className="town-grid-container">
-          {tiles}
+        {/* Infinite Pan/Zoom Mobile Camera Viewport */}
+        <div style={{ position: 'absolute', inset: 0, bottom: '120px', zIndex: 10 }}>
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.4}
+            maxScale={3}
+            centerOnInit
+            panning={{ excluded: ['draggable-building-wrapper', 'dock-item'] }}
+            doubleClick={{ disabled: true }}
+          >
+            <TransformComponent
+              wrapperStyle={{ width: '100%', height: '100%' }}
+              contentStyle={{ width: '100%', height: '100%' }}
+            >
+              <div className="town-grid-container">
+                {tiles}
 
-          {/* Render Standalone Decorations */}
-          {placedDecorations.map(od => {
-            const pos = layout[`deco_${od.id}`];
-            const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-            const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
-            
-            return (
-              <div
-                key={`deco_${od.id}`}
-                draggable
-                onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
-                className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
-                style={{
-                  left: x, top: `${y}px`, zIndex: zIndex + 2,
-                  transform: 'translate(-50%, -50%)',
-                  fontSize: '1.5rem',
-                  filter: 'drop-shadow(0 5px 2px rgba(0,0,0,0.4))'
-                }}
-                onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
-                onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
-              >
-                {info.emoji}
+                {/* Render Standalone Decorations */}
+                {placedDecorations.map(od => {
+                  const pos = layout[`deco_${od.id}`];
+                  const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
+                  const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
+                  
+                  return (
+                    <div
+                      key={`deco_${od.id}`}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
+                      className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
+                      style={{
+                        left: x, top: `${y}px`, zIndex: zIndex + 2,
+                        transform: 'translate(-50%, -50%)',
+                        fontSize: '1.5rem',
+                        filter: 'drop-shadow(0 5px 2px rgba(0,0,0,0.4))'
+                      }}
+                      onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
+                      onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
+                    >
+                      {info.emoji}
+                    </div>
+                  );
+                })}
+
+                {/* Render Buildings */}
+                {placedHabits.map(habit => {
+                  const building = getBuildingForHabit(habit.id);
+                  const pos = layout[habit.id];
+                  const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
+
+                  return (
+                    <div
+                      key={habit.id}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, 'building', habit.id)}
+                      className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''}`}
+                      style={{
+                        left: x, top: `${y}px`, zIndex: zIndex + 10,
+                        transform: 'translate(-50%, -70%)'
+                      }}
+                      onClick={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
+                      onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
+                      onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
+                    >
+                      <Building
+                        habit={habit}
+                        building={building}
+                        maxFloors={getMaxFloors(habit.frequency)}
+                        isSelected={false}
+                        onClick={() => {}}
+                      />
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-
-          {/* Render Buildings */}
-          {placedHabits.map(habit => {
-            const building = getBuildingForHabit(habit.id);
-            const pos = layout[habit.id];
-            const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-
-            return (
-              <div
-                key={habit.id}
-                draggable
-                onDragStart={(e) => onDragStart(e, 'building', habit.id)}
-                className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''}`}
-                style={{
-                  left: x, top: `${y}px`, zIndex: zIndex + 10,
-                  transform: 'translate(-50%, -70%)'
-                }}
-                onClick={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
-                onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
-                onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
-              >
-                <Building
-                  habit={habit}
-                  building={building}
-                  maxFloors={getMaxFloors(habit.frequency)}
-                  isSelected={false}
-                  onClick={() => {}}
-                />
-              </div>
-            );
-          })}
+            </TransformComponent>
+          </TransformWrapper>
         </div>
 
         {/* Inventory Dropper Dock */}
