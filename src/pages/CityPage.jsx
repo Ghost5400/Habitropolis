@@ -73,7 +73,7 @@ export default function CityPage() {
   // Calculate highest city level
   const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
   const cityLvl = Math.min(7, highestStars + 1);
-  const GRID_SIZE = cityLvl + 6; // Level 1 is a massive 7x7 grid to space buildings perfectly
+  const GRID_SIZE = cityLvl + 5; // Level 1 is 6x6, Level 2 is 7x7, etc.
 
   // Filter elements into grid/tray arrays
   const placedHabits = habits.filter(h => layout[h.id] != null);
@@ -244,10 +244,12 @@ export default function CityPage() {
         <div style={{ position: 'absolute', inset: 0, bottom: '120px', zIndex: 10 }}>
           <TransformWrapper
             initialScale={1}
-            minScale={0.4}
+            minScale={0.3}
             maxScale={3}
             centerOnInit
-            panning={{ excluded: ['draggable-building-wrapper', 'dock-item'] }}
+            limitToBounds={false}
+            wheel={{ step: 0.1 }}
+            panning={{ excluded: ['draggable-building-wrapper', 'dock-item'], velocityDisabled: true }}
             doubleClick={{ disabled: true }}
           >
             <TransformComponent
