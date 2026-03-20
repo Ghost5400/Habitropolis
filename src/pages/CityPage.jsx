@@ -167,26 +167,20 @@ export default function CityPage() {
       const { x, y, zIndex } = getScreenPos(c, r);
       const isHoveredGrid = hoverTile?.type === 'grid' && hoverTile?.col === c && hoverTile?.row === r;
       
-        tiles.push(
-          <div
-            key={`${c}-${r}`}
-            className="iso-grid-tile-wrapper"
-            style={{
-              left: x, top: `${y}px`, zIndex,
-              transform: 'translate(-50%, -50%)',
-              width: `${TILE_W}px`, height: `${TILE_H + 30}px`
-            }}
-          >
-            <div
-              className={`iso-grid-top ${isHoveredGrid ? 'drag-over' : ''}`}
-              onDragOver={(e) => onDragOverGrid(e, c, r)}
-              onDragLeave={() => setHoverTile(null)}
-              onDrop={(e) => onDropGrid(e, c, r)}
-            />
-            <div className="iso-grid-left" />
-            <div className="iso-grid-right" />
-          </div>
-        );
+      tiles.push(
+        <div
+          key={`${c}-${r}`}
+          className={`iso-grid-tile ${isHoveredGrid ? 'drag-over' : ''}`}
+          style={{
+            left: x, top: `${y}px`, zIndex,
+            transform: 'translate(-50%, -50%)',
+            width: `${TILE_W}px`, height: `${TILE_H}px`
+          }}
+          onDragOver={(e) => onDragOverGrid(e, c, r)}
+          onDragLeave={() => setHoverTile(null)}
+          onDrop={(e) => onDropGrid(e, c, r)}
+        />
+      );
     }
   }
 

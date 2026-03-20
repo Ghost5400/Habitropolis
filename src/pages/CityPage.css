@@ -108,46 +108,30 @@
 }
 .town-grid-container:active { cursor: grabbing; } 
 
-/* 3D Volumetric Isometric Terrain Blocks */
-.iso-grid-tile-wrapper {
+/* Grid Tiles */
+.iso-grid-tile {
   position: absolute;
-  pointer-events: none;
-}
-
-.iso-grid-top {
-  position: absolute;
-  top: 0; left: 0; width: 120px; height: 60px;
-  background-color: #65a30d; /* lush vivid grass top */
-  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 8px 8px; /* High detail noise grass texture, not chessboard */
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  /* Genuine 3D isometric graphical grass texture! */
+  background-color: #65a30d;
+  background-image: url('/assets/buildings/grass_texture.png');
+  background-size: cover;
+  background-position: center;
   border: 1px dashed rgba(255, 255, 255, 0.4);
-  pointer-events: auto;
+  box-sizing: border-box;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   cursor: pointer;
+  pointer-events: auto;
   transition: all 0.2s ease;
 }
-.iso-grid-top:hover {
-  background-color: #84cc16; border: 2px dashed rgba(255, 255, 255, 0.8);
-  filter: brightness(1.1);
-  z-index: 999 !important;
-}
-.iso-grid-top.drag-over {
-  background-color: #bef264 !important; border: 2px solid white !important;
+
+.iso-grid-tile:hover {
+  filter: brightness(1.2); border: 2px dashed rgba(255, 255, 255, 0.8);
   z-index: 999 !important;
 }
 
-.iso-grid-left {
-  position: absolute;
-  top: 30px; left: 0; width: 60px; height: 50px; /* drops down structurally */
-  background-color: #573111; /* Warm rich dark earth dirt */
-  clip-path: polygon(0% 0%, 100% 50%, 100% 100%, 0% 50%);
-}
-
-.iso-grid-right {
-  position: absolute;
-  top: 30px; left: 60px; width: 60px; height: 50px;
-  background-color: #3b210c; /* Fully shaded shadow dirt for realistic 3D lighting */
-  clip-path: polygon(0% 50%, 100% 0%, 100% 50%, 0% 100%);
+.iso-grid-tile.drag-over {
+  filter: brightness(1.4) sepia(0.5) hue-rotate(-50deg); border: 2px solid white !important;
+  z-index: 999 !important;
 }
 
 /* ========================================== */
