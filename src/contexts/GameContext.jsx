@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import { notifyAchievementUnlocked } from '../lib/notifications';
 
 const GameContext = createContext();
 
@@ -245,6 +246,9 @@ export function GameProvider({ children }) {
       if (achievement.reward_coins > 0) {
         await addCoins(achievement.reward_coins, `Achievement: ${achievement.name}`);
       }
+
+      // Officially notify the user visually!
+      notifyAchievementUnlocked(achievement.name, achievement.reward_coins);
 
       return data;
     } catch (err) {

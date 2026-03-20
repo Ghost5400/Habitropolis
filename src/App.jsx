@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { GameProvider } from './contexts/GameContext';
@@ -17,6 +18,19 @@ import StatsPage from './pages/StatsPage';
 import SettingsPage from './pages/SettingsPage';
 
 import './App.css';
+import { useAchievements } from './hooks/useAchievements';
+
+function GlobalAchievementEngine() {
+  const { evaluateAll } = useAchievements();
+  useEffect(() => {
+    const timer = setInterval(() => {
+      evaluateAll();
+    }, 10000); 
+    evaluateAll();
+    return () => clearInterval(timer);
+  }, [evaluateAll]);
+  return null;
+}
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -54,6 +68,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <GameProvider>
+          <GlobalAchievementEngine />
           <AppRoutes />
         </GameProvider>
       </AuthProvider>

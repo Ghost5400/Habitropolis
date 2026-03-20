@@ -1,4 +1,6 @@
 import { useGame } from '../contexts/GameContext';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export const ACHIEVEMENT_DEFINITIONS = [
   { name: 'First Step', description: 'Complete your first habit', icon: '👣', condition_type: 'habits_completed', condition_value: 1, reward_coins: 10 },
@@ -16,7 +18,8 @@ export const ACHIEVEMENT_DEFINITIONS = [
 ];
 
 export const useAchievements = () => {
-  const { achievements, unlockedAchievements, unlockAchievement } = useGame();
+  const { user } = useAuth();
+  const { achievements, unlockedAchievements, unlockAchievement, buildings, ownedDecorations, coins } = useGame();
 
   const isUnlocked = (achievementId) => {
     return unlockedAchievements.some(ua => ua.achievement_id === achievementId);
@@ -28,13 +31,45 @@ export const useAchievements = () => {
     return Math.min(100, Math.round((current / achievement.condition_value) * 100));
   };
 
-  const checkAndUnlock = async (stats) => {
-    for (const achievement of achievements) {
-      if (isUnlocked(achievement.id)) continue;
-      const current = stats[achievement.condition_type] || 0;
-      if (current >= achievement.condition_value) {
-        await unlockAchievement(achievement.id);
+  const evaluateAll = async () => {
+    if (!user || (achievements || []).length === 0) return;
+    
+    // Construct local tracking stats based on universal game properties
+    const stats = {
+      buildings: (buildings || []).length,
+      max_floors: buildings?.length ? Math.max(0, ...buildings.map(b => b.floors || 0)) : 0,
+      golden_stars: (buildings || []).reduce((s, b) => s + (b.golden_stars || 0), 0),
+      decorations: (ownedDecorations || []).length,
+    };
+
+    try {
+      // Fetch dynamic database counts perfectly optimized
+      const { count: habits_completed } = await supabase
+        .from('habit_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('completed', true);
+      
+      stats.habits_completed = habits_completed || 0;
+      stats.total_coins = coins; 
+
+      const { data: habitsList } = await supabase.from('habits').select('streak').eq('user_id', user.id);
+      let best_streak = 0;
+      if (habitsList) {
+        habitsList.forEach(h => { if (h.streak > best_streak) best_streak = h.streak; });
       }
+      stats.streak = best_streak;
+
+      // Iteratively unlock any newly met threshold
+      for (const achievement of achievements) {
+        if (isUnlocked(achievement.id)) continue;
+        const current = stats[achievement.condition_type] || 0;
+        if (current >= achievement.condition_value) {
+           await unlockAchievement(achievement.id);
+        }
+      }
+    } catch (err) {
+      console.error('Achievement evaluation engine error:', err);
     }
   };
 
@@ -43,6 +78,6 @@ export const useAchievements = () => {
     unlockedAchievements,
     isUnlocked,
     getProgress,
-    checkAndUnlock,
+    evaluateAll,
   };
 };
