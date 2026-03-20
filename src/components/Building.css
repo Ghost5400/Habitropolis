@@ -18,7 +18,7 @@
 }
 
 .building-visual-wrapper {
-  width: 150%;
+  width: 100%;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
