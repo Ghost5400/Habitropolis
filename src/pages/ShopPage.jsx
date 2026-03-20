@@ -62,8 +62,7 @@ export default function ShopPage() {
       return;
     }
 
-    // Use the buyDecoration from GameContext which properly inserts into user_decorations
-    const success = await buyDecoration(decoration.id, null);
+    const success = await buyDecoration(decoration, null);
     if (success) {
       showMessage(`Bought ${decoration.emoji} ${decoration.name}! Go to City to place it 🏙️`);
     } else {
