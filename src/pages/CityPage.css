@@ -125,11 +125,6 @@
   transition: all 0.2s ease;
 }
 
-.iso-grid-tile:hover {
-  filter: brightness(1.2); border: 2px dashed rgba(255, 255, 255, 0.8);
-  z-index: 999 !important;
-}
-
 .iso-grid-tile.drag-over {
   filter: brightness(1.4) sepia(0.5) hue-rotate(-50deg); border: 2px solid white !important;
   z-index: 999 !important;
