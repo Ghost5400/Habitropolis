@@ -1,4 +1,5 @@
 import React from 'react';
+import { Activity, Droplet, Dumbbell, Book, Coffee, Music, Heart, Sun, Moon, Star, Zap, Apple, Briefcase, Code, PenTool, Camera, Gamepad2, Headphones, Palmtree, Plane, Ban } from 'lucide-react';
 
 // Color definitions for the 6 themes (Top, Left, Right faces)
 const THEMES = {
@@ -32,6 +33,13 @@ export const getHabitTheme = (icon) => {
   }
 };
 
+const ICON_MAP = {
+  activity: Activity, droplet: Droplet, dumbbell: Dumbbell, book: Book, coffee: Coffee,
+  music: Music, heart: Heart, sun: Sun, moon: Moon, star: Star, zap: Zap, apple: Apple,
+  briefcase: Briefcase, code: Code, 'pen-tool': PenTool, camera: Camera, 'gamepad-2': Gamepad2,
+  headphones: Headphones, palmtree: Palmtree, plane: Plane, ban: Ban
+};
+
 /**
  * A primitive isometric block.
  */
@@ -62,23 +70,43 @@ export default function CityBuildingSVG({ level = 1, icon = 'activity', classNam
   const maxLvl = Math.max(1, Math.min(level, 7)); // clamp 1-7
   const themeKey = getHabitTheme(icon);
   const colors = THEMES[themeKey] || THEMES.neutral;
+  const ActiveIcon = ICON_MAP[icon] || Activity;
   
   // Base coordinate
   const BX = 100;
   const BY = 180;
+
+  // Calculate highest Z point to float the icon correctly
+  let topZ = 30;
+  if (maxLvl === 1) topZ = 30;
+  if (maxLvl === 2) topZ = 40;
+  if (maxLvl === 3) topZ = 70;
+  if (maxLvl === 4) topZ = 105;
+  if (maxLvl === 5) topZ = 135;
+  if (maxLvl === 6) topZ = 165;
+  if (maxLvl === 7) topZ = 240;
   
   return (
     <svg 
       viewBox="0 0 200 200" 
       className={`city-building-svg ${className}`}
-      style={{ width: '100%', height: '100%', dropShadow: '0 10px 10px rgba(0,0,0,0.3)' }}
+      style={{ width: '100%', height: '100%', dropShadow: '0 10px 10px rgba(0,0,0,0.3)', overflow: 'visible' }}
     >
       {/* Ground Shadow */}
       <ellipse cx={BX} cy={BY + 5} rx={50} ry={25} fill="rgba(0,0,0,0.2)" filter="blur(2px)" />
 
+      {/* Floating Holographic Icon representing the identical Habit */}
+      <g transform={`translate(${BX - 16}, ${BY - topZ - 40})`} style={{ filter: 'drop-shadow(0 4px 4px rgba(0,0,0,0.5))' }}>
+        <circle cx={16} cy={16} r={20} fill={colors.accTop} opacity={0.2} />
+        <ActiveIcon size={32} color={colors.accLeft} strokeWidth={2.5} />
+      </g>
+
       {/* Level Geometry Assembly */}
       {(maxLvl === 1) && (
-        <IsoBlock x={BX} y={BY} z={0} size={30} height={20} colors={colors} />
+        <>
+          <IsoBlock x={BX} y={BY} z={0} size={35} height={15} colors={colors} />
+          <IsoBlock x={BX} y={BY} z={15} size={25} height={10} colors={colors} isAccent />
+        </>
       )}
 
       {(maxLvl === 2) && (
