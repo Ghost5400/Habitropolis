@@ -70,7 +70,7 @@ export default function CityPage() {
   // Calculate highest city level
   const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
   const cityLvl = Math.min(7, highestStars + 1);
-  const GRID_SIZE = cityLvl + 3;
+  const GRID_SIZE = cityLvl + 6; // Level 1 is a massive 7x7 grid to space buildings perfectly
 
   // Filter elements into grid/tray arrays
   const placedHabits = habits.filter(h => layout[h.id] != null);
@@ -201,7 +201,21 @@ export default function CityPage() {
       {message && <div className="city-toast glass-sm">{message}</div>}
 
       <div className={`town-builder-viewport ${isDay ? 'is-day' : 'is-night'}`}>
-        <div className="town-sky" />
+        <div className="town-sky">
+          {/* Animated Sky Clouds */}
+          <div className="sky-clouds" />
+        </div>
+        
+        {/* Deep immersive Cloud Bed beneath the grid */}
+        <div className="town-cloud-bed">
+          <div className="cloud-puff puff-1" />
+          <div className="cloud-puff puff-2" />
+          <div className="cloud-puff puff-3" />
+          <div className="cloud-puff puff-4" />
+          <div className="cloud-puff puff-5" />
+          <div className="cloud-puff puff-6" />
+        </div>
+
         <div className="town-celestial" />
         
         <div className="town-grid-container">
