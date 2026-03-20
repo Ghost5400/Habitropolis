@@ -11,7 +11,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -111,6 +111,16 @@ export default function SignupPage() {
             {loading ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
+
+        <div className="text-center mt-4">
+          <button
+            onClick={signInWithGoogle}
+            className="btn btn-secondary w-full"
+            disabled={loading}
+          >
+            Continue with Google
+          </button>
+        </div>
 
         <div className="text-center mt-6">
           <p className="text-muted">
