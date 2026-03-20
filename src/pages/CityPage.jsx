@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useHabits } from '../hooks/useHabits';
 import { useCity } from '../hooks/useCity';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import Building from '../components/Building';
-import { Building2, Sparkles, X, Sunrise, Moon } from 'lucide-react';
+import { Building2, Sparkles, X, Sunrise, Moon, Archive } from 'lucide-react';
 import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import './CityPage.css';
