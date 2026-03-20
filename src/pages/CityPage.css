@@ -47,9 +47,10 @@
 /* GRID CONTAINERS                            */
 /* ========================================== */
 .town-grid-container {
-  position: absolute; top: 0; left: 0; right: 0; bottom: 120px; /* leave room for dock */
+  position: absolute; top: 0; left: 0; right: 0; bottom: 120px;
   z-index: 10; overflow: auto; 
   cursor: grab;
+  filter: drop-shadow(0 40px 30px rgba(0,0,0,0.6)); /* Massive shadow on the clouds */
 }
 .town-grid-container:active { cursor: grabbing; }
 
