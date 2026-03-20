@@ -99,7 +99,30 @@ export default function CityPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
+  const [message, setMessage] = useState('');
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const holdTimers = useRef({});
+
+  const handlePointerDown = (id, type) => {
+    // Exactly 1.5 seconds is the UX golden standard for "long press"
+    holdTimers.current[id] = setTimeout(() => {
+      const newLayout = { ...layout };
+      const stateKey = type === 'decoration' ? `deco_${id}` : id;
+      delete newLayout[stateKey];
+      updateLayout(newLayout);
+      showMessage(`${type === 'building' ? 'Building' : 'Decoration'} returned to inventory!`);
+    }, 1500); 
+  };
+
+  const handlePointerCancel = (id) => {
+    if (holdTimers.current[id]) {
+      clearTimeout(holdTimers.current[id]);
+      delete holdTimers.current[id];
+    }
+  };
+
   const onDragStart = (e, type, id) => {
+    handlePointerCancel(id);
     setDraggedItem({ type, id });
     e.dataTransfer.setData('text/plain', id);
     const img = new Image();
