@@ -177,10 +177,11 @@
 .city-buildings-row {
   display: flex;
   align-items: flex-end;
-  gap: 0.25rem;
+  gap: 2rem;
   width: 100%;
   flex-wrap: wrap;
   justify-content: center;
+  padding-bottom: 20px;
 }
 
 .city-building-slot {
@@ -212,41 +213,30 @@
   animation-delay: calc(var(--dec-index) * 0.5s);
 }
 
-/* Ground line */
+/* Grass Transition */
 .city-ground-line {
   position: absolute;
-  bottom: 50px;
+  bottom: 80px;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.4), rgba(16, 185, 129, 0.6), rgba(16, 185, 129, 0.4), transparent);
+  height: 20px;
+  background: linear-gradient(180deg, transparent, rgba(22, 101, 52, 0.4));
   z-index: 1;
 }
 
-/* Road */
+/* Grassy Terrain Base */
 .city-road {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 50px;
-  background: linear-gradient(180deg, #2d3a2d 0%, #1a2a1a 50%, #151f15 100%);
+  height: 80px;
+  background: linear-gradient(180deg, #14532d 0%, #064e3b 50%, #022c22 100%);
   z-index: 1;
+  border-top: 4px solid #166534;
 }
 .city-road::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.3) 0px,
-    rgba(255, 255, 255, 0.3) 20px,
-    transparent 20px,
-    transparent 40px
-  );
+  display: none;
 }
 
 .city-empty {
