@@ -3,32 +3,34 @@ import { supabase } from '../lib/supabase';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useHabits } from '../hooks/useHabits';
-import { Activity, Droplet, Dumbbell, Book, Coffee, Music, Heart, Sun, Moon, Star, Zap, Apple, Briefcase, Code, PenTool, Camera, Gamepad2, Headphones, Palmtree, Plane } from 'lucide-react';
+import { Activity, Droplet, Dumbbell, Book, Sun, Zap, Code, PenTool, Gamepad2, Ban } from 'lucide-react';
 import './NewHabitPage.css';
 
-const ICON_OPTIONS = [
-  { id: 'activity', icon: Activity, label: 'Activity' },
-  { id: 'droplet', icon: Droplet, label: 'Water' },
-  { id: 'dumbbell', icon: Dumbbell, label: 'Fitness' },
-  { id: 'book', icon: Book, label: 'Reading' },
-  { id: 'coffee', icon: Coffee, label: 'Rest' },
-  { id: 'music', icon: Music, label: 'Music' },
-  { id: 'heart', icon: Heart, label: 'Health' },
-  { id: 'sun', icon: Sun, label: 'Morning' },
-  { id: 'moon', icon: Moon, label: 'Night' },
-  { id: 'star', icon: Star, label: 'Focus' },
-  { id: 'zap', icon: Zap, label: 'Energy' },
-  { id: 'apple', icon: Apple, label: 'Diet' },
-  { id: 'briefcase', icon: Briefcase, label: 'Work' },
-  { id: 'code', icon: Code, label: 'Coding' },
-  { id: 'pen-tool', icon: PenTool, label: 'Art' },
-  { id: 'camera', icon: Camera, label: 'Photo' },
-  { id: 'gamepad-2', icon: Gamepad2, label: 'Gaming' },
-  { id: 'headphones', icon: Headphones, label: 'Audio' },
-  { id: 'palmtree', icon: Palmtree, label: 'Relax' },
-  { id: 'plane', icon: Plane, label: 'Travel' }
+const HABIT_THEMES = [
+  { icon: 'activity', id: 'neutral', label: 'Custom Habit', theme: 'Neutral Base' },
+  { icon: 'dumbbell', id: 'fitness', label: 'Exercise & Fitness', theme: 'Gym Base' },
+  { icon: 'droplet', id: 'water', label: 'Drink Water', theme: 'Water Base' },
+  { icon: 'book', id: 'study', label: 'Study or Read', theme: 'Library Base' },
+  { icon: 'sun', id: 'morning', label: 'Wake Up Early', theme: 'Sunrise Base' },
+  { icon: 'code', id: 'coding', label: 'Coding Practice', theme: 'Tech Base' },
+  { icon: 'pen-tool', id: 'art', label: 'Art & Creativity', theme: 'Studio Base' },
+  { icon: 'gamepad-2', id: 'gaming', label: 'Gaming Habit', theme: 'Arcade Base' },
+  { icon: 'zap', id: 'focus', label: 'Deep Focus', theme: 'Tower Base' },
+  { icon: 'ban', id: 'discipline', label: 'Quit a Habit', theme: 'Fortress Base' },
 ];
 
+const ICON_COMPONENTS = {
+  activity: Activity,
+  droplet: Droplet,
+  dumbbell: Dumbbell,
+  book: Book,
+  sun: Sun,
+  zap: Zap,
+  code: Code,
+  'pen-tool': PenTool,
+  'gamepad-2': Gamepad2,
+  ban: Ban,
+};
 export default function NewHabitPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -221,17 +223,17 @@ export default function NewHabitPage() {
           </div>
 
           <div className="icon-picker-container">
-            <label className="form-label">Habit Icon</label>
+            <label className="form-label">Habit Architecture Theme</label>
             <div className="icon-grid">
-              {ICON_OPTIONS.map((opt) => {
-                const IconComp = opt.icon;
+              {HABIT_THEMES.map((opt) => {
+                const IconComp = ICON_COMPONENTS[opt.icon];
                 return (
                   <button
                     key={opt.id}
                     type="button"
-                    className={`icon-option ${habit.icon === opt.id ? 'selected' : ''}`}
-                    onClick={() => setHabit(prev => ({ ...prev, icon: opt.id }))}
-                    title={opt.label}
+                    className={`icon-option ${habit.icon === opt.icon ? 'selected' : ''}`}
+                    onClick={() => setHabit(prev => ({ ...prev, icon: opt.icon }))}
+                    title={opt.theme}
                   >
                     <IconComp size={24} />
                     <span className="icon-label">{opt.label}</span>
