@@ -7,21 +7,21 @@ import { ShoppingBag, Palette, Coins, Shield, Check, Package } from 'lucide-reac
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
-  { id: 'flag-red', name: 'Red Flag', category: 'rooftop', price_coins: 15, emoji: '🚩' },
-  { id: 'flag-blue', name: 'Blue Flag', category: 'rooftop', price_coins: 15, emoji: '🏳️' },
-  { id: 'garden', name: 'Garden', category: 'garden', price_coins: 25, emoji: '🌿' },
-  { id: 'flowers', name: 'Flower Bed', category: 'garden', price_coins: 20, emoji: '🌸' },
-  { id: 'tree', name: 'Tree', category: 'garden', price_coins: 30, emoji: '🌳' },
-  { id: 'lights', name: 'Fairy Lights', category: 'lights', price_coins: 35, emoji: '✨' },
-  { id: 'lantern', name: 'Lantern', category: 'lights', price_coins: 20, emoji: '🏮' },
-  { id: 'fountain', name: 'Fountain', category: 'garden', price_coins: 50, emoji: '⛲' },
-  { id: 'bench', name: 'Bench', category: 'garden', price_coins: 15, emoji: '🪑' },
-  { id: 'mailbox', name: 'Mailbox', category: 'garden', price_coins: 10, emoji: '📮' },
-  { id: 'satellite', name: 'Satellite Dish', category: 'rooftop', price_coins: 40, emoji: '📡' },
-  { id: 'solar', name: 'Solar Panel', category: 'rooftop', price_coins: 45, emoji: '☀️' },
-  { id: 'clock', name: 'Clock Tower', category: 'rooftop', price_coins: 60, emoji: '🕐' },
-  { id: 'statue', name: 'Statue', category: 'garden', price_coins: 75, emoji: '🗽' },
-  { id: 'pool', name: 'Swimming Pool', category: 'garden', price_coins: 100, emoji: '🏊' },
+  { id: '11111111-0000-0000-0000-000000000001', name: 'Red Flag', category: 'rooftop', price_coins: 15, emoji: '🚩' },
+  { id: '11111111-0000-0000-0000-000000000002', name: 'Blue Flag', category: 'rooftop', price_coins: 15, emoji: '🏳️' },
+  { id: '11111111-0000-0000-0000-000000000003', name: 'Garden', category: 'garden', price_coins: 25, emoji: '🌿' },
+  { id: '11111111-0000-0000-0000-000000000004', name: 'Flower Bed', category: 'garden', price_coins: 20, emoji: '🌸' },
+  { id: '11111111-0000-0000-0000-000000000005', name: 'Tree', category: 'garden', price_coins: 30, emoji: '🌳' },
+  { id: '11111111-0000-0000-0000-000000000006', name: 'Fairy Lights', category: 'lights', price_coins: 35, emoji: '✨' },
+  { id: '11111111-0000-0000-0000-000000000007', name: 'Lantern', category: 'lights', price_coins: 20, emoji: '🏮' },
+  { id: '11111111-0000-0000-0000-000000000008', name: 'Fountain', category: 'garden', price_coins: 50, emoji: '⛲' },
+  { id: '11111111-0000-0000-0000-000000000009', name: 'Bench', category: 'garden', price_coins: 15, emoji: '🪑' },
+  { id: '11111111-0000-0000-0000-000000000010', name: 'Mailbox', category: 'garden', price_coins: 10, emoji: '📮' },
+  { id: '11111111-0000-0000-0000-000000000011', name: 'Satellite Dish', category: 'rooftop', price_coins: 40, emoji: '📡' },
+  { id: '11111111-0000-0000-0000-000000000012', name: 'Solar Panel', category: 'rooftop', price_coins: 45, emoji: '☀️' },
+  { id: '11111111-0000-0000-0000-000000000013', name: 'Clock Tower', category: 'rooftop', price_coins: 60, emoji: '🕐' },
+  { id: '11111111-0000-0000-0000-000000000014', name: 'Statue', category: 'garden', price_coins: 75, emoji: '🗽' },
+  { id: '11111111-0000-0000-0000-000000000015', name: 'Swimming Pool', category: 'garden', price_coins: 100, emoji: '🏊' },
 ];
 
 const COIN_PACKAGES = [

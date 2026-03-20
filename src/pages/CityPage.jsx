@@ -8,21 +8,21 @@ import { Building2, Sparkles, X, Sunrise, Moon } from 'lucide-react';
 import './CityPage.css';
 
 const DECORATION_CATALOG = {
-  'flag-red': { emoji: '🚩', name: 'Red Flag' },
-  'flag-blue': { emoji: '🏳️', name: 'Blue Flag' },
-  'garden': { emoji: '🌿', name: 'Garden' },
-  'flowers': { emoji: '🌸', name: 'Flower Bed' },
-  'tree': { emoji: '🌳', name: 'Tree' },
-  'lights': { emoji: '✨', name: 'Fairy Lights' },
-  'lantern': { emoji: '🏮', name: 'Lantern' },
-  'fountain': { emoji: '⛲', name: 'Fountain' },
-  'bench': { emoji: '🪑', name: 'Bench' },
-  'mailbox': { emoji: '📮', name: 'Mailbox' },
-  'satellite': { emoji: '📡', name: 'Satellite Dish' },
-  'solar': { emoji: '☀️', name: 'Solar Panel' },
-  'clock': { emoji: '🕐', name: 'Clock Tower' },
-  'statue': { emoji: '🗽', name: 'Statue' },
-  'pool': { emoji: '🏊', name: 'Swimming Pool' },
+  '11111111-0000-0000-0000-000000000001': { emoji: '🚩', name: 'Red Flag' },
+  '11111111-0000-0000-0000-000000000002': { emoji: '🏳️', name: 'Blue Flag' },
+  '11111111-0000-0000-0000-000000000003': { emoji: '🌿', name: 'Garden' },
+  '11111111-0000-0000-0000-000000000004': { emoji: '🌸', name: 'Flower Bed' },
+  '11111111-0000-0000-0000-000000000005': { emoji: '🌳', name: 'Tree' },
+  '11111111-0000-0000-0000-000000000006': { emoji: '✨', name: 'Fairy Lights' },
+  '11111111-0000-0000-0000-000000000007': { emoji: '🏮', name: 'Lantern' },
+  '11111111-0000-0000-0000-000000000008': { emoji: '⛲', name: 'Fountain' },
+  '11111111-0000-0000-0000-000000000009': { emoji: '🪑', name: 'Bench' },
+  '11111111-0000-0000-0000-000000000010': { emoji: '📮', name: 'Mailbox' },
+  '11111111-0000-0000-0000-000000000011': { emoji: '📡', name: 'Satellite Dish' },
+  '11111111-0000-0000-0000-000000000012': { emoji: '☀️', name: 'Solar Panel' },
+  '11111111-0000-0000-0000-000000000013': { emoji: '🕐', name: 'Clock Tower' },
+  '11111111-0000-0000-0000-000000000014': { emoji: '🗽', name: 'Statue' },
+  '11111111-0000-0000-0000-000000000015': { emoji: '🏊', name: 'Swimming Pool' },
 };
 
 const TILE_W = 120;
