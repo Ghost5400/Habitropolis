@@ -18,8 +18,8 @@
 }
 
 .building-visual-wrapper {
-  width: 100%;
-  aspect-ratio: 1;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;

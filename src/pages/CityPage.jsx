@@ -220,10 +220,10 @@ export default function CityPage() {
                 onDragStart={(e) => onDragStart(e, 'decoration', od.id)}
                 className={`draggable-building-wrapper grid-decoration-item ${draggedItem?.id === od.id ? 'is-dragging' : ''}`}
                 style={{
-                  left: x, top: `${y}px`, zIndex: zIndex + 2, // slightly above building bases
-                  transform: 'translate(-50%, -80%)',
-                  fontSize: '2rem',
-                  filter: 'drop-shadow(0 10px 5px rgba(0,0,0,0.4))'
+                  left: x, top: `${y}px`, zIndex: zIndex + 2,
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '1.5rem',
+                  filter: 'drop-shadow(0 5px 2px rgba(0,0,0,0.4))'
                 }}
                 onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
                 onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
@@ -247,7 +247,7 @@ export default function CityPage() {
                 className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''}`}
                 style={{
                   left: x, top: `${y}px`, zIndex: zIndex + 10,
-                  transform: 'translate(-50%, -100%)'
+                  transform: 'translate(-50%, -70%)'
                 }}
                 onClick={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
                 onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
