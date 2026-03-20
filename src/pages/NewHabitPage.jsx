@@ -2,12 +2,38 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useHabits } from '../hooks/useHabits';
+import { Activity, Droplet, Dumbbell, Book, Coffee, Music, Heart, Sun, Moon, Star, Zap, Apple, Briefcase, Code, PenTool, Camera, Gamepad2, Headphones, Palmtree, Plane } from 'lucide-react';
 import './NewHabitPage.css';
+
+const ICON_OPTIONS = [
+  { id: 'activity', icon: Activity, label: 'Activity' },
+  { id: 'droplet', icon: Droplet, label: 'Water' },
+  { id: 'dumbbell', icon: Dumbbell, label: 'Fitness' },
+  { id: 'book', icon: Book, label: 'Reading' },
+  { id: 'coffee', icon: Coffee, label: 'Rest' },
+  { id: 'music', icon: Music, label: 'Music' },
+  { id: 'heart', icon: Heart, label: 'Health' },
+  { id: 'sun', icon: Sun, label: 'Morning' },
+  { id: 'moon', icon: Moon, label: 'Night' },
+  { id: 'star', icon: Star, label: 'Focus' },
+  { id: 'zap', icon: Zap, label: 'Energy' },
+  { id: 'apple', icon: Apple, label: 'Diet' },
+  { id: 'briefcase', icon: Briefcase, label: 'Work' },
+  { id: 'code', icon: Code, label: 'Coding' },
+  { id: 'pen-tool', icon: PenTool, label: 'Art' },
+  { id: 'camera', icon: Camera, label: 'Photo' },
+  { id: 'gamepad-2', icon: Gamepad2, label: 'Gaming' },
+  { id: 'headphones', icon: Headphones, label: 'Audio' },
+  { id: 'palmtree', icon: Palmtree, label: 'Relax' },
+  { id: 'plane', icon: Plane, label: 'Travel' }
+];
 
 export default function NewHabitPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams(); // For editing, we'll have an id param
+  const { createHabit, updateHabit } = useHabits();
   const [isLoading, setIsLoading] = useState(true);
   const [habit, setHabit] = useState({
     name: '',
@@ -65,23 +91,10 @@ export default function NewHabitPage() {
     try {
       if (id && id !== 'new') {
         // Update existing habit
-        const { error: updateError } = await supabase
-          .from('habits')
-          .update(habit)
-          .eq('id', id)
-          .eq('user_id', user?.id);
-
-        if (updateError) throw updateError;
+        await updateHabit(id, habit);
       } else {
-        // Create new habit
-        const { error: insertError } = await supabase
-          .from('habits')
-          .insert({
-            ...habit,
-            user_id: user?.id,
-          });
-
-        if (insertError) throw insertError;
+        // Create new habit via hook (creates building + streak too!)
+        await createHabit(habit);
       }
 
       navigate('/habits');
@@ -190,32 +203,41 @@ export default function NewHabitPage() {
 
           <div className="form-row">
             <div>
-              <label htmlFor="icon" className="form-label">
-                Icon
-              </label>
-              <input
-                type="text"
-                id="icon"
-                name="icon"
-                value={habit.icon}
-                onChange={handleChange}
-                className="input"
-                placeholder="e.g., activity, droplet, clock"
-              />
-            </div>
-
-            <div>
               <label htmlFor="color" className="form-label">
                 Color
               </label>
-              <input
-                type="color"
-                id="color"
-                name="color"
-                value={habit.color}
-                onChange={handleChange}
-                className="color-input"
-              />
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                <input
+                  type="color"
+                  id="color"
+                  name="color"
+                  value={habit.color}
+                  onChange={handleChange}
+                  className="color-input"
+                />
+                <span className="text-muted" style={{ fontSize: '0.85rem' }}>Pick a building color</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="icon-picker-container">
+            <label className="form-label">Habit Icon</label>
+            <div className="icon-grid">
+              {ICON_OPTIONS.map((opt) => {
+                const IconComp = opt.icon;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`icon-option ${habit.icon === opt.id ? 'selected' : ''}`}
+                    onClick={() => setHabit(prev => ({ ...prev, icon: opt.id }))}
+                    title={opt.label}
+                  >
+                    <IconComp size={24} />
+                    <span className="icon-label">{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
