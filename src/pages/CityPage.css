@@ -1,169 +1,144 @@
-/* Town Builder Specific Styles */
-.city-page { animation: slideUp 0.4s ease; }
-
-.city-header { margin-bottom: 2rem; }
+/* Town Builder Global Layout */
+.city-page { animation: slideUp 0.4s ease; display: flex; flex-direction: column; gap: 1rem; }
+.city-header { flex-shrink: 0; }
 .city-title-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 .city-icon { color: var(--accent-gold); }
-.city-subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
-.city-overview {
-  display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; align-items: center;
-}
-.city-stat {
-  display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.25rem; min-width: 100px;
-}
-.city-stat-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-outfit); }
-.city-stat-label { font-size: 0.75rem; color: var(--text-muted); }
+.city-overview { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.city-stat { padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+.sky-indicator { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-inter); color: var(--accent-gold); }
 
-/* Buttons & Toasts */
-.city-decorate-btn {
-  display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem;
-  border: 1px solid var(--accent-gold); background: rgba(245, 158, 11, 0.08); color: var(--accent-gold);
-  border-radius: 20px; transition: all var(--transition-fast);
-}
-.city-decorate-btn:hover { background: rgba(245, 158, 11, 0.15); transform: translateY(-1px); }
-.city-decorate-btn.active { background: var(--accent-gold); color: #000; }
-.city-toast { padding: 0.75rem 1.25rem; margin-bottom: 1rem; border-left: 3px solid var(--accent-gold); }
-
-/* Decoration panel */
-.decoration-panel { padding: 1.25rem; margin-bottom: 1.5rem; }
-.decoration-picker { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.decoration-pick-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.6rem 0.8rem;
-  border: 1px solid var(--glass-border); border-radius: var(--radius-md); min-width: 70px;
-}
-.decoration-pick-btn:hover { border-color: var(--accent-gold); background: rgba(245, 158, 11, 0.08); }
-.decoration-pick-emoji { font-size: 1.5rem; }
-.decoration-pick-name { color: var(--text-muted); font-size: 0.65rem; }
-
-.placing-indicator { display: flex; align-items: center; gap: 0.75rem; }
-
+.city-toast { position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 5000; padding: 0.75rem 1.25rem; border-radius: 20px; border: 1px solid var(--accent-gold); font-weight: 600; background: rgba(0,0,0,0.8); }
 
 /* ========================================== */
-/* TOWN BUILDER SCENE (Mathematical 2.5D)     */
+/* VIEWPORT AND SKY (Time Based)              */
 /* ========================================== */
-
-.town-builder-scene {
+.town-builder-viewport {
   position: relative;
-  height: 800px;
+  height: 65vh; /* fill most of screen */
+  min-height: 500px;
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--glass-border);
-  background: #111827;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+}
+
+.town-sky {
+  position: absolute; inset: 0; z-index: 0;
+  transition: background 2s ease;
+}
+
+/* Day Mode */
+.is-day .town-sky { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 40%, #047857 100%); }
+.is-day .town-celestial {
+  position: absolute; top: 40px; right: 80px; width: 80px; height: 80px; border-radius: 50%;
+  background: #fde047; box-shadow: 0 0 80px 20px rgba(253, 224, 71, 0.5); z-index: 0;
+}
+
+/* Night Mode */
+.is-night .town-sky { background: linear-gradient(180deg, #1e1b4b 0%, #172554 60%, #064e3b 100%); }
+.is-night .town-celestial {
+  position: absolute; top: 40px; right: 80px; width: 60px; height: 60px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffde8, #f5e6a3, #dbb85a);
+  box-shadow: 0 0 40px rgba(255, 253, 232, 0.4); z-index: 0;
+}
+
+/* ========================================== */
+/* GRID CONTAINERS                            */
+/* ========================================== */
+.town-grid-container {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 120px; /* leave room for dock */
+  z-index: 10; overflow: auto; 
   cursor: grab;
 }
+.town-grid-container:active { cursor: grabbing; }
 
-.town-builder-scene:active {
-  cursor: grabbing;
-}
-
-/* Environment Sky/Sun */
-.town-sky {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 60%, #064e3b 100%);
-  z-index: 0;
-}
-.town-sun {
-  position: absolute; top: 40px; right: 80px; width: 60px; height: 60px; border-radius: 50%;
-  background: #fde047; box-shadow: 0 0 80px 20px rgba(253, 224, 71, 0.5);
-  z-index: 0;
-}
-
-/* Coordinate Grid Container */
-.town-grid-container {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 10;
-  overflow: auto; 
-}
-
-/* Base Interactive Tiles */
 .iso-grid-tile {
   position: absolute;
-  background: rgba(34, 197, 94, 0.15); /* Grass tile color */
-  border: 1px solid rgba(167, 243, 208, 0.2);
-  /* The clip path creates the diamond without rotating the DOM, keeping drag/drop crisp! */
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: rgba(34, 197, 94, 0.15); 
+  border: 1px dashed rgba(167, 243, 208, 0.4);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); /* 2:1 isometric diamond */
   transition: all 0.2s ease;
 }
-
 .iso-grid-tile:hover {
-  background: rgba(250, 204, 21, 0.3); /* highlight on hover */
-  border-color: rgba(250, 204, 21, 0.8);
+  background: rgba(250, 204, 21, 0.3); border: 2px solid rgba(250, 204, 21, 0.8);
 }
-
 .iso-grid-tile.drag-over {
-  background: rgba(52, 211, 153, 0.6) !important; /* strong green highlight */
-  border: 2px solid #10b981;
+  background: rgba(52, 211, 153, 0.6) !important; border: 2px solid #10b981 !important;
 }
 
-/* Draggable Buildings */
+/* ========================================== */
+/* BUILDINGS                                  */
+/* ========================================== */
 .draggable-building-wrapper {
-  position: absolute;
-  cursor: grab;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: absolute; cursor: grab;
+  /* Removed bounce and heavy shadow, sticky geometry only! */
+  transition: transform 0.1s linear, filter 0.2s ease;
 }
-
 .draggable-building-wrapper.is-dragging {
-  opacity: 0.5;
-  filter: brightness(1.5);
+  opacity: 0.6; filter: brightness(1.2); z-index: 9999 !important;
 }
+.draggable-building-wrapper:active { cursor: grabbing; }
 
-.draggable-building-wrapper:active {
-  cursor: grabbing;
+.draggable-building-wrapper.decoration-target {
+  filter: drop-shadow(0 0 15px #fde047) brightness(1.2);
 }
 
 .draggable-building-wrapper:hover {
-  transform: translate(-50%, -100%) scale(1.05) translateY(-5px) !important;
+  filter: brightness(1.1);
 }
 
-/* Decorate Mode animation */
-.draggable-building-wrapper.placeable {
-  animation: slowBounce 2s ease-in-out infinite;
+/* ========================================== */
+/* INVENTORY DROPPPER DOCK                    */
+/* ========================================== */
+.inventory-dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 140px;
+  background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--glass-border);
+  z-index: 2000; display: flex; flex-direction: column; padding: 0.5rem 1rem;
+  transition: background 0.2s ease;
 }
-.draggable-building-wrapper.placeable:hover {
-  filter: drop-shadow(0 0 20px var(--accent-gold));
-}
-
-@keyframes slowBounce {
-  0%, 100% { transform: translate(-50%, -100%) translateY(0); }
-  50% { transform: translate(-50%, -100%) translateY(-10px); }
-}
-
-/* Placed Decorations floating around */
-.placed-decorations-wrapper {
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  pointer-events: none;
+.inventory-dock.drag-over {
+  background: rgba(239, 68, 68, 0.3); /* Reddish tint to indicate deletion/restoration */
 }
 
-.placed-decoration-badge {
-  font-size: 1.2rem;
-  animation: floatDeco 3s ease-in-out infinite;
-  animation-delay: calc(var(--idx) * 0.4s);
-  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+.dock-title {
+  display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 700; color: var(--accent-gold);
+}
+.dock-title small { color: var(--text-muted); font-weight: 400; font-size: 0.75rem; }
+
+.dock-items {
+  display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; height: 100%;
+}
+.dock-empty { margin: auto; color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
+
+.dock-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  min-width: 90px; height: 100%; padding: 0.5rem; border-radius: var(--radius-md);
+  cursor: grab; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+}
+.dock-item:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); border-color: var(--accent-gold); }
+.dock-item:active { cursor: grabbing; }
+
+.dock-item-preview {
+  /* Scale down the entire Building component purely for the dock! */
+  transform: scale(0.6); transform-origin: top center;
+  height: 50px; display: flex; justify-content: center; width: 100%; pointer-events: none;
+}
+.dock-item-name {
+  font-size: 0.7rem; font-weight: 600; color: var(--text-primary); margin-top: auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
 
-@keyframes floatDeco {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+.deco-item { justify-content: center; gap: 0.5rem; }
+.dock-deco-emoji { font-size: 2rem; pointer-events: none; }
 
-/* Detail overlay reset */
+/* Detail Overlay */
 .building-detail {
-  position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center;
   background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
 }
-.building-detail-content {
-  max-width: 400px; width: 90%; padding: 2rem; border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-.detail-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
-.detail-label { font-size: 0.75rem; color: var(--text-muted); }
-.detail-value { font-size: 1rem; font-weight: 600; }
-.progress-track { height: 6px; background: var(--bg-tertiary); border-radius: 3px; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold)); }
+.building-detail-content { max-width: 350px; width: 90%; padding: 1.5rem; border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); }
+.detail-stats { display: flex; flex-direction: column; gap: 0.5rem; }
+.detail-stat { display: flex; justify-content: space-between; align-items: center; }
+.detail-label { font-size: 0.8rem; color: var(--text-muted); }

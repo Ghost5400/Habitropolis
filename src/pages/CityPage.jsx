@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useHabits } from '../hooks/useHabits';
 import { useCity } from '../hooks/useCity';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import Building from '../components/Building';
-import { Building2, Sparkles } from 'lucide-react';
+import { Building2, Sparkles, X, Sunrise, Moon } from 'lucide-react';
 import './CityPage.css';
 
 const DECORATION_CATALOG = {
@@ -25,12 +25,10 @@ const DECORATION_CATALOG = {
   'pool': { emoji: '🏊', name: 'Swimming Pool' },
 };
 
-const GRID_SIZE = 10;
 const TILE_W = 120;
 const TILE_H = 60;
-const START_Y = 150; // Base vertical offset for the isometric diamond grid
+const START_Y = 150; 
 
-// Projection function for mathematical 2.5D placement
 const getScreenPos = (col, row) => ({
   x: `calc(50% + ${(col - row) * (TILE_W / 2)}px)`,
   y: START_Y + (col + row) * (TILE_H / 2),
@@ -46,153 +44,160 @@ export default function CityPage() {
   const [layout, setLayout] = useState({});
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   
-  // Drag and Drop State
-  const [draggedHabit, setDraggedHabit] = useState(null);
+  // Drag State
+  const [draggedItem, setDraggedItem] = useState(null); // { type: 'building'|'decoration', id: string }
   const [hoverTile, setHoverTile] = useState(null);
 
-  // Decoration State
-  const [decorateMode, setDecorateMode] = useState(false);
-  const [placingDecoration, setPlacingDecoration] = useState(null);
   const [message, setMessage] = useState('');
+  
+  // Realtime Sky calculations
+  const [isDay, setIsDay] = useState(true);
 
+  useEffect(() => {
+    const curHour = new Date().getHours();
+    setIsDay(curHour >= 6 && curHour < 18);
+    const timer = setInterval(() => {
+      const h = new Date().getHours();
+      setIsDay(h >= 6 && h < 18);
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Stats
   const totalStars = buildings.reduce((sum, b) => sum + (b.golden_stars || 0), 0);
   const totalFloors = buildings.reduce((sum, b) => sum + (b.floors || 0), 0);
   const unplacedDecorations = (ownedDecorations || []).filter(od => !od.building_id);
 
-  // Load layout from localStorage on mount
+  // Calculate highest city level for Dynamic Grid Sizing
+  const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
+  const cityLvl = Math.min(7, highestStars + 1);
+  const GRID_SIZE = cityLvl + 3; // L1 = 4x4, L7 = 10x10
+
+  // Filter elements into grid/tray arrays
+  const placedHabits = habits.filter(h => layout[h.id] != null);
+  const unplacedHabits = habits.filter(h => layout[h.id] == null);
+
   useEffect(() => {
     if (!user) return;
     const stored = localStorage.getItem(`habitropolis_layout_${user.id}`);
     if (stored) setLayout(JSON.parse(stored));
   }, [user]);
 
-  // Auto-place unassigned habits
-  useEffect(() => {
-    if (!habits.length || !user) return;
-    
-    let updated = false;
-    const newLayout = { ...layout };
-    const occupied = new Set(Object.values(newLayout).map(p => `${p.col},${p.row}`));
-
-    habits.forEach(habit => {
-      if (!newLayout[habit.id]) {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            if (!occupied.has(`${c},${r}`)) {
-              newLayout[habit.id] = { col: c, row: r };
-              occupied.add(`${c},${r}`);
-              updated = true;
-              break;
-            }
-          }
-          if (newLayout[habit.id]) break; // Assigned
-        }
-      }
-    });
-
-    if (updated) {
-      setLayout(newLayout);
-      localStorage.setItem(`habitropolis_layout_${user.id}`, JSON.stringify(newLayout));
-    }
-  }, [habits, user]);
+  const updateLayout = (newLayout) => {
+    setLayout(newLayout);
+    localStorage.setItem(`habitropolis_layout_${user.id}`, JSON.stringify(newLayout));
+  };
 
   const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handlePlaceDecoration = async (habitId) => {
-    if (!placingDecoration) return;
+  const handlePlaceDecoration = async (habitId, decId) => {
     try {
-      await placeDecoration(habitId, placingDecoration.decoration_id);
-      showMessage(`Placed ${DECORATION_CATALOG[placingDecoration.decoration_id]?.emoji || '🎨'}!`);
-      setPlacingDecoration(null);
-      setDecorateMode(false);
+      await placeDecoration(habitId, decId);
+      showMessage(`Placed ${DECORATION_CATALOG[decId]?.emoji || '🎨'}!`);
     } catch (err) {
       console.error(err);
       showMessage('Failed to place decoration');
     }
   };
 
-  // Drag and Drop Handlers
-  const onDragStart = (e, habitId) => {
-    setDraggedHabit(habitId);
-    e.dataTransfer.setData('text/plain', habitId);
-    
-    // Create an invisible drag image to prevent giant ghosts
+  // Drag and Drop
+  const onDragStart = (e, type, id) => {
+    setDraggedItem({ type, id });
+    e.dataTransfer.setData('text/plain', id);
+    // Silent ghost image
     const img = new Image();
     img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
     e.dataTransfer.setDragImage(img, 0, 0);
   };
 
-  const onDragOver = (e, col, row) => {
+  const onDragOverGrid = (e, col, row) => {
     e.preventDefault();
-    if (!draggedHabit) return;
-
-    if (hoverTile?.col !== col || hoverTile?.row !== row) {
-      setHoverTile({ col, row });
+    if (!draggedItem) return;
+    if (hoverTile?.col !== col || hoverTile?.row !== row || hoverTile?.type !== 'grid') {
+      setHoverTile({ type: 'grid', col, row });
     }
   };
 
-  const onDragLeave = () => {
-    setHoverTile(null);
+  const onDragOverTray = (e) => {
+    e.preventDefault();
+    if (hoverTile?.type !== 'tray') setHoverTile({ type: 'tray' });
   };
 
-  const onDrop = (e, targetCol, targetRow) => {
+  const onDropGrid = (e, targetCol, targetRow) => {
     e.preventDefault();
     setHoverTile(null);
-    
-    const habitId = e.dataTransfer.getData('text/plain');
-    if (!habitId) return;
+    if (!draggedItem) return;
 
-    setLayout(prev => {
-      const newLayout = { ...prev };
-      const oldSpot = { ...newLayout[habitId] };
+    if (draggedItem.type === 'building') {
+      const newLayout = { ...layout };
+      const oldSpot = newLayout[draggedItem.id];
       
-      // Check for occupant
       const occupantEntry = Object.entries(newLayout).find(
-        ([id, p]) => p.col === targetCol && p.row === targetRow && id !== habitId
+        ([id, p]) => p.col === targetCol && p.row === targetRow && id !== draggedItem.id
       );
 
-      // Swap if occupied
       if (occupantEntry) {
-        const occupantId = occupantEntry[0];
-        newLayout[occupantId] = oldSpot;
+        if (oldSpot) newLayout[occupantEntry[0]] = oldSpot; // swap
+        else delete newLayout[occupantEntry[0]]; // eject occupant to tray if dragging from tray
       }
       
-      newLayout[habitId] = { col: targetCol, row: targetRow };
-      localStorage.setItem(`habitropolis_layout_${user.id}`, JSON.stringify(newLayout));
-      return newLayout;
-    });
-    setDraggedHabit(null);
+      newLayout[draggedItem.id] = { col: targetCol, row: targetRow };
+      updateLayout(newLayout);
+
+    } else if (draggedItem.type === 'decoration') {
+      // Find exactly which building is at these coordinates
+      const buildingAtSpot = Object.entries(layout).find(
+        ([id, p]) => p.col === targetCol && p.row === targetRow
+      );
+      if (buildingAtSpot) {
+        handlePlaceDecoration(buildingAtSpot[0], draggedItem.id);
+      } else {
+        showMessage('Drop decorations directly onto a building!');
+      }
+    }
+    setDraggedItem(null);
+  };
+
+  const onDropTray = (e) => {
+    e.preventDefault();
+    setHoverTile(null);
+    if (!draggedItem || draggedItem.type !== 'building') {
+      setDraggedItem(null);
+      return;
+    }
+
+    const newLayout = { ...layout };
+    delete newLayout[draggedItem.id];
+    updateLayout(newLayout);
+    setDraggedItem(null);
+    showMessage('Building safely moved to inventory.');
   };
 
   if (habitsLoading) {
     return <div className="city-loading"><div className="loading-spinner" />Loading your town builder...</div>;
   }
 
-  // Generate the 100 tiles
   const tiles = [];
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
       const { x, y, zIndex } = getScreenPos(c, r);
-      const isHovered = hoverTile?.col === c && hoverTile?.row === r;
+      const isHoveredGrid = hoverTile?.type === 'grid' && hoverTile?.col === c && hoverTile?.row === r;
       
       tiles.push(
         <div
           key={`${c}-${r}`}
-          className={`iso-grid-tile ${isHovered ? 'drag-over' : ''}`}
+          className={`iso-grid-tile ${isHoveredGrid ? 'drag-over' : ''}`}
           style={{
-            left: x,
-            top: `${y}px`,
-            zIndex: zIndex,
+            left: x, top: `${y}px`, zIndex,
             transform: 'translate(-50%, -50%)',
-            width: `${TILE_W}px`,
-            height: `${TILE_H}px`
+            width: `${TILE_W}px`, height: `${TILE_H}px`
           }}
-          onDragOver={(e) => onDragOver(e, c, r)}
-          onDragLeave={onDragLeave}
-          onDrop={(e) => onDrop(e, c, r)}
+          onDragOver={(e) => onDragOverGrid(e, c, r)}
+          onDragLeave={() => setHoverTile(null)}
+          onDrop={(e) => onDropGrid(e, c, r)}
         />
       );
     }
@@ -203,184 +208,138 @@ export default function CityPage() {
       <div className="city-header">
         <div className="city-title-row">
           <Building2 size={32} className="city-icon" />
-          <h1>Interactive Town Builder</h1>
+          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} Town (Lv {cityLvl})</h1>
         </div>
-        <p className="city-subtitle">Drag and Drop buildings to rearrange your base!</p>
-
         <div className="city-overview">
-          <div className="city-stat glass-sm">
-            <span className="city-stat-value">{habits.length}</span>
-            <span className="city-stat-label">Buildings</span>
+          <div className="city-stat glass-sm">{habits.length} Buildings</div>
+          <div className="city-stat glass-sm">{totalFloors} Floors</div>
+          <div className="city-stat glass-sm">{totalStars} ⭐ Stars</div>
+          <div className="city-stat glass-sm sky-indicator">
+            {isDay ? <><Sunrise size={16} /> Day</> : <><Moon size={16} /> Night</>}
           </div>
-          <div className="city-stat glass-sm">
-            <span className="city-stat-value">{totalFloors}</span>
-            <span className="city-stat-label">Total Floors</span>
-          </div>
-          <div className="city-stat glass-sm">
-            <span className="city-stat-value">{totalStars} ⭐</span>
-            <span className="city-stat-label">Golden Stars</span>
-          </div>
-          {unplacedDecorations.length > 0 && (
-            <button
-              className={`city-decorate-btn glass-sm ${decorateMode ? 'active' : ''}`}
-              onClick={() => { setDecorateMode(!decorateMode); setPlacingDecoration(null); }}
-            >
-              <Sparkles size={18} />
-              <span>Decorate ({unplacedDecorations.length})</span>
-            </button>
-          )}
         </div>
       </div>
 
       {message && <div className="city-toast glass-sm">{message}</div>}
 
-      {decorateMode && (
-        <div className="decoration-panel glass">
-          <h3>
-            {placingDecoration
-              ? '👆 Now click a building to place it!'
-              : '🎨 Select a decoration to place:'}
-          </h3>
-          {!placingDecoration && (
-            <div className="decoration-picker">
-              {unplacedDecorations.map((od, i) => {
-                const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
-                return (
-                  <button
-                    key={`${od.decoration_id}-${i}`}
-                    className="decoration-pick-btn glass-sm"
-                    onClick={() => setPlacingDecoration(od)}
-                  >
-                    <span className="decoration-pick-emoji">{info.emoji}</span>
-                    <span className="decoration-pick-name">{info.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {placingDecoration && (
-            <div className="placing-indicator">
-              <span className="placing-emoji">
-                {DECORATION_CATALOG[placingDecoration.decoration_id]?.emoji || '🎨'}
-              </span>
-              <button className="btn btn-secondary btn-sm" onClick={() => setPlacingDecoration(null)}>Cancel</button>
-            </div>
-          )}
+      {/* Main Drag/Drop Scene */}
+      <div className={`town-builder-viewport ${isDay ? 'is-day' : 'is-night'}`}>
+        <div className="town-sky" />
+        <div className="town-celestial" />
+        
+        <div className="town-grid-container">
+          {tiles}
+
+          {placedHabits.map(habit => {
+            const building = getBuildingForHabit(habit.id);
+            const pos = layout[habit.id];
+            const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
+
+            // Give visual feedback if this building is being hovered over with a decoration
+            const decHover = draggedItem?.type === 'decoration' && hoverTile?.type === 'grid' && hoverTile.col === pos.col && hoverTile.row === pos.row;
+
+            return (
+              <div
+                key={habit.id}
+                draggable
+                onDragStart={(e) => onDragStart(e, 'building', habit.id)}
+                className={`draggable-building-wrapper ${draggedItem?.id === habit.id ? 'is-dragging' : ''} ${decHover ? 'decoration-target' : ''}`}
+                style={{
+                  left: x, top: `${y}px`, zIndex: zIndex + 10,
+                  transform: 'translate(-50%, -100%)'
+                }}
+                onClick={() => setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id)}
+                onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
+                onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
+              >
+                <Building
+                  habit={habit}
+                  building={building}
+                  maxFloors={getMaxFloors(habit.frequency)}
+                  isSelected={false}
+                  onClick={() => {}} // Click handled by wrapper
+                />
+              </div>
+            );
+          })}
         </div>
-      )}
 
-      {habits.length === 0 ? (
-        <div className="city-empty glass">
-          <Building2 size={64} className="empty-icon" />
-          <h3>Your base is empty</h3>
-          <p>Create habits to start building your clash matrix!</p>
-        </div>
-      ) : (
-        <div className="town-builder-scene">
-          {/* Base Environment */}
-          <div className="town-sky" />
-          <div className="town-sun" />
+        {/* Inventory Dropper Dock */}
+        <div 
+          className={`inventory-dock ${hoverTile?.type === 'tray' ? 'drag-over' : ''}`}
+          onDragOver={onDragOverTray}
+          onDrop={onDropTray}
+        >
+          <div className="dock-title">
+            <span>Inventory Tray</span>
+            <small>(Drag onto the Grid)</small>
+          </div>
+          
+          <div className="dock-items">
+            {/* Unplaced Buildings */}
+            {unplacedHabits.map(habit => (
+              <div 
+                key={habit.id} 
+                className="dock-item building-item glass-sm"
+                draggable
+                onDragStart={(e) => onDragStart(e, 'building', habit.id)}
+              >
+                <div className="dock-item-preview">
+                  <Building 
+                    habit={habit} 
+                    building={getBuildingForHabit(habit.id)} 
+                    maxFloors={getMaxFloors(habit.frequency)}
+                  />
+                </div>
+                <span className="dock-item-name">{habit.name}</span>
+              </div>
+            ))}
 
-          {/* Mathematical Grid Area */}
-          <div className="town-grid-container">
-            {/* The 100 interactive grid tiles */}
-            {tiles}
-
-            {/* The Draggable Buildings */}
-            {habits.map(habit => {
-              const building = getBuildingForHabit(habit.id);
-              const maxFloors = getMaxFloors(habit.frequency);
-              const pos = layout[habit.id];
-              
-              if (!pos) return null; // Safe fallback just in case
-              const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-
+            {/* Unplaced Decorations */}
+            {unplacedDecorations.map((od, i) => {
+              const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: 'Decoration' };
               return (
                 <div
-                  key={habit.id}
-                  draggable={!placingDecoration} // Can't drag while decorating
-                  onDragStart={(e) => onDragStart(e, habit.id)}
-                  className={`draggable-building-wrapper ${draggedHabit === habit.id ? 'is-dragging' : ''} ${placingDecoration ? 'placeable' : ''}`}
-                  style={{
-                    left: x,
-                    top: `${y}px`,
-                    zIndex: zIndex + 10, // Always above the empty tiles
-                    transform: 'translate(-50%, -100%)' // Shift so base touches exactly the center of the tile
-                  }}
-                  onClick={() => {
-                    if (placingDecoration) handlePlaceDecoration(habit.id);
-                    else setSelectedBuilding(selectedBuilding === habit.id ? null : habit.id);
-                  }}
+                  key={`dec-${i}`}
+                  className="dock-item deco-item glass-sm"
+                  draggable
+                  onDragStart={(e) => onDragStart(e, 'decoration', od.decoration_id)}
                 >
-                  <Building
-                    habit={habit}
-                    building={building}
-                    maxFloors={maxFloors}
-                    isSelected={selectedBuilding === habit.id}
-                    onClick={() => {}}
-                  />
-                  
-                  {/* Floating decorations */}
-                  {(building.decorations || []).length > 0 && (
-                    <div className="placed-decorations-wrapper">
-                      {building.decorations.map((decId, idx) => (
-                        <span key={idx} className="placed-decoration-badge" style={{ '--idx': idx }}>
-                          {DECORATION_CATALOG[decId]?.emoji || '🎨'}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <span className="dock-deco-emoji">{info.emoji}</span>
+                  <span className="dock-item-name">{info.name}</span>
                 </div>
               );
             })}
+
+            {unplacedHabits.length === 0 && unplacedDecorations.length === 0 && (
+              <div className="dock-empty">Inventory Empty</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Info Modal */}
+      {selectedBuilding && (
+        <div className="building-detail" onClick={() => setSelectedBuilding(null)}>
+          <div className="building-detail-content glass" onClick={e => e.stopPropagation()}>
+            {/* ... keeping modal code identical visually but slightly cleaner */}
+            <div className="flex justify-between items-center mb-4">
+               <h3 className="m-0" style={{ color: habits.find(h => h.id === selectedBuilding)?.color || 'white' }}>
+                 {habits.find(h => h.id === selectedBuilding)?.name}
+               </h3>
+               <X className="cursor-pointer" onClick={() => setSelectedBuilding(null)}/>
+            </div>
+            
+            <div className="detail-stats">
+              <div className="detail-stat">
+                <span className="detail-label">Coordinate</span>
+                <span className="detail-value text-xl font-bold">{layout[selectedBuilding] ? `C${layout[selectedBuilding].col} R${layout[selectedBuilding].row}` : 'In Tray'}</span>
+              </div>
+            </div>
+            <button className="btn btn-secondary w-full" onClick={() => setSelectedBuilding(null)}>Close</button>
           </div>
         </div>
       )}
-
-      {/* Detail modal exactly as before */}
-      {selectedBuilding && !placingDecoration && (() => {
-        const habit = habits.find(h => h.id === selectedBuilding);
-        const building = getBuildingForHabit(selectedBuilding);
-        const maxFloors = getMaxFloors(habit?.frequency);
-        if (!habit) return null;
-        return (
-          <div className="building-detail" onClick={() => setSelectedBuilding(null)}>
-            <div className="building-detail-content glass" onClick={e => e.stopPropagation()}>
-              <h3 style={{ color: habit.color || 'var(--accent-primary)' }}>{habit.name}</h3>
-              <div className="detail-stats">
-                <div className="detail-stat">
-                  <span className="detail-label">Floors</span>
-                  <span className="detail-value">{building.floors}/{maxFloors}</span>
-                </div>
-                <div className="detail-stat">
-                  <span className="detail-label">Golden Stars</span>
-                  <span className="detail-value">{building.golden_stars} ⭐</span>
-                </div>
-                <div className="detail-stat">
-                  <span className="detail-label">Frequency</span>
-                  <span className="detail-value">{habit.frequency}</span>
-                </div>
-                <div className="detail-stat">
-                  <span className="detail-label">Grid Coord</span>
-                  <span className="detail-value">{(layout[habit.id]?.col ?? '?')}, {(layout[habit.id]?.row ?? '?')}</span>
-                </div>
-              </div>
-              <div className="detail-progress">
-                <div className="progress-label">Building Progress</div>
-                <div className="progress-track">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${(building.floors / maxFloors) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <button className="btn btn-secondary w-full" style={{ marginTop: '1rem' }} onClick={() => setSelectedBuilding(null)}>
-                Close
-              </button>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }

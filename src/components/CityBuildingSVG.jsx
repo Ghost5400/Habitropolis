@@ -90,11 +90,8 @@ export default function CityBuildingSVG({ level = 1, icon = 'activity', classNam
     <svg 
       viewBox="0 0 200 200" 
       className={`city-building-svg ${className}`}
-      style={{ width: '100%', height: '100%', dropShadow: '0 10px 10px rgba(0,0,0,0.3)', overflow: 'visible' }}
+      style={{ width: '100%', height: '100%', overflow: 'visible' }}
     >
-      {/* Ground Shadow */}
-      <ellipse cx={BX} cy={BY + 5} rx={50} ry={25} fill="rgba(0,0,0,0.2)" filter="blur(2px)" />
-
       {/* Floating Holographic Icon representing the identical Habit */}
       <g transform={`translate(${BX - 16}, ${BY - topZ - 40})`} style={{ filter: 'drop-shadow(0 4px 4px rgba(0,0,0,0.5))' }}>
         <circle cx={16} cy={16} r={20} fill={colors.accTop} opacity={0.2} />
