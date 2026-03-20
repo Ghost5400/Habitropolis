@@ -125,25 +125,30 @@ export function GameProvider({ children }) {
   };
 
   const spendCoins = async (amount, description = 'Purchase') => {
-    if (!user || state.coins < amount) return false;
+    if (!user) { alert("DEBUG spendCoins: No user"); return false; }
+    if (state.coins < amount) { alert(`DEBUG spendCoins: state.coins (${state.coins}) < amount (${amount})`); return false; }
     try {
       const newCoins = state.coins - amount;
-      await supabase
+      const res1 = await supabase
         .from('profiles')
         .update({ coins: newCoins })
         .eq('user_id', user.id);
+        
+      if (res1.error) alert("DEBUG profiles: " + res1.error.message);
 
-      await supabase.from('transactions').insert({
+      const res2 = await supabase.from('transactions').insert({
         user_id: user.id,
         type: 'purchase',
         amount,
         currency: 'coins',
         description,
       });
+      if (res2.error) alert("DEBUG transactions: " + res2.error.message);
 
       dispatch({ type: 'SPEND_COINS', payload: amount });
       return true;
     } catch (err) {
+      alert("DEBUG spendCoins catch: " + err.message);
       console.error('Error spending coins:', err);
       return false;
     }
@@ -167,11 +172,12 @@ export function GameProvider({ children }) {
   };
 
   const buyDecoration = async (decorationObj, buildingId) => {
-    if (!user) return false;
-    if (!decorationObj || state.coins < decorationObj.price_coins) return false;
+    if (!user) { alert("DEBUG: No user found in GameContext"); return false; }
+    if (!decorationObj) { alert("DEBUG: decorationObj is undefined"); return false; }
+    if (state.coins < decorationObj.price_coins) { alert("DEBUG: state.coins is less than price"); return false; }
 
     const spent = await spendCoins(decorationObj.price_coins, `Bought ${decorationObj.name}`);
-    if (!spent) return false;
+    if (!spent) { alert("DEBUG: spendCoins returned false!"); return false; }
 
     try {
       const { data, error } = await supabase
@@ -185,31 +191,33 @@ export function GameProvider({ children }) {
         .single();
 
       if (error) {
-        // If there's a foreign key constraint or UUID error, gracefully degrade
         console.error('Database enforcement error:', error.message);
         throw error;
       }
       
-      // We manually construct the payload since we bypassed the join
       const payload = { ...data, decorations: decorationObj };
       dispatch({ type: 'ADD_OWNED_DECORATION', payload });
       return true;
     } catch (err) {
       console.error('Error buying decoration:', err);
-      // Let's implement an Emergency Local Storage fallback so the user can literally play the game even if their Supabase schema is locked!
-      const currentLocal = JSON.parse(localStorage.getItem(`emergency_decorations_${user.id}`) || '[]');
-      const newDeco = {
-        id: Math.random().toString(),
-        user_id: user.id,
-        decoration_id: decorationObj.id,
-        building_id: buildingId || null,
-        decorations: decorationObj
-      };
-      currentLocal.push(newDeco);
-      localStorage.setItem(`emergency_decorations_${user.id}`, JSON.stringify(currentLocal));
-      
-      dispatch({ type: 'ADD_OWNED_DECORATION', payload: newDeco });
-      return true; // We forced it to work!
+      try {
+        const currentLocal = JSON.parse(localStorage.getItem(`emergency_decorations_${user.id}`) || '[]');
+        const newDeco = {
+          id: Math.random().toString(),
+          user_id: user.id,
+          decoration_id: decorationObj.id,
+          building_id: buildingId || null,
+          decorations: decorationObj
+        };
+        currentLocal.push(newDeco);
+        localStorage.setItem(`emergency_decorations_${user.id}`, JSON.stringify(currentLocal));
+        
+        dispatch({ type: 'ADD_OWNED_DECORATION', payload: newDeco });
+        return true; 
+      } catch (critErr) {
+        alert("DEBUG: Even the emergency fallback failed! " + critErr.message);
+        return false;
+      }
     }
   };
 
