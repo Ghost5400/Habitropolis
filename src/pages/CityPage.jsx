@@ -55,10 +55,11 @@ export default function CityPage() {
 
   useEffect(() => {
     const curHour = new Date().getHours();
-    setIsDay(curHour >= 6 && curHour < 18);
+    // User requested Day mode lasts until exactly 7:00 PM (19:00)
+    setIsDay(curHour >= 6 && curHour < 19);
     const timer = setInterval(() => {
       const h = new Date().getHours();
-      setIsDay(h >= 6 && h < 18);
+      setIsDay(h >= 6 && h < 19);
     }, 60000);
     return () => clearInterval(timer);
   }, []);
