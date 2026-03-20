@@ -66,7 +66,6 @@ export default function CityPage() {
   // Stats
   const totalStars = buildings.reduce((sum, b) => sum + (b.golden_stars || 0), 0);
   const totalFloors = buildings.reduce((sum, b) => sum + (b.floors || 0), 0);
-  const unplacedDecorations = (ownedDecorations || []).filter(od => !od.building_id);
 
   // Calculate highest city level
   const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
