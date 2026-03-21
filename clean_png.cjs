@@ -29,6 +29,9 @@ async function processImages() {
       }
     });
 
+    // Auto-crop to remove dead transparent space around the isometric subject
+    img.autocrop();
+
     await img.writeAsync(p);
     console.log('Finished', file);
   }
