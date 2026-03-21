@@ -8,24 +8,25 @@ import { getBuildingName } from '../components/CityBuildingSVG';
 import { Building2, Sparkles, X, Sunrise, Moon, Archive } from 'lucide-react';
 import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import DecorationSVG from '../components/DecorationSVG';
 import './CityPage.css';
 
 const DECORATION_CATALOG = {
-  '11111111-0000-0000-0000-000000000001': { emoji: '🚩', name: 'Red Flag' },
-  '11111111-0000-0000-0000-000000000002': { emoji: '🏳️', name: 'Blue Flag' },
-  '11111111-0000-0000-0000-000000000003': { emoji: '🌿', name: 'Garden' },
-  '11111111-0000-0000-0000-000000000004': { emoji: '🌸', name: 'Flower Bed' },
-  '11111111-0000-0000-0000-000000000005': { emoji: '🌳', name: 'Tree' },
-  '11111111-0000-0000-0000-000000000006': { emoji: '✨', name: 'Fairy Lights' },
-  '11111111-0000-0000-0000-000000000007': { emoji: '🏮', name: 'Lantern' },
-  '11111111-0000-0000-0000-000000000008': { emoji: '⛲', name: 'Fountain' },
-  '11111111-0000-0000-0000-000000000009': { emoji: '🪑', name: 'Bench' },
-  '11111111-0000-0000-0000-000000000010': { emoji: '📮', name: 'Mailbox' },
-  '11111111-0000-0000-0000-000000000011': { emoji: '📡', name: 'Satellite Dish' },
-  '11111111-0000-0000-0000-000000000012': { emoji: '☀️', name: 'Solar Panel' },
-  '11111111-0000-0000-0000-000000000013': { emoji: '🕐', name: 'Clock Tower' },
-  '11111111-0000-0000-0000-000000000014': { emoji: '🗽', name: 'Statue' },
-  '11111111-0000-0000-0000-000000000015': { emoji: '🏊', name: 'Swimming Pool' },
+  '11111111-0000-0000-0000-000000000001': { type: 'tree-oak', name: 'Oak Tree' },
+  '11111111-0000-0000-0000-000000000002': { type: 'tree-pine', name: 'Pine Tree' },
+  '11111111-0000-0000-0000-000000000003': { type: 'shrubbery', name: 'Park Shrubbery' },
+  '11111111-0000-0000-0000-000000000004': { type: 'flower-garden', name: 'Flower Garden' },
+  '11111111-0000-0000-0000-000000000005': { type: 'zen-garden', name: 'Zen Rock Garden' },
+  '11111111-0000-0000-0000-000000000006': { type: 'fountain', name: 'Water Fountain' },
+  '11111111-0000-0000-0000-000000000007': { type: 'statue', name: 'Statue Monument' },
+  '11111111-0000-0000-0000-000000000008': { type: 'bench', name: 'City Bench' },
+  '11111111-0000-0000-0000-000000000009': { type: 'street-lamp', name: 'Street Lamp' },
+  '11111111-0000-0000-0000-000000000010': { type: 'pool', name: 'Swimming Pool' },
+  '11111111-0000-0000-0000-000000000011': { type: 'cobblestone', name: 'Cobblestone Patch' },
+  '11111111-0000-0000-0000-000000000012': { type: 'road', name: 'Asphalt Road' },
+  '11111111-0000-0000-0000-000000000013': { type: 'crosswalk', name: 'Crosswalk' },
+  '11111111-0000-0000-0000-000000000014': { type: 'bus-stop', name: 'Bus Shelter' },
+  '11111111-0000-0000-0000-000000000015': { type: 'kiosk', name: 'Food Stand' },
 };
 
 const TILE_W = 120;
@@ -306,7 +307,7 @@ export default function CityPage() {
                 {placedDecorations.map(od => {
                   const pos = layout[`deco_${od.id}`];
                   const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-                  const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
+                  const info = DECORATION_CATALOG[od.decoration_id] || { type: 'tree-oak', name: od.decoration_id };
                   
                   return (
                     <div
@@ -323,13 +324,12 @@ export default function CityPage() {
                       style={{
                         left: x, top: `${y}px`, zIndex: zIndex + 2,
                         transform: 'translate(-50%, -50%)',
-                        fontSize: '1.5rem',
-                        filter: 'drop-shadow(0 5px 2px rgba(0,0,0,0.4))'
+                        width: '120px', height: '120px',
                       }}
                       onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
                     >
-                      {info.emoji}
+                      <DecorationSVG type={info.type} style={{ width: '100%', height: '100%' }} />
                       <div className={`building-hover-tooltip ${hoveredItem === `deco_${od.id}` ? 'show' : ''}`}>
                         <strong>{info.name}</strong>
                         <span>Decoration (Hold to stash)</span>
@@ -415,7 +415,7 @@ export default function CityPage() {
             ))}
 
             {unplacedDecorations.map((od, i) => {
-              const info = DECORATION_CATALOG[od.decoration_id] || { emoji: '🎨', name: od.decoration_id };
+              const info = DECORATION_CATALOG[od.decoration_id] || { type: 'tree-oak', name: od.decoration_id };
               return (
                 <div
                   key={`dec-${i}`}
@@ -423,7 +423,9 @@ export default function CityPage() {
                   draggable
                   onDragStart={(e) => onDragStart(e, 'decoration', od.id)} // Critical: pass unique instance id
                 >
-                  <span className="dock-deco-emoji">{info.emoji}</span>
+                  <div className="dock-deco-emoji" style={{ width: '40px', height: '40px', overflow: 'visible' }}>
+                    <DecorationSVG type={info.type} />
+                  </div>
                   <span className="dock-item-name">{info.name}</span>
                 </div>
               );

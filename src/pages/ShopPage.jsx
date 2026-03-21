@@ -4,24 +4,25 @@ import { useCoins } from '../hooks/useCoins';
 import { useStreaks } from '../hooks/useStreaks';
 import { useHabits } from '../hooks/useHabits';
 import { ShoppingBag, Palette, Coins, Shield, Check, Package } from 'lucide-react';
+import DecorationSVG from '../components/DecorationSVG';
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
-  { id: '11111111-0000-0000-0000-000000000001', name: 'Red Flag', category: 'rooftop', price_coins: 15, emoji: '🚩' },
-  { id: '11111111-0000-0000-0000-000000000002', name: 'Blue Flag', category: 'rooftop', price_coins: 15, emoji: '🏳️' },
-  { id: '11111111-0000-0000-0000-000000000003', name: 'Garden', category: 'garden', price_coins: 25, emoji: '🌿' },
-  { id: '11111111-0000-0000-0000-000000000004', name: 'Flower Bed', category: 'garden', price_coins: 20, emoji: '🌸' },
-  { id: '11111111-0000-0000-0000-000000000005', name: 'Tree', category: 'garden', price_coins: 30, emoji: '🌳' },
-  { id: '11111111-0000-0000-0000-000000000006', name: 'Fairy Lights', category: 'lights', price_coins: 35, emoji: '✨' },
-  { id: '11111111-0000-0000-0000-000000000007', name: 'Lantern', category: 'lights', price_coins: 20, emoji: '🏮' },
-  { id: '11111111-0000-0000-0000-000000000008', name: 'Fountain', category: 'garden', price_coins: 50, emoji: '⛲' },
-  { id: '11111111-0000-0000-0000-000000000009', name: 'Bench', category: 'garden', price_coins: 15, emoji: '🪑' },
-  { id: '11111111-0000-0000-0000-000000000010', name: 'Mailbox', category: 'garden', price_coins: 10, emoji: '📮' },
-  { id: '11111111-0000-0000-0000-000000000011', name: 'Satellite Dish', category: 'rooftop', price_coins: 40, emoji: '📡' },
-  { id: '11111111-0000-0000-0000-000000000012', name: 'Solar Panel', category: 'rooftop', price_coins: 45, emoji: '☀️' },
-  { id: '11111111-0000-0000-0000-000000000013', name: 'Clock Tower', category: 'rooftop', price_coins: 60, emoji: '🕐' },
-  { id: '11111111-0000-0000-0000-000000000014', name: 'Statue', category: 'garden', price_coins: 75, emoji: '🗽' },
-  { id: '11111111-0000-0000-0000-000000000015', name: 'Swimming Pool', category: 'garden', price_coins: 100, emoji: '🏊' },
+  { id: '11111111-0000-0000-0000-000000000001', name: 'Oak Tree', category: 'nature', price_coins: 30, type: 'tree-oak' },
+  { id: '11111111-0000-0000-0000-000000000002', name: 'Pine Tree', category: 'nature', price_coins: 35, type: 'tree-pine' },
+  { id: '11111111-0000-0000-0000-000000000003', name: 'Park Shrubbery', category: 'nature', price_coins: 15, type: 'shrubbery' },
+  { id: '11111111-0000-0000-0000-000000000004', name: 'Flower Garden', category: 'garden', price_coins: 20, type: 'flower-garden' },
+  { id: '11111111-0000-0000-0000-000000000005', name: 'Zen Rock Garden', category: 'garden', price_coins: 40, type: 'zen-garden' },
+  { id: '11111111-0000-0000-0000-000000000006', name: 'Water Fountain', category: 'fixture', price_coins: 50, type: 'fountain' },
+  { id: '11111111-0000-0000-0000-000000000007', name: 'Statue Monument', category: 'fixture', price_coins: 75, type: 'statue' },
+  { id: '11111111-0000-0000-0000-000000000008', name: 'City Bench', category: 'fixture', price_coins: 15, type: 'bench' },
+  { id: '11111111-0000-0000-0000-000000000009', name: 'Street Lamp', category: 'fixture', price_coins: 20, type: 'street-lamp' },
+  { id: '11111111-0000-0000-0000-000000000010', name: 'Swimming Pool', category: 'fixture', price_coins: 100, type: 'pool' },
+  { id: '11111111-0000-0000-0000-000000000011', name: 'Cobblestone Patch', category: 'path', price_coins: 10, type: 'cobblestone' },
+  { id: '11111111-0000-0000-0000-000000000012', name: 'Asphalt Road', category: 'path', price_coins: 5, type: 'road' },
+  { id: '11111111-0000-0000-0000-000000000013', name: 'Crosswalk', category: 'path', price_coins: 5, type: 'crosswalk' },
+  { id: '11111111-0000-0000-0000-000000000014', name: 'Bus Shelter', category: 'infrastructure', price_coins: 45, type: 'bus-stop' },
+  { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 60, type: 'kiosk' },
 ];
 
 const COIN_PACKAGES = [
@@ -64,7 +65,7 @@ export default function ShopPage() {
 
     const success = await buyDecoration(decoration, null);
     if (success) {
-      showMessage(`Bought ${decoration.emoji} ${decoration.name}! Go to City to place it 🏙️`);
+      showMessage(`Bought ${decoration.name}! Go to City to place it 🏙️`);
     } else {
       showMessage('Purchase failed. Try again.');
     }
@@ -134,7 +135,9 @@ export default function ShopPage() {
               const owned = getOwnedCount(dec.id);
               return (
                 <div key={dec.id} className="decoration-card glass-sm">
-                  <div className="decoration-emoji">{dec.emoji}</div>
+                  <div className="decoration-emoji" style={{ height: '60px', width: '60px', margin: '0 auto', overflow: 'visible' }}>
+                    <DecorationSVG type={dec.type} />
+                  </div>
                   <div className="decoration-name">{dec.name}</div>
                   <div className="decoration-category">{dec.category}</div>
                   {owned > 0 && <div className="decoration-owned">Owned: {owned}</div>}
@@ -169,7 +172,9 @@ export default function ShopPage() {
                   const catalog = DECORATION_CATALOG.find(d => d.id === od.decoration_id);
                   return (
                     <div key={i} className={`inventory-item glass-sm ${od.building_id ? 'placed' : 'unplaced'}`}>
-                      <div className="inventory-emoji">{catalog?.emoji || '🎨'}</div>
+                      <div className="inventory-emoji" style={{ height: '50px', width: '50px', margin: '0 auto', overflow: 'visible' }}>
+                        {catalog ? <DecorationSVG type={catalog.type} /> : '🎨'}
+                      </div>
                       <div className="inventory-name">{catalog?.name || od.decoration_id}</div>
                       <div className="inventory-status">
                         {od.building_id ? '🏗️ Placed' : '📦 In inventory'}
