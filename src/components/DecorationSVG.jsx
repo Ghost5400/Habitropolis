@@ -159,20 +159,20 @@ export default function DecorationSVG({ type = 'tree-oak', className = '' }) {
 
       {type === 'cobblestone' && (
         <IsoTile cx={BX} cy={BY} color="#cbd5e1" pattern={
-          <path d="M 60,150 L 100,170 M 140,150 L 100,170 M 80,140 L 120,160 M 120,140 L 80,160" stroke="#94a3b8" strokeWidth="2" opacity="0.5"/>
+          <path d="M 60,100 L 100,120 M 140,100 L 100,120 M 80,90 L 120,110 M 120,90 L 80,110" stroke="#94a3b8" strokeWidth="2" opacity="0.5"/>
         }/>
       )}
 
       {type === 'road' && (
         <IsoTile cx={BX} cy={BY} color={road} pattern={
-          <path d="M 60,130 L 140,170" stroke="#fde047" strokeWidth="4" strokeDasharray="10, 5" />
+          <path d="M 60,80 L 140,120" stroke="#fde047" strokeWidth="4" strokeDasharray="10, 5" />
         }/>
       )}
 
       {type === 'crosswalk' && (
         <IsoTile cx={BX} cy={BY} color={road} pattern={
           <g>
-            <path d="M 70,145 L 90,155 M 80,140 L 100,150 M 90,135 L 110,145 M 100,130 L 120,140 M 110,125 L 130,135" stroke="#ffffff" strokeWidth="6" />
+            <path d="M 70,95 L 90,105 M 80,90 L 100,100 M 90,85 L 110,95 M 100,80 L 120,90 M 110,75 L 130,85" stroke="#ffffff" strokeWidth="6" />
           </g>
         }/>
       )}
