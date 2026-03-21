@@ -1,0 +1,139 @@
+/* ... existing CSS is appended ... */
+.mystery-chest-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1));
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.mystery-chest-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 60%);
+  animation: emblemSpin 20s linear infinite;
+  pointer-events: none;
+}
+
+.chest-visual {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+  flex-shrink: 0;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.is-opening .chest-visual {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
+  background: linear-gradient(135deg, #fde047, #f59e0b);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+}
+
+.chest-sparkles {
+  animation: pulse 0.5s ease-in-out infinite;
+  color: #fef08a;
+}
+
+.chest-info {
+  flex: 1;
+  z-index: 1;
+}
+
+.chest-info h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  background: linear-gradient(to right, #e879f9, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.chest-info p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.text-legendary {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245,158,11,0.5);
+  font-weight: 800;
+}
+
+.chest-subtitle {
+  color: var(--text-muted) !important;
+  font-size: 0.8rem !important;
+  margin-top: 0.25rem !important;
+}
+
+.chest-buy-btn {
+  background: linear-gradient(135deg, #ec4899, #d946ef);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.chest-buy-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+}
+
+.chest-buy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(0.98);
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.catalog-title {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+.inventory-item.is-legendary {
+  border: 1px solid rgba(245,158,11,0.5);
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(0,0,0,0.2));
+}
+
+@media (max-width: 640px) {
+  .mystery-chest-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem;
+  }
+}

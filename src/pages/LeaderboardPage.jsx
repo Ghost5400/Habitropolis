@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLeague } from '../hooks/useLeague';
-import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2 } from 'lucide-react';
 import './LeaderboardPage.css';
 
 const TIER_ICONS = {
@@ -28,6 +29,8 @@ export default function LeaderboardPage() {
     getLeagueInfo,
     loadLeaderboard,
   } = useLeague();
+  
+  const navigate = useNavigate();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -284,16 +287,15 @@ export default function LeaderboardPage() {
                 </div>
 
                 <div className="board-player">
-                  <div className="player-avatar" style={{ 
-                    background: isMe 
-                      ? `linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))` 
-                      : `linear-gradient(135deg, ${league.color}88, ${league.color}44)` 
+                  <div className="player-avatar-emoji" style={{
+                    borderColor: isMe ? 'var(--accent-primary)' : `${league.color}88`,
+                    background: isMe ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-tertiary)'
                   }}>
-                    {(u.display_name || 'A')[0].toUpperCase()}
+                    {u.avatar_url?.length > 5 ? '👤' : (u.avatar_url || '🤖')}
                   </div>
                   <div className="player-info">
                     <span className="player-name">
-                      {u.display_name || 'Anonymous'}
+                      {u.display_name || u.user_id.split('-')[0]}
                       {isMe && <span className="you-badge">YOU</span>}
                     </span>
                   </div>
@@ -303,6 +305,16 @@ export default function LeaderboardPage() {
                   <Zap size={14} className="xp-icon" />
                   <span>{u.weekly_score || 0}</span>
                   <span className="xp-label">XP</span>
+                </div>
+                
+                <div className="board-actions">
+                  <button 
+                    className="visit-btn" 
+                    title={`Visit ${u.display_name || 'City'}`}
+                    onClick={() => navigate(`/visit/${u.user_id}`)}
+                  >
+                    <Building2 size={16} />
+                  </button>
                 </div>
               </div>
             );

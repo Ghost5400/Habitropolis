@@ -246,6 +246,47 @@ export function GameProvider({ children }) {
     }
   };
 
+  const buyMysteryChest = async (cost, wonDecorationObj) => {
+    if (!user) return false;
+    
+    // Spend the fixed cost (e.g. 50 coins) instead of the item's native price
+    const spent = await spendCoins(cost, `Opened Mystery Chest`);
+    if (!spent) return false;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_decorations')
+        .insert({
+          user_id: user.id,
+          decoration_id: wonDecorationObj.id,
+          building_id: null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      const payload = { ...data, decorations: wonDecorationObj };
+      dispatch({ type: 'ADD_OWNED_DECORATION', payload });
+      return true;
+    } catch (err) {
+      console.error('Error granting mystery chest item:', err);
+      // Fallback
+      const currentLocal = JSON.parse(localStorage.getItem(`emergency_decorations_${user.id}`) || '[]');
+      const newDeco = {
+        id: Math.random().toString(),
+        user_id: user.id,
+        decoration_id: wonDecorationObj.id,
+        building_id: null,
+        decorations: wonDecorationObj
+      };
+      currentLocal.push(newDeco);
+      localStorage.setItem(`emergency_decorations_${user.id}`, JSON.stringify(currentLocal));
+      dispatch({ type: 'ADD_OWNED_DECORATION', payload: newDeco });
+      return true;
+    }
+  };
+
   const unlockAchievement = async (achievementId) => {
     if (!user) return;
     const alreadyUnlocked = state.unlockedAchievements.some(
@@ -292,6 +333,7 @@ export function GameProvider({ children }) {
         spendCoins,
         updateBuilding,
         buyDecoration,
+        buyMysteryChest,
         unlockAchievement,
         refreshData,
       }}

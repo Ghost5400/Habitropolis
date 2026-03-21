@@ -3,8 +3,9 @@ import { useGame } from '../contexts/GameContext';
 import { useCoins } from '../hooks/useCoins';
 import { useStreaks } from '../hooks/useStreaks';
 import { useHabits } from '../hooks/useHabits';
-import { ShoppingBag, Palette, Coins, Shield, Check, Package } from 'lucide-react';
+import { ShoppingBag, Palette, Coins, Shield, Check, Package, Gift, Sparkles } from 'lucide-react';
 import DecorationSVG from '../components/DecorationSVG';
+import soundManager from '../lib/SoundManager';
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
@@ -25,6 +26,13 @@ const DECORATION_CATALOG = [
   { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 60, type: 'kiosk' },
 ];
 
+// Exclusive legendary items that cannot be bought directly, only won from Gacha chest!
+const LEGENDARY_POOL = [
+  { id: '22222222-0000-0000-0000-000000000001', name: 'Golden Trophy', category: 'legendary', type: 'golden-trophy' },
+  { id: '22222222-0000-0000-0000-000000000002', name: 'Neon Ferris Wheel', category: 'legendary', type: 'ferris-wheel' },
+  { id: '22222222-0000-0000-0000-000000000003', name: 'Cyber Monolith', category: 'legendary', type: 'cyber-monolith' },
+];
+
 const COIN_PACKAGES = [
    { coins: 100, price: '₹0.99', popular: false },
    { coins: 500, price: '₹3.99', popular: true },
@@ -40,12 +48,15 @@ const SHIELD_OPTIONS = [
 ];
 
 export default function ShopPage() {
-  const { coins, spendCoins, buyDecoration, ownedDecorations, refreshData } = useGame();
+  const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData } = useGame();
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
   const [activeTab, setActiveTab] = useState('decorations');
   const [selectedHabit, setSelectedHabit] = useState(null);
   const [purchaseMessage, setPurchaseMessage] = useState('');
+  
+  // Gacha State
+  const [openingChest, setOpeningChest] = useState(false);
 
   const showMessage = (msg) => {
     setPurchaseMessage(msg);
@@ -65,10 +76,45 @@ export default function ShopPage() {
 
     const success = await buyDecoration(decoration, null);
     if (success) {
+      soundManager.playSuccess();
       showMessage(`Bought ${decoration.name}! Go to City to place it 🏙️`);
     } else {
       showMessage('Purchase failed. Try again.');
     }
+  };
+
+  const handleOpenChest = async () => {
+    if (coins < 50) {
+      showMessage('Need 50 coins to open the Mystery Chest! 💸');
+      return;
+    }
+    
+    setOpeningChest(true);
+    soundManager.playNav(); // suspense sound
+    
+    setTimeout(async () => {
+      const roll = Math.random();
+      let rollObj;
+      if (roll < 0.05) { // 5% Legendary
+        const legIdx = Math.floor(Math.random() * LEGENDARY_POOL.length);
+        rollObj = LEGENDARY_POOL[legIdx];
+      } else if (roll < 0.3) { // 25% Epic
+        const epics = DECORATION_CATALOG.filter(d => d.price_coins >= 40);
+        rollObj = epics[Math.floor(Math.random() * epics.length)];
+      } else { // 70% Common
+        const commons = DECORATION_CATALOG.filter(d => d.price_coins < 40);
+        rollObj = commons[Math.floor(Math.random() * commons.length)];
+      }
+      
+      const res = await buyMysteryChest(50, rollObj);
+      if (res) {
+        soundManager.playSuccess();
+        showMessage(`🎉 Chest opened! You won: ${rollObj.name}!`);
+      } else {
+        showMessage('Chest failed to open. Network error.');
+      }
+      setOpeningChest(false);
+    }, 1500); // 1.5 seconds suspense animation
   };
 
   const handleBuyShield = async (shield) => {
@@ -130,7 +176,28 @@ export default function ShopPage() {
 
       <div className="shop-content">
         {activeTab === 'decorations' && (
-          <div className="decorations-grid">
+          <div className="decorations-content">
+            
+            <div className={`mystery-chest-banner glass ${openingChest ? 'is-opening' : ''}`}>
+               <div className="chest-visual">
+                  {openingChest ? <Sparkles className="chest-sparkles" size={48} /> : <Gift className="chest-icon" size={48} />}
+               </div>
+               <div className="chest-info">
+                  <h2>Mayor's Mystery Chest</h2>
+                  <p>70% Common, 25% Epic, <strong className="text-legendary">5% LEGENDARY</strong> drops!</p>
+                  <p className="chest-subtitle">Exclusive legendary statues can only be won here.</p>
+               </div>
+               <button 
+                className="chest-buy-btn" 
+                onClick={handleOpenChest} 
+                disabled={openingChest || coins < 50}
+               >
+                 <Coins size={16} /> 50 Coins
+               </button>
+            </div>
+
+            <h3 className="catalog-title">Direct Store Catalog</h3>
+            <div className="decorations-grid">
             {DECORATION_CATALOG.map(dec => {
               const owned = getOwnedCount(dec.id);
               return (
@@ -155,6 +222,7 @@ export default function ShopPage() {
                 </div>
               );
             })}
+            </div>
           </div>
         )}
 
@@ -169,9 +237,11 @@ export default function ShopPage() {
             ) : (
               <div className="inventory-grid">
                 {ownedDecorations.map((od, i) => {
-                  const catalog = DECORATION_CATALOG.find(d => d.id === od.decoration_id);
+                  let catalog = DECORATION_CATALOG.find(d => d.id === od.decoration_id);
+                  if (!catalog) catalog = LEGENDARY_POOL.find(d => d.id === od.decoration_id);
+                  
                   return (
-                    <div key={i} className={`inventory-item glass-sm ${od.building_id ? 'placed' : 'unplaced'}`}>
+                    <div key={i} className={`inventory-item glass-sm ${od.building_id ? 'placed' : 'unplaced'} ${catalog?.category === 'legendary' ? 'is-legendary' : ''}`}>
                       <div className="inventory-emoji" style={{ height: '50px', width: '50px', margin: '0 auto', overflow: 'visible' }}>
                         {catalog ? <DecorationSVG type={catalog.type} /> : '🎨'}
                       </div>

@@ -9,6 +9,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,30 +32,53 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const ensureProfile = async (user) => {
+  const ensureProfile = async (sessionUser) => {
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('user_id')
-        .eq('user_id', user.id)
+        .select('*')
+        .eq('user_id', sessionUser.id)
         .single();
 
       if (!data) {
-        await supabase.from('profiles').insert({
-          user_id: user.id,
-          display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Habitronaut',
-          avatar_url: user.user_metadata?.avatar_url || null,
+        const { data: newProfile } = await supabase.from('profiles').insert({
+          user_id: sessionUser.id,
+          display_name: sessionUser.user_metadata?.full_name || sessionUser.email?.split('@')[0] || 'Habitronaut',
+          avatar_url: sessionUser.user_metadata?.avatar_url || 'default',
           coins: 50,
           premium: false,
           league_id: 1,
           weekly_score: 0,
-        });
+        }).select().single();
+        setProfile(newProfile);
+      } else {
+        setProfile(data);
       }
     } catch (err) {
-      // Profile might already exist, that's fine
       if (err.code !== 'PGRST116') {
         console.error('Error ensuring profile:', err);
+      } else {
+        // Fallback if missing
+        setProfile({ display_name: sessionUser.email?.split('@')[0], avatar_url: 'default' });
       }
+    }
+  };
+
+  const updateProfile = async (updates) => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+      if (error) throw error;
+      setProfile(data);
+      return data;
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      throw err;
     }
   };
 
@@ -98,7 +122,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, signInWithGoogle }}>
+    <AuthContext.Provider value={{ user, profile, updateProfile, loading, signUp, signIn, signOut, signInWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );

@@ -7,7 +7,7 @@ import soundManager from '../lib/SoundManager';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { coins } = useGame();
   const navigate = useNavigate();
   const [isMuted, setIsMuted] = useState(soundManager.isMuted);
@@ -95,10 +95,10 @@ export default function Navbar() {
         </div>
 
         <div className="user-info">
-          <div className="user-avatar">
-            {user?.email?.[0]?.toUpperCase() || 'U'}
+          <div className="user-avatar-emoji">
+            {profile?.avatar_url?.length > 5 ? '👤' : (profile?.avatar_url || '🤖')}
           </div>
-          <span className="user-email">{user?.email?.split('@')[0]}</span>
+          <span className="user-email">{profile?.display_name || user?.email?.split('@')[0]}</span>
         </div>
 
         <button className="nav-link logout-btn" onClick={handleSignOut}>

@@ -197,6 +197,50 @@ export default function DecorationSVG({ type = 'tree-oak', className = '' }) {
         </g>
       )}
       
+      {type === 'golden-trophy' && (
+        <g>
+          <circle cx={BX} cy={BY-5} r={20} fill="rgba(0,0,0,0.15)" transform="scale(1, 0.5)" />
+          <IsoBlock cx={BX} cy={BY} dx={15} dy={7.5} height={10} colors={concrete} />
+          <IsoBlock cx={BX} cy={BY-10} dx={12} dy={6} height={8} colors={stone} />
+          <IsoBlock cx={BX} cy={BY-18} dx={8} dy={4} height={35} colors={golden} />
+          {/* Trophy Cup Bowl */}
+          <IsoBlock cx={BX} cy={BY-53} dx={18} dy={9} height={15} colors={golden} />
+          <IsoBlock cx={BX} cy={BY-68} dx={16} dy={8} height={2} colors={{top:'#ca8a04'}} />
+          <circle cx={BX} cy={BY-80} r={4} fill="#fef08a" style={{ animation: 'pulse 1.5s infinite' }} />
+        </g>
+      )}
+
+      {type === 'ferris-wheel' && (
+        <g>
+          <circle cx={BX} cy={BY-5} r={40} fill="rgba(0,0,0,0.15)" transform="scale(1, 0.5)" />
+          {/* Supports */}
+          <path d={`M ${BX-25} ${BY-10} L ${BX} ${BY-80} L ${BX+25} ${BY-10}`} stroke={concrete.right} strokeWidth="5" fill="none" />
+          <path d={`M ${BX-15} ${BY-5} L ${BX} ${BY-80} L ${BX+15} ${BY-5}`} stroke={concrete.left} strokeWidth="5" fill="none" />
+          {/* Core Hub */}
+          <circle cx={BX} cy={BY-80} r={6} fill="#14b8a6" />
+          {/* Wheel Frame */}
+          <circle cx={BX} cy={BY-80} r={45} stroke="#5eead4" strokeWidth="4" fill="none" opacity={0.6} />
+          <circle cx={BX} cy={BY-80} r={40} stroke="#2dd4bf" strokeWidth="2" fill="none" />
+          {/* Spokes */}
+          <path d={`M ${BX} ${BY-125} L ${BX} ${BY-35} M ${BX-45} ${BY-80} L ${BX+45} ${BY-80}`} stroke="#14b8a6" strokeWidth="2" />
+          <path d={`M ${BX-31} ${BY-111} L ${BX+31} ${BY-49} M ${BX-31} ${BY-49} L ${BX+31} ${BY-111}`} stroke="#14b8a6" strokeWidth="2" />
+        </g>
+      )}
+
+      {type === 'cyber-monolith' && (
+        <g>
+          <circle cx={BX} cy={BY-5} r={20} fill="rgba(0,0,0,0.3)" transform="scale(1, 0.5)" />
+          <IsoBlock cx={BX} cy={BY} dx={15} dy={7.5} height={5} colors={concrete} />
+          <IsoBlock cx={BX} cy={BY-5} dx={12} dy={6} height={60} colors={{top: '#0f172a', left: '#1e293b', right: '#020617'}} />
+          {/* Neon Lines */}
+          <path d={`M ${BX-12} ${BY-11} L ${BX-12} ${BY-50}`} stroke="#c084fc" strokeWidth="2" />
+          <path d={`M ${BX+12} ${BY-11} L ${BX+12} ${BY-65}`} stroke="#a855f7" strokeWidth="2" />
+          <path d={`M ${BX} ${BY-65} L ${BX} ${BY-15}`} stroke="#e879f9" strokeWidth="1" />
+          {/* Core orb */}
+          <circle cx={BX} cy={BY-40} r={6} fill="#f0abfc" opacity={0.8} />
+        </g>
+      )}
+
     </svg>
   );
 }

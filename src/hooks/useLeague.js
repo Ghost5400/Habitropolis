@@ -103,7 +103,7 @@ export const useLeague = () => {
       // Step 1: First just fetch the profile to see if league columns exist
       const { data: profile, error: profileErr } = await supabase
         .from('profiles')
-        .select('league_id, weekly_score, leaderboard_group_id, display_name')
+        .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url')
         .eq('user_id', user.id)
         .single();
 
@@ -137,7 +137,7 @@ export const useLeague = () => {
         // Re-fetch profile after bracket assignment
         const { data: updatedProfile } = await supabase
           .from('profiles')
-          .select('league_id, weekly_score, leaderboard_group_id, display_name')
+          .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url')
           .eq('user_id', user.id)
           .single();
 
@@ -152,7 +152,7 @@ export const useLeague = () => {
       if (profile.leaderboard_group_id) {
         const { data: bracket, error: bracketErr } = await supabase
           .from('profiles')
-          .select('user_id, display_name, weekly_score, league_id')
+          .select('user_id, display_name, avatar_url, weekly_score, league_id')
           .eq('leaderboard_group_id', profile.leaderboard_group_id)
           .eq('league_id', profile.league_id)
           .order('weekly_score', { ascending: false });
@@ -163,6 +163,7 @@ export const useLeague = () => {
           setLeaderboard([{
             user_id: user.id,
             display_name: profile.display_name,
+            avatar_url: profile.avatar_url,
             weekly_score: profile.weekly_score || 0,
             league_id: profile.league_id
           }]);
@@ -170,6 +171,7 @@ export const useLeague = () => {
           setLeaderboard(bracket && bracket.length > 0 ? bracket : [{
             user_id: user.id,
             display_name: profile.display_name,
+            avatar_url: profile.avatar_url,
             weekly_score: profile.weekly_score || 0,
             league_id: profile.league_id
           }]);
@@ -179,6 +181,7 @@ export const useLeague = () => {
         setLeaderboard([{
           user_id: user.id,
           display_name: profile.display_name,
+          avatar_url: profile.avatar_url,
           weekly_score: profile.weekly_score || 0,
           league_id: profile.league_id
         }]);

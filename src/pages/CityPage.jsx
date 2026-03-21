@@ -9,6 +9,7 @@ import { Building2, Sparkles, X, Sunrise, Moon, Archive } from 'lucide-react';
 import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import DecorationSVG from '../components/DecorationSVG';
+import { supabase } from '../lib/supabase';
 import './CityPage.css';
 
 const DECORATION_CATALOG = {
@@ -27,6 +28,9 @@ const DECORATION_CATALOG = {
   '11111111-0000-0000-0000-000000000013': { type: 'crosswalk', name: 'Crosswalk' },
   '11111111-0000-0000-0000-000000000014': { type: 'bus-stop', name: 'Bus Shelter' },
   '11111111-0000-0000-0000-000000000015': { type: 'kiosk', name: 'Food Stand' },
+  '22222222-0000-0000-0000-000000000001': { type: 'golden-trophy', name: 'Golden Trophy' },
+  '22222222-0000-0000-0000-000000000002': { type: 'ferris-wheel', name: 'Neon Ferris Wheel' },
+  '22222222-0000-0000-0000-000000000003': { type: 'cyber-monolith', name: 'Cyber Monolith' },
 };
 
 const TILE_W = 120;
@@ -87,13 +91,39 @@ export default function CityPage() {
 
   useEffect(() => {
     if (!user) return;
-    const stored = localStorage.getItem(`habitropolis_layout_${user.id}`);
-    if (stored) setLayout(JSON.parse(stored));
+    
+    // Attempt to load from DB first to ensure multi-device sync
+    const fetchLayout = async () => {
+      try {
+        const { data } = await supabase.from('profiles').select('city_layout').eq('user_id', user.id).single();
+        if (data?.city_layout && Object.keys(data.city_layout).length > 0) {
+          setLayout(data.city_layout);
+          localStorage.setItem(`habitropolis_layout_${user.id}`, JSON.stringify(data.city_layout));
+        } else {
+          // Fallback to local
+          const stored = localStorage.getItem(`habitropolis_layout_${user.id}`);
+          if (stored) setLayout(JSON.parse(stored));
+        }
+      } catch (err) {
+        // Fallback to local
+        const stored = localStorage.getItem(`habitropolis_layout_${user.id}`);
+        if (stored) setLayout(JSON.parse(stored));
+      }
+    };
+    
+    fetchLayout();
   }, [user]);
 
-  const updateLayout = (newLayout) => {
+  const updateLayout = async (newLayout) => {
     setLayout(newLayout);
     localStorage.setItem(`habitropolis_layout_${user.id}`, JSON.stringify(newLayout));
+    
+    // Background sync to db for social 'Visit City' feature
+    try {
+      await supabase.from('profiles').update({ city_layout: newLayout }).eq('user_id', user.id);
+    } catch(err) {
+      console.warn("Could not sync layout to server");
+    }
   };
 
   const showMessage = (msg) => {
