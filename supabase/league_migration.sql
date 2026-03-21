@@ -145,8 +145,12 @@ DECLARE
   usr_row RECORD;
   rank_num INTEGER;
   grp_size INTEGER;
+  city_lvl INTEGER;
+  p_pct NUMERIC;
+  d_pct NUMERIC;
   promote_cutoff INTEGER;
   demote_cutoff INTEGER;
+  demote_count INTEGER;
   new_league INTEGER;
 BEGIN
   -- Process each (group, league) combination
@@ -161,9 +165,40 @@ BEGIN
     WHERE leaderboard_group_id = grp_row.leaderboard_group_id
       AND league_id = grp_row.league_id;
 
-    -- Calculate cutoffs (top ~23% promote, bottom ~23% demote)
-    promote_cutoff := GREATEST(1, FLOOR(grp_size * 0.23));
-    demote_cutoff := grp_size - GREATEST(1, FLOOR(grp_size * 0.23)) + 1;
+    -- Determine city level (1-7)
+    city_lvl := FLOOR((grp_row.league_id - 1) / 4) + 1;
+
+    -- Apply difficulty curve scale
+    IF city_lvl = 1 THEN
+      p_pct := 0.40; d_pct := 0.00;
+    ELSIF city_lvl = 2 THEN
+      p_pct := 0.30; d_pct := 0.15;
+    ELSIF city_lvl = 3 THEN
+      p_pct := 0.25; d_pct := 0.20;
+    ELSIF city_lvl = 4 THEN
+      p_pct := 0.20; d_pct := 0.20;
+    ELSIF city_lvl = 5 THEN
+      p_pct := 0.15; d_pct := 0.25;
+    ELSIF city_lvl = 6 THEN
+      p_pct := 0.10; d_pct := 0.30;
+    ELSE
+      p_pct := 0.05; d_pct := 0.35;
+    END IF;
+
+    -- Calculate specific cutoffs
+    promote_cutoff := ROUND(grp_size * p_pct);
+    demote_count := ROUND(grp_size * d_pct);
+    
+    -- Ensure at least 1 person promotes if group size is >= 3
+    IF promote_cutoff = 0 AND grp_size >= 3 THEN 
+      promote_cutoff := 1; 
+    END IF;
+
+    IF demote_count = 0 THEN 
+      demote_cutoff := grp_size + 1; -- nobody demotes
+    ELSE
+      demote_cutoff := grp_size - demote_count + 1;
+    END IF;
 
     rank_num := 1;
     FOR usr_row IN 

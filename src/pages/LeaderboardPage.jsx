@@ -36,14 +36,36 @@ export default function LeaderboardPage() {
   }, [userProfile, getLeagueInfo]);
 
   const promoteCutoff = useMemo(() => {
-    if (leaderboard.length <= 3) return 1;
-    return Math.max(1, Math.floor(leaderboard.length * 0.23));
-  }, [leaderboard]);
+    const cityLvl = Math.floor(((league?.id || 1) - 1) / 4) + 1;
+    let pPct = 0.23;
+    if (cityLvl === 1) pPct = 0.40;
+    else if (cityLvl === 2) pPct = 0.30;
+    else if (cityLvl === 3) pPct = 0.25;
+    else if (cityLvl === 4) pPct = 0.20;
+    else if (cityLvl === 5) pPct = 0.15;
+    else if (cityLvl === 6) pPct = 0.10;
+    else pPct = 0.05;
+
+    let cutoff = Math.round(leaderboard.length * pPct);
+    if (cutoff === 0 && leaderboard.length >= 3) cutoff = 1;
+    return cutoff;
+  }, [leaderboard.length, league?.id]);
 
   const demoteCutoff = useMemo(() => {
-    if (leaderboard.length <= 3) return leaderboard.length + 1; // no demotion in tiny brackets
-    return leaderboard.length - Math.max(1, Math.floor(leaderboard.length * 0.23)) + 1;
-  }, [leaderboard]);
+    const cityLvl = Math.floor(((league?.id || 1) - 1) / 4) + 1;
+    let dPct = 0.23;
+    if (cityLvl === 1) dPct = 0.00;
+    else if (cityLvl === 2) dPct = 0.15;
+    else if (cityLvl === 3) dPct = 0.20;
+    else if (cityLvl === 4) dPct = 0.20;
+    else if (cityLvl === 5) dPct = 0.25;
+    else if (cityLvl === 6) dPct = 0.30;
+    else dPct = 0.35;
+
+    const dCount = Math.round(leaderboard.length * dPct);
+    if (dCount === 0) return leaderboard.length + 1; // nobody demotes
+    return leaderboard.length - dCount + 1;
+  }, [leaderboard.length, league?.id]);
 
   const userRank = useMemo(() => {
     const idx = leaderboard.findIndex(u => u.user_id === user?.id);
