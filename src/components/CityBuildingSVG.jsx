@@ -33,6 +33,26 @@ export const getHabitTheme = (icon) => {
   }
 };
 
+export const getBuildingName = (icon, level) => {
+  const theme = getHabitTheme(icon);
+  const names = {
+    fitness: ['Gym', 'Fitness Center', 'Sports Club', 'Athletic Complex', 'Olympia', 'Titan Arena', 'Apex Colosseum'],
+    water: ['Water Pump', 'Reservoir', 'Hydration Plant', 'Aqueduct', 'Marine Center', 'Tsunami Station', 'Atlantis Spire'],
+    study: ['Library', 'Study Hall', 'Academy', 'University', 'Institute of Tech', 'Grand Athenaeum', 'Knowledge Tower'],
+    air: ['Windmill', 'Eco Base', 'Air Purifier', 'Sky Lounge', 'Observatory', 'Stratosphere Hub', 'Aero Spire'],
+    discipline: ['Outpost', 'Fort', 'Bastion', 'Citadel', 'Monastery', 'Grand Temple', 'Fortress of Will'],
+    morning: ['Sun Dial', 'Morning Tower', 'Solar Array', 'Dawn Point', 'Horizon Hub', 'Sunrise Palace', 'Helios Spire'],
+    coding: ['Startup HQ', 'Coding Hub', 'Tech Incubator', 'Server Farm', 'Dev HQ', 'Cyber Nexus', 'Silicon Tower'],
+    art: ['Studio', 'Gallery', 'Art House', 'Design Hub', 'Creative Institute', 'Grand Museum', 'Palace of Arts'],
+    gaming: ['Arcade', 'Gaming Arena', 'E-Sports Hub', 'VR Center', 'Pixel Palace', 'Next-Gen Tower', 'Nexus Spire'],
+    focus: ['Focus Room', 'Zen Garden', 'Meditation Hall', 'Sanctuary', 'Clarity Temple', 'Ascension Spire', 'Astral Nexus'],
+    neutral: ['House', 'Apartment', 'Block', 'Complex', 'Tower', 'Skyscraper', 'Monolith']
+  };
+  const list = names[theme] || names.neutral;
+  const l = Math.max(1, Math.min(level, 7));
+  return list[l - 1]; // level 1-7
+};
+
 const ICON_MAP = {
   activity: Activity, droplet: Droplet, dumbbell: Dumbbell, book: Book, coffee: Coffee,
   music: Music, heart: Heart, sun: Sun, moon: Moon, star: Star, zap: Zap, apple: Apple,

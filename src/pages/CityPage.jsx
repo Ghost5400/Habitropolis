@@ -4,6 +4,7 @@ import { useCity } from '../hooks/useCity';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
 import Building from '../components/Building';
+import { getBuildingName } from '../components/CityBuildingSVG';
 import { Building2, Sparkles, X, Sunrise, Moon, Archive } from 'lucide-react';
 import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
@@ -73,7 +74,7 @@ export default function CityPage() {
   // Calculate highest city level
   const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
   const cityLvl = Math.min(7, highestStars + 1);
-  const GRID_SIZE = cityLvl + 5; // Level 1 is 6x6, Level 2 is 7x7, etc.
+  const GRID_SIZE = 4; // Hardcoded 4x4 grid as requested
 
   // Filter elements into grid/tray arrays
   const placedHabits = habits.filter(h => layout[h.id] != null);
@@ -445,6 +446,19 @@ export default function CityPage() {
             </div>
             
             <div className="detail-stats">
+              <div className="detail-stat">
+                <span className="detail-label">Habit Name</span>
+                <span className="detail-value text-xl font-bold">{habits.find(h => h.id === selectedBuilding)?.name}</span>
+              </div>
+              <div className="detail-stat">
+                <span className="detail-label">Building Name</span>
+                <span className="detail-value text-xl font-bold">
+                  {getBuildingName(
+                     habits.find(h => h.id === selectedBuilding)?.icon,
+                     getBuildingForHabit(selectedBuilding)?.level || (getBuildingForHabit(selectedBuilding)?.golden_stars || 0) + 1
+                  )}
+                </span>
+              </div>
               <div className="detail-stat">
                 <span className="detail-label">Coordinate</span>
                 <span className="detail-value text-xl font-bold">{layout[selectedBuilding] ? `C${layout[selectedBuilding].col} R${layout[selectedBuilding].row}` : 'In Tray'}</span>
