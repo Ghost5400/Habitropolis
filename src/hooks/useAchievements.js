@@ -51,14 +51,84 @@ export const useAchievements = () => {
         .eq('completed', true);
       
       stats.habits_completed = habits_completed || 0;
-      stats.total_coins = coins; 
+      
+      // Calculate total coins earned from transactions directly
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('type', 'earn');
+      
+      let totalCoinsEarned = 0;
+      if (transactions) {
+         totalCoinsEarned = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+      }
+      stats.total_coins = totalCoinsEarned;
 
-      const { data: habitsList } = await supabase.from('habits').select('streak').eq('user_id', user.id);
+      // Better query to get highest streak among all habits
+      const { data: streaksList } = await supabase
+        .from('streaks')
+        .select('best_streak, current_streak')
+        .eq('user_id', user.id);
+        
       let best_streak = 0;
-      if (habitsList) {
-        habitsList.forEach(h => { if (h.streak > best_streak) best_streak = h.streak; });
+      if (streaksList) {
+        streaksList.forEach(s => { 
+          if (s.best_streak > best_streak) best_streak = s.best_streak;
+          if (s.current_streak > best_streak) best_streak = s.current_streak;
+        });
       }
       stats.streak = best_streak;
+
+      // Calculate max bad habit streak
+      const { data: badHabitsList } = await supabase
+        .from('habits')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('type', 'bad_habit_stopper');
+      
+      let best_bad_habit_streak = 0;
+      if (badHabitsList && badHabitsList.length > 0) {
+        const badHabitIds = badHabitsList.map(h => h.id);
+        const { data: badStreaks } = await supabase
+          .from('streaks')
+          .select('best_streak, current_streak')
+          .in('habit_id', badHabitIds);
+          
+        if (badStreaks) {
+          badStreaks.forEach(s => {
+            if (s.best_streak > best_bad_habit_streak) best_bad_habit_streak = s.best_streak;
+            if (s.current_streak > best_bad_habit_streak) best_bad_habit_streak = s.current_streak;
+          });
+        }
+      }
+      stats.bad_habit_streak = best_bad_habit_streak;
+
+      // Count counter completions
+      const { data: counterHabits } = await supabase
+        .from('habits')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('type', 'counter');
+        
+      let counter_completions = 0;
+      if (counterHabits && counterHabits.length > 0) {
+        const counterIds = counterHabits.map(h => h.id);
+        const { count: cCount } = await supabase
+          .from('habit_logs')
+          .select('*', { count: 'exact', head: true })
+          .in('habit_id', counterIds)
+          .eq('completed', true);
+        counter_completions = cCount || 0;
+      }
+      stats.counter_completions = counter_completions;
+
+      // Count total shields used
+      const { count: shieldsCount } = await supabase
+        .from('shields')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      stats.shields_used = shieldsCount || 0;
 
       // Iteratively unlock any newly met threshold
       for (const achievement of achievements) {
