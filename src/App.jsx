@@ -13,6 +13,7 @@ import NewHabitPage from './pages/NewHabitPage';
 import HabitDetailPage from './pages/HabitDetailPage';
 import CityPage from './pages/CityPage';
 import ShopPage from './pages/ShopPage';
+import LeaderboardPage from './pages/LeaderboardPage';
 import AchievementsPage from './pages/AchievementsPage';
 import StatsPage from './pages/StatsPage';
 import SettingsPage from './pages/SettingsPage';
@@ -50,6 +51,7 @@ function AppRoutes() {
           <Route path="/habits/:id" element={<HabitDetailPage />} />
           <Route path="/city" element={<CityPage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

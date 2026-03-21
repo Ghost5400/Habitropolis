@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
-import { LayoutDashboard, Target, Building2, ShoppingBag, Trophy, BarChart3, Settings, LogOut, Coins, Volume2, VolumeX, Music } from 'lucide-react';
+import { LayoutDashboard, Target, Building2, ShoppingBag, Trophy, BarChart3, Settings, LogOut, Coins, Volume2, VolumeX, Music, Medal } from 'lucide-react';
 import soundManager from '../lib/SoundManager';
 import './Navbar.css';
 
@@ -43,6 +43,7 @@ export default function Navbar() {
     { to: '/habits', icon: Target, label: 'Habits' },
     { to: '/city', icon: Building2, label: 'City' },
     { to: '/shop', icon: ShoppingBag, label: 'Shop' },
+    { to: '/leaderboard', icon: Medal, label: 'Leagues' },
     { to: '/achievements', icon: Trophy, label: 'Achievements' },
     { to: '/stats', icon: BarChart3, label: 'Stats' },
     { to: '/settings', icon: Settings, label: 'Settings' },

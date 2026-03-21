@@ -1,0 +1,132 @@
+.leaderboard-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.league-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.league-icon {
+  color: var(--primary);
+  filter: drop-shadow(0 0 10px rgba(126, 34, 206, 0.4));
+}
+
+.league-title h1 {
+  margin: 0;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #fff, #cbd5e1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.league-title p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.league-stats {
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+.leaderboard-error {
+  text-align: center;
+  padding: 4rem 2rem;
+  border-radius: 16px;
+  margin-top: 4rem;
+}
+
+.leaderboard-board {
+  border-radius: 16px;
+  padding: 1rem 0;
+  overflow: hidden;
+}
+
+.board-legend {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+.text-success { color: #4ade80; display: flex; align-items: center; gap: 0.25rem; }
+.text-danger { color: #f87171; display: flex; align-items: center; gap: 0.25rem; }
+
+.board-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.board-row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s;
+}
+
+.board-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.board-row.is-me {
+  background: rgba(126, 34, 206, 0.15);
+  border-left: 4px solid var(--primary);
+}
+
+.board-rank {
+  width: 60px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.rank-safe .rank-num { color: #94a3b8; }
+.rank-safe .rank-indicator { color: rgba(255,255,255,0.1); }
+
+.rank-promote .rank-num { color: #4ade80; }
+.rank-promote .rank-indicator { color: #4ade80; }
+
+.rank-demote .rank-num { color: #f87171; }
+.rank-demote .rank-indicator { color: #f87171; }
+
+.board-name {
+  flex: 1;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.me-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.board-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: bold;
+  color: #fff;
+}

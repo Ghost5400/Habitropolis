@@ -110,6 +110,16 @@ export function GameProvider({ children }) {
         .update({ coins: newCoins })
         .eq('user_id', user.id);
 
+      // Attempt to increment the weekly league score if the DB migration has been run
+      try {
+        const { data: scoreData } = await supabase.from('profiles').select('weekly_score').eq('user_id', user.id).single();
+        if (scoreData && scoreData.weekly_score !== undefined) {
+          await supabase.from('profiles').update({ weekly_score: scoreData.weekly_score + amount }).eq('user_id', user.id);
+        }
+      } catch (scoreErr) {
+        // Silently fail if league column doesn't exist yet
+      }
+
       await supabase.from('transactions').insert({
         user_id: user.id,
         type: 'earn',
