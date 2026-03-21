@@ -81,7 +81,7 @@ export default function HabitsPage() {
             ))}
           </div>
 
-          <button className="btn btn-primary" onClick={() => navigate('/habits/new')}>
+          <button className="btn btn-primary tour-new-habit" onClick={() => navigate('/habits/new')}>
             <Plus size={18} />
             New Habit
           </button>

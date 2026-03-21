@@ -11,8 +11,10 @@ export default function Building({ habit, building, maxFloors, isSelected, onCli
   const level = Math.min(stars + 1, 7);
   const theme = getHabitTheme(habit?.icon);
   
-  // Predict the exact transparent PNG filepath you will generate later
-  const imagePath = `/assets/buildings/${theme}_L${level}.png`;
+  // Use .svg for the missing assets that were dynamically generated in Node, otherwise .png
+  const fallbackAssets = ['air_L1', 'air_L2', 'art_L2', 'gaming_L2', 'focus_L2'];
+  const ext = fallbackAssets.includes(`${theme}_L${level}`) ? 'svg' : 'png';
+  const imagePath = `/assets/buildings/${theme}_L${level}.${ext}`;
 
   return (
     <div

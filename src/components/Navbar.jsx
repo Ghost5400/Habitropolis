@@ -40,10 +40,10 @@ export default function Navbar() {
 
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/habits', icon: Target, label: 'Habits' },
-    { to: '/city', icon: Building2, label: 'City' },
-    { to: '/shop', icon: ShoppingBag, label: 'Shop' },
-    { to: '/leaderboard', icon: Medal, label: 'Leagues' },
+    { to: '/habits', icon: Target, label: 'Habits', tourClass: 'tour-habits-link' },
+    { to: '/city', icon: Building2, label: 'City', tourClass: 'tour-city-link' },
+    { to: '/shop', icon: ShoppingBag, label: 'Shop', tourClass: 'tour-shop-link' },
+    { to: '/leaderboard', icon: Medal, label: 'Leagues', tourClass: 'tour-leaderboard-link' },
     { to: '/achievements', icon: Trophy, label: 'Achievements' },
     { to: '/stats', icon: BarChart3, label: 'Stats' },
     { to: '/settings', icon: Settings, label: 'Settings' },
@@ -57,11 +57,11 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-links">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon: Icon, label, tourClass }) => (
           <NavLink
             key={to}
             to={to}
-            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''} ${tourClass || ''}`}
             onClick={handleNavClick}
           >
             <Icon size={20} />

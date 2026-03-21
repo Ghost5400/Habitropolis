@@ -6,7 +6,7 @@ import { useCity } from '../hooks/useCity';
 import { useCoins } from '../hooks/useCoins';
 import QuoteBanner from '../components/QuoteBanner';
 import HabitCard from '../components/HabitCard';
-import { scheduleHabitReminders, registerServiceWorker } from '../lib/notifications';
+import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
 import { Target, Flame, Coins, Building2 } from 'lucide-react';
 import './DashboardPage.css';
 
@@ -20,6 +20,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     registerServiceWorker();
+    setTimeout(() => {
+      requestNotificationPermission();
+    }, 3000);
     if (habits.length > 0) {
       scheduleHabitReminders(habits);
     }
@@ -89,7 +92,7 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       <QuoteBanner />
 
-      <div className="dashboard-stats">
+      <div className="dashboard-stats tour-dashboard-stats">
         <div className="stat-card glass-sm">
           <Target size={22} className="stat-icon" />
           <div>
