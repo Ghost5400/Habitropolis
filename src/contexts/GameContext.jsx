@@ -101,6 +101,27 @@ export function GameProvider({ children }) {
     }
   };
 
+  // Increment weekly league score (silently fails if migration not run)
+  const addWeeklyXP = async (points) => {
+    if (!user || !points) return;
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('weekly_score')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data && data.weekly_score !== undefined) {
+        await supabase
+          .from('profiles')
+          .update({ weekly_score: (data.weekly_score || 0) + points })
+          .eq('user_id', user.id);
+      }
+    } catch (err) {
+      // Silently fail — league columns may not exist yet
+    }
+  };
+
   const addCoins = async (amount, description = 'Habit completion') => {
     if (!user) return;
     try {
@@ -110,15 +131,8 @@ export function GameProvider({ children }) {
         .update({ coins: newCoins })
         .eq('user_id', user.id);
 
-      // Attempt to increment the weekly league score if the DB migration has been run
-      try {
-        const { data: scoreData } = await supabase.from('profiles').select('weekly_score').eq('user_id', user.id).single();
-        if (scoreData && scoreData.weekly_score !== undefined) {
-          await supabase.from('profiles').update({ weekly_score: scoreData.weekly_score + amount }).eq('user_id', user.id);
-        }
-      } catch (scoreErr) {
-        // Silently fail if league column doesn't exist yet
-      }
+      // Coins also count as weekly XP
+      await addWeeklyXP(amount);
 
       await supabase.from('transactions').insert({
         user_id: user.id,
@@ -274,6 +288,7 @@ export function GameProvider({ children }) {
         ...state,
         dispatch,
         addCoins,
+        addWeeklyXP,
         spendCoins,
         updateBuilding,
         buyDecoration,

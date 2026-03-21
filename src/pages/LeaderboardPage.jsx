@@ -1,138 +1,324 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
-import { Trophy, ChevronUp, ChevronDown, Minus, Medal } from 'lucide-react';
+import { useLeague } from '../hooks/useLeague';
+import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap } from 'lucide-react';
 import './LeaderboardPage.css';
 
-const LEAGUES = [
-  'Dirt League', 'Wood League', 'Stone League', 'Brick League',
-  'Copper League', 'Iron League', 'Steel League', 'Cobalt League',
-  'Amber League', 'Topaz League', 'Quartz League', 'Pearl League',
-  'Jade League', 'Sapphire League', 'Emerald League', 'Ruby League',
-  'Bronze League', 'Silver League', 'Gold League', 'Platinum League',
-  'Obsidian League', 'Neon League', 'Plasma League', 'Titanium League',
-  'Diamond League', 'Apex League', 'Quantum League', 'Celestial League'
-];
+const TIER_ICONS = {
+  'Dwelling': '🏚️',
+  'Settlement': '⛺',
+  'Village': '🏘️',
+  'Town': '🏙️',
+  'City': '🌆',
+  'Metropolis': '🌃',
+  'Megalopolis': '✨',
+};
+
+const RANK_MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState(null);
-  const [error, setError] = useState(null);
+  const {
+    userProfile,
+    leaderboard,
+    loading,
+    error,
+    leagueReady,
+    leagueData,
+    getLeagueInfo,
+    loadLeaderboard,
+  } = useLeague();
 
-  useEffect(() => {
-    if (user) loadLeaderboard();
-  }, [user]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadLeaderboard = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      // Try to fetch the user's profile to get their group & league
-      const { data: profile, error: profileErr } = await supabase
-        .from('profiles')
-        .select('league_id, weekly_score, leaderboard_group_id, display_name')
-        .eq('user_id', user.id)
-        .single();
+  const league = useMemo(() => {
+    return getLeagueInfo(userProfile?.league_id || 1);
+  }, [userProfile, getLeagueInfo]);
 
-      if (profileErr) throw profileErr;
-      
-      // If the columns don't exist (migration not run yet) this will throw and we handle it below
-      if (profile.league_id === undefined) {
-        throw new Error("League system not initialized in DB");
-      }
+  const promoteCutoff = useMemo(() => {
+    if (leaderboard.length <= 3) return 1;
+    return Math.max(1, Math.floor(leaderboard.length * 0.23));
+  }, [leaderboard]);
 
-      setUserProfile(profile);
+  const demoteCutoff = useMemo(() => {
+    if (leaderboard.length <= 3) return leaderboard.length + 1; // no demotion in tiny brackets
+    return leaderboard.length - Math.max(1, Math.floor(leaderboard.length * 0.23)) + 1;
+  }, [leaderboard]);
 
-      // Fetch the bracket
-      const { data: bracket, error: bracketErr } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, weekly_score')
-        .eq('leaderboard_group_id', profile.leaderboard_group_id)
-        .eq('league_id', profile.league_id)
-        .order('weekly_score', { ascending: false });
+  const userRank = useMemo(() => {
+    const idx = leaderboard.findIndex(u => u.user_id === user?.id);
+    return idx >= 0 ? idx + 1 : null;
+  }, [leaderboard, user]);
 
-      if (bracketErr) throw bracketErr;
-
-      setLeaderboard(bracket || []);
-    } catch (err) {
-      console.error('Leaderboard error:', err);
-      setError("Please run the SQL migration script in Supabase to enable League tracking!");
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadLeaderboard();
+    setTimeout(() => setRefreshing(false), 500);
   };
 
-  if (loading) return <div className="page-loading"><div className="loading-spinner"/>Loading League...</div>;
+  // Calculate next league info
+  const nextLeague = useMemo(() => {
+    if (!league || league.id >= 28) return null;
+    return leagueData.find(l => l.id === league.id + 1);
+  }, [league, leagueData]);
 
-  if (error) {
+  const prevLeague = useMemo(() => {
+    if (!league || league.id <= 1) return null;
+    return leagueData.find(l => l.id === league.id - 1);
+  }, [league, leagueData]);
+
+  if (loading) {
     return (
       <div className="leaderboard-page">
-        <div className="leaderboard-error glass">
-          <Trophy size={48} className="text-warning mb-4" />
-          <h2>League System Not Ready</h2>
-          <p>{error}</p>
+        <div className="league-loading">
+          <div className="league-loading-orb">
+            <Medal size={48} />
+          </div>
+          <p>Loading League...</p>
         </div>
       </div>
     );
   }
 
-  const userLeagueName = LEAGUES[(userProfile?.league_id || 1) - 1];
+  if (error) {
+    return (
+      <div className="leaderboard-page">
+        <div className="league-error-card glass">
+          <div className="league-error-icon">
+            <Trophy size={56} />
+          </div>
+          <h2>League System Setup Required</h2>
+          {error === 'migration_needed' ? (
+            <>
+              <p>The league tables haven't been created in your Supabase database yet.</p>
+              <div className="league-error-steps">
+                <div className="error-step">
+                  <span className="step-num">1</span>
+                  <span>Open your Supabase Dashboard → SQL Editor</span>
+                </div>
+                <div className="error-step">
+                  <span className="step-num">2</span>
+                  <span>Run the <code>supabase/league_migration.sql</code> file</span>
+                </div>
+                <div className="error-step">
+                  <span className="step-num">3</span>
+                  <span>Refresh this page</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p>{error}</p>
+          )}
+          <button className="btn btn-primary" onClick={handleRefresh}>
+            <RefreshCw size={16} /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="leaderboard-page">
-      <div className="leaderboard-header">
-        <div className="league-title">
-          <Medal size={40} className="league-icon" />
-          <div>
-            <h1>{userLeagueName}</h1>
-            <p>Complete habits and earn coins to rank up!</p>
+      {/* League Header */}
+      <div className="league-hero" style={{ '--league-color': league.color }}>
+        <div className="league-hero-bg">
+          <div className="hero-particles">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="hero-particle" style={{ 
+                '--delay': `${i * 0.3}s`,
+                '--x': `${10 + Math.random() * 80}%`,
+                '--size': `${3 + Math.random() * 5}px`
+              }} />
+            ))}
           </div>
         </div>
-        <div className="league-stats glass-sm">
-          <div>Your Score: <strong>{userProfile?.weekly_score || 0}</strong> XP</div>
+
+        <div className="league-hero-content">
+          <div className="league-emblem">
+            <div className="emblem-ring" />
+            <div className="emblem-ring emblem-ring-2" />
+            <span className="emblem-icon">{TIER_ICONS[league.tier] || '🏆'}</span>
+          </div>
+
+          <div className="league-hero-info">
+            <div className="league-tier-label">{league.tier} • Tier {league.city_level}/7</div>
+            <h1 className="league-hero-name">{league.name}</h1>
+            <p className="league-hero-sub">
+              {league.id < 28 ? 'Rank up by earning XP from habits & coins!' : 'You\'ve reached the pinnacle!'}
+            </p>
+          </div>
+
+          <div className="league-hero-stats">
+            <div className="hero-stat">
+              <Zap size={18} />
+              <span className="hero-stat-value">{userProfile?.weekly_score || 0}</span>
+              <span className="hero-stat-label">Weekly XP</span>
+            </div>
+            {userRank && (
+              <div className="hero-stat">
+                <Medal size={18} />
+                <span className="hero-stat-value">#{userRank}</span>
+                <span className="hero-stat-label">Rank</span>
+              </div>
+            )}
+            <div className="hero-stat">
+              <Swords size={18} />
+              <span className="hero-stat-value">{leaderboard.length}</span>
+              <span className="hero-stat-label">Competitors</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="leaderboard-board glass">
-        <div className="board-legend">
-          <span className="text-success"><ChevronUp size={16}/> Promotion Zone (Top 7)</span>
-          <span className="text-danger"><ChevronDown size={16}/> Demotion Zone (Bottom 7)</span>
+      {/* League Progression Bar */}
+      <div className="league-progression glass-sm">
+        <div className="progression-row">
+          {prevLeague && (
+            <div className="progression-prev">
+              <ChevronDown size={14} className="text-demote"/>
+              <span style={{ color: prevLeague.color }}>{prevLeague.name}</span>
+            </div>
+          )}
+          <div className="progression-current">
+            <Star size={14} className="text-current"/>
+            <strong style={{ color: league.color }}>{league.name}</strong>
+          </div>
+          {nextLeague && (
+            <div className="progression-next">
+              <ChevronUp size={14} className="text-promote"/>
+              <span style={{ color: nextLeague.color }}>{nextLeague.name}</span>
+            </div>
+          )}
+        </div>
+        <div className="progression-bar">
+          <div 
+            className="progression-fill"
+            style={{ 
+              width: `${Math.min(100, ((league.id - 1) / 27) * 100)}%`,
+              background: `linear-gradient(90deg, ${league.color}, ${league.color}dd)` 
+            }}
+          />
+          {[...Array(7)].map((_, i) => (
+            <div 
+              key={i} 
+              className={`progression-marker ${league.city_level > i + 1 ? 'completed' : league.city_level === i + 1 ? 'current' : ''}`}
+              style={{ left: `${(i / 6) * 100}%` }}
+              title={['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'][i]}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Leaderboard */}
+      <div className="league-board glass">
+        <div className="board-header">
+          <h2><Swords size={20} /> This Week's Bracket</h2>
+          <button 
+            className={`btn btn-sm btn-secondary refresh-btn ${refreshing ? 'spinning' : ''}`}
+            onClick={handleRefresh}
+          >
+            <RefreshCw size={14} />
+          </button>
+        </div>
+
+        <div className="board-zones">
+          {league.id < 28 && (
+            <span className="zone-badge zone-promote">
+              <ChevronUp size={14}/> Top {promoteCutoff} promote
+            </span>
+          )}
+          {league.id > 1 && (
+            <span className="zone-badge zone-demote">
+              <ChevronDown size={14}/> Bottom {Math.max(1, Math.floor(leaderboard.length * 0.23))} demote
+            </span>
+          )}
         </div>
 
         <div className="board-list">
           {leaderboard.map((u, i) => {
             const rank = i + 1;
             const isMe = u.user_id === user.id;
-            const isPromotion = rank <= 7 && userProfile.league_id < 28;
-            const isDemotion = rank >= (Math.max(leaderboard.length - 6, 24)) && userProfile.league_id > 1;
+            const isPromotion = rank <= promoteCutoff && league.id < 28;
+            const isDemotion = rank >= demoteCutoff && league.id > 1;
 
-            let rankClass = "rank-safe";
-            let RankIcon = Minus;
-            if (isPromotion) { rankClass = "rank-promote"; RankIcon = ChevronUp; }
-            if (isDemotion) { rankClass = "rank-demote"; RankIcon = ChevronDown; }
+            let zoneClass = 'zone-safe';
+            let ZoneIcon = Minus;
+            if (isPromotion) { zoneClass = 'zone-up'; ZoneIcon = ChevronUp; }
+            if (isDemotion) { zoneClass = 'zone-down'; ZoneIcon = ChevronDown; }
 
             return (
-              <div key={u.user_id} className={`board-row ${isMe ? 'is-me' : ''} ${rankClass}`}>
-                <div className="board-rank">
-                  <span className="rank-num">{rank}</span>
-                  <RankIcon size={16} className="rank-indicator" />
+              <div
+                key={u.user_id}
+                className={`board-row ${isMe ? 'is-me' : ''} ${zoneClass}`}
+                style={{ '--row-delay': `${i * 0.04}s` }}
+              >
+                <div className="board-rank-cell">
+                  {rank <= 3 ? (
+                    <span className="rank-medal">{RANK_MEDALS[rank - 1]}</span>
+                  ) : (
+                    <span className="rank-number">{rank}</span>
+                  )}
+                  <ZoneIcon size={14} className="zone-arrow" />
                 </div>
-                <div className="board-name">
-                  {u.display_name || 'Anonymous User'} 
-                  {isMe && <span className="me-badge">YOU</span>}
+
+                <div className="board-player">
+                  <div className="player-avatar" style={{ 
+                    background: isMe 
+                      ? `linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))` 
+                      : `linear-gradient(135deg, ${league.color}88, ${league.color}44)` 
+                  }}>
+                    {(u.display_name || 'A')[0].toUpperCase()}
+                  </div>
+                  <div className="player-info">
+                    <span className="player-name">
+                      {u.display_name || 'Anonymous'}
+                      {isMe && <span className="you-badge">YOU</span>}
+                    </span>
+                  </div>
                 </div>
-                <div className="board-score">
-                  {u.weekly_score} XP
+
+                <div className="board-xp">
+                  <Zap size={14} className="xp-icon" />
+                  <span>{u.weekly_score || 0}</span>
+                  <span className="xp-label">XP</span>
                 </div>
               </div>
             );
           })}
 
           {leaderboard.length === 0 && (
-            <div className="p-8 text-center muted-text">Bracket is calculating...</div>
+            <div className="board-empty">
+              <Sparkles size={32} />
+              <p>Waiting for competitors...</p>
+              <span>Complete habits to earn XP and climb the ranks!</span>
+            </div>
           )}
+
+          {leaderboard.length === 1 && leaderboard[0]?.user_id === user?.id && (
+            <div className="board-solo-notice">
+              <Shield size={20} />
+              <p>You're the first in your bracket! As more players join Habitropolis, they'll be placed in your group for competition.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* All Leagues Overview */}
+      <div className="all-leagues glass">
+        <h2><Crown size={20} /> All 28 Leagues</h2>
+        <div className="leagues-grid">
+          {leagueData.map(l => (
+            <div 
+              key={l.id}
+              className={`league-chip ${l.id === league.id ? 'current' : ''} ${l.id < league.id ? 'passed' : ''}`}
+              style={{ '--chip-color': l.color }}
+            >
+              <span className="chip-tier-icon">{TIER_ICONS[l.tier]}</span>
+              <span className="chip-name">{l.name.replace(' League', '')}</span>
+              <span className="chip-level">Lv{l.city_level}</span>
+              {l.id === league.id && <span className="chip-current-dot" />}
+            </div>
+          ))}
         </div>
       </div>
     </div>

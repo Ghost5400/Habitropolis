@@ -14,10 +14,20 @@ export default function HabitsPage() {
   const navigate = useNavigate();
   const { habits, todayLogs, loading, completeHabit, deleteHabit } = useHabits();
   const { streaks, updateStreak } = useStreaks();
-  const { addCoins } = useGame();
+  const { addCoins, addWeeklyXP } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
   const [filter, setFilter] = useState('all');
+
+  // Bonus XP for habit completion (on top of coins)
+  const getHabitXP = (difficulty) => {
+    switch (difficulty) {
+      case 'easy': return 10;
+      case 'medium': return 20;
+      case 'hard': return 35;
+      default: return 10;
+    }
+  };
 
   const filtered = filter === 'all'
     ? habits
@@ -30,6 +40,8 @@ export default function HabitsPage() {
       soundManager.playSuccess();
       const reward = getCoinReward(habit.difficulty);
       await addCoins(reward, `Completed: ${habit.name}`);
+      // Bonus XP for habit completion (coins already give XP via addCoins)
+      await addWeeklyXP(getHabitXP(habit.difficulty));
       soundManager.playCoinEarn();
       await updateStreak(habit.id, true);
       await growBuilding(habit.id, habit.frequency);

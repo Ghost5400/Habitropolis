@@ -46,6 +46,8 @@ export function AuthProvider({ children }) {
           avatar_url: user.user_metadata?.avatar_url || null,
           coins: 50,
           premium: false,
+          league_id: 1,
+          weekly_score: 0,
         });
       }
     } catch (err) {
