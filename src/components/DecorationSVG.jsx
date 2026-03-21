@@ -27,9 +27,9 @@ const IsoTile = ({ cx = 100, cy = 150, dx = 50, dy = 25, color, pattern }) => {
 };
 
 export default function DecorationSVG({ type = 'tree-oak', className = '' }) {
-  // Base coordinate for grid center
+  // Base coordinate for grid center - aligned precisely with the center of the 200x200 viewBox
   const BX = 100;
-  const BY = 150;
+  const BY = 100;
 
   // Colors
   const trunk = { top: '#78350f', left: '#92400e', right: '#451a03' };

@@ -324,7 +324,7 @@ export default function CityPage() {
                       style={{
                         left: x, top: `${y}px`, zIndex: zIndex + 2,
                         transform: 'translate(-50%, -50%)',
-                        width: '120px', height: '120px',
+                        width: '240px', height: '240px',
                       }}
                       onDragOver={(e) => onDragOverGrid(e, pos.col, pos.row)}
                       onDrop={(e) => onDropGrid(e, pos.col, pos.row)}
