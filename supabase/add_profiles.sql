@@ -9,9 +9,12 @@ ADD COLUMN IF NOT EXISTS username text,
 ADD COLUMN IF NOT EXISTS avatar_id text DEFAULT 'default';
 
 -- Step 2: Seed existing users with a default username based on their email
+-- Get email from auth.users table since it's not in profiles
 UPDATE profiles 
-SET username = split_part(email, '@', 1) 
-WHERE username IS NULL OR username = '';
+SET username = split_part(auth_user.email, '@', 1)
+FROM auth.users AS auth_user
+WHERE profiles.user_id = auth_user.id
+  AND (profiles.username IS NULL OR profiles.username = '');
 
 -- Note: We can add a unique constraint here if desired, but for an MVP, 
 -- simple display names are fine and less complex to manage.
@@ -23,9 +26,9 @@ WHERE username IS NULL OR username = '';
 -- If not, here it is:
 DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON profiles;
 CREATE POLICY "Profiles are viewable by everyone" ON profiles
-  FOR SELECT USING (true);
+   FOR SELECT USING (true);
 
 -- Step 4: Ensure users can update their OWN profile
 DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 CREATE POLICY "Users can update their own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = user_id);
+   FOR UPDATE USING (auth.uid() = user_id);
