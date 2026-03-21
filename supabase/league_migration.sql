@@ -62,14 +62,18 @@ ADD COLUMN IF NOT EXISTS leaderboard_group_id UUID;
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 DROP POLICY IF EXISTS "Users can view profiles in same bracket" ON profiles;
 
+-- Create a SECURITY DEFINER function to get the user's bracket safely without triggering RLS recursively
+CREATE OR REPLACE FUNCTION get_auth_user_bracket()
+RETURNS UUID AS $$
+  SELECT leaderboard_group_id FROM profiles WHERE user_id = auth.uid();
+$$ LANGUAGE sql SECURITY DEFINER;
+
 -- Users can see their own profile OR other profiles in the same bracket
 CREATE POLICY "Users can view profiles in same bracket" ON profiles
   FOR SELECT USING (
     auth.uid() = user_id 
     OR 
-    leaderboard_group_id IN (
-      SELECT p.leaderboard_group_id FROM profiles p WHERE p.user_id = auth.uid()
-    )
+    leaderboard_group_id = get_auth_user_bracket()
   );
 
 -- Keep the existing update policy (own profile only)
