@@ -207,12 +207,15 @@ export default function CityPage() {
     }
   }
 
+  const cityTitles = ['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'];
+  const currentTitle = cityTitles[cityLvl - 1] || 'City';
+
   return (
     <div className="city-page">
       <div className="city-header">
         <div className="city-title-row">
           <Building2 size={32} className="city-icon" />
-          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} Town (Lv {cityLvl})</h1>
+          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} {currentTitle} (Lv {cityLvl})</h1>
         </div>
         <div className="city-overview">
           <div className="city-stat glass-sm">{habits.length} Buildings</div>
