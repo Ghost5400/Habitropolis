@@ -1,14 +1,23 @@
 // Service Worker for Habitropolis
 // Handles push notifications and caching
 
-const CACHE_NAME = 'habitropolis-v1';
+const CACHE_NAME = 'habitropolis-v2'; // Updated for cache busting
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+  clients.claim();
 });
 
 self.addEventListener('push', (event) => {
