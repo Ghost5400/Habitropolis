@@ -22,8 +22,6 @@ export default function AchievementsPage() {
     { id: '3', name: 'Week Warrior', description: 'Reach a 7-day streak', icon: '🔥', reward_coins: 50 },
     { id: '4', name: 'Month Master', description: 'Reach a 30-day streak', icon: '👑', reward_coins: 200 },
     { id: '5', name: 'City Planner', description: 'Own 5 buildings', icon: '🏗️', reward_coins: 100 },
-    { id: '6', name: 'Skyscraper', description: 'Reach max floors on a building', icon: '🏢', reward_coins: 100 },
-    { id: '7', name: 'Golden Collection', description: 'Earn 5 golden stars', icon: '⭐', reward_coins: 300 },
     { id: '8', name: 'Decorator', description: 'Buy your first decoration', icon: '🎨', reward_coins: 20 },
     { id: '9', name: 'Hydration Hero', description: 'Complete a counter habit 30 times', icon: '💧', reward_coins: 75 },
     { id: '10', name: 'Bad Habit Breaker', description: 'Resist a bad habit for 30 days', icon: '💪', reward_coins: 150 },

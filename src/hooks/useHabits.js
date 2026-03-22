@@ -58,8 +58,6 @@ export const useHabits = () => {
     await supabase.from('city_buildings').insert({
       habit_id: data.id,
       user_id: user.id,
-      floors: 0,
-      golden_stars: 0,
       decorations: [],
     });
 

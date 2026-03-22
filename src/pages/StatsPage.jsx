@@ -46,8 +46,6 @@ export default function StatsPage() {
     .filter(s => s.current_streak > 0)
     .sort((a, b) => b.current_streak - a.current_streak);
 
-  const totalStars = buildings.reduce((sum, b) => sum + (b.golden_stars || 0), 0);
-
   // Heatmap data — last 90 days
   const heatmapData = {};
   for (let i = 0; i < 90; i++) {
@@ -110,11 +108,6 @@ export default function StatsPage() {
           <TrendingUp size={24} className="stat-icon" />
           <div className="stat-value">{completedLogs.length}</div>
           <div className="stat-label">Completed</div>
-        </div>
-        <div className="stat-card glass-sm">
-          <Calendar size={24} className="stat-icon" />
-          <div className="stat-value">{totalStars}⭐</div>
-          <div className="stat-label">Golden Stars</div>
         </div>
       </div>
 

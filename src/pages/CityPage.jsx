@@ -485,7 +485,7 @@ export default function CityPage() {
                 <span className="detail-value text-xl font-bold">
                   {getBuildingName(
                      habits.find(h => h.id === selectedBuilding)?.icon,
-                     getBuildingForHabit(selectedBuilding)?.level || (getBuildingForHabit(selectedBuilding)?.golden_stars || 0) + 1
+                     settlementLevel
                   )}
                 </span>
               </div>
