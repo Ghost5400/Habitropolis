@@ -3,10 +3,11 @@ import { useHabits } from '../hooks/useHabits';
 import { useCity } from '../hooks/useCity';
 import { useGame } from '../contexts/GameContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useLeague } from '../hooks/useLeague';
 import Building from '../components/Building';
 import { getBuildingName } from '../components/CityBuildingSVG';
 import { Building2, Sparkles, X, Sunrise, Moon, Archive } from 'lucide-react';
-import 'drag-drop-touch'; // Mobile Drag/Drop HTML5 Polyfill
+import 'drag-drop-touch';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import DecorationSVG from '../components/DecorationSVG';
 import { supabase } from '../lib/supabase';
@@ -46,8 +47,9 @@ const getScreenPos = (col, row) => ({
 export default function CityPage() {
   const { user } = useAuth();
   const { habits, loading: habitsLoading } = useHabits();
-  const { buildings, getBuildingForHabit, getMaxFloors, placeDecoration } = useCity();
+  const { buildings, getBuildingForHabit, placeDecoration } = useCity();
   const { ownedDecorations } = useGame();
+  const { settlementLevel } = useLeague();
   
   const [layout, setLayout] = useState({});
   const [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -73,13 +75,9 @@ export default function CityPage() {
   }, []);
 
   // Stats
-  const totalStars = buildings.reduce((sum, b) => sum + (b.golden_stars || 0), 0);
-  const totalFloors = buildings.reduce((sum, b) => sum + (b.floors || 0), 0);
-
-  // Calculate highest city level
-  const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
-  const cityLvl = Math.min(7, highestStars + 1);
-  const GRID_SIZE = 4; // Hardcoded 4x4 grid as requested
+  const cityTitles = ['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'];
+  const currentTitle = cityTitles[(settlementLevel || 1) - 1] || 'City';
+  const GRID_SIZE = 4;
 
   // Filter elements into grid/tray arrays
   const placedHabits = habits.filter(h => layout[h.id] != null);
@@ -238,20 +236,17 @@ export default function CityPage() {
     }
   }
 
-  const cityTitles = ['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'];
-  const currentTitle = cityTitles[cityLvl - 1] || 'City';
 
   return (
     <div className="city-page">
       <div className="city-header">
         <div className="city-title-row">
           <Building2 size={32} className="city-icon" />
-          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} {currentTitle} (Lv {cityLvl})</h1>
+          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} {currentTitle} (Lv {settlementLevel})</h1>
         </div>
         <div className="city-overview">
           <div className="city-stat glass-sm">{habits.length} Buildings</div>
-          <div className="city-stat glass-sm">{totalFloors} Floors</div>
-          <div className="city-stat glass-sm">{totalStars} ⭐ Stars</div>
+          <div className="city-stat glass-sm">Settlement Lv {settlementLevel}</div>
           <div className="city-stat glass-sm sky-indicator">
             {isDay ? <><Sunrise size={16} /> Day</> : <><Moon size={16} /> Night</>}
           </div>
@@ -398,7 +393,7 @@ export default function CityPage() {
                       <Building
                         habit={habit}
                         building={building}
-                        maxFloors={getMaxFloors(habit.frequency)}
+                        settlementLevel={settlementLevel}
                         isSelected={false}
                         onClick={() => {}}
                       />
@@ -437,7 +432,7 @@ export default function CityPage() {
                   <Building 
                     habit={habit} 
                     building={getBuildingForHabit(habit.id)} 
-                    maxFloors={getMaxFloors(habit.frequency)}
+                    settlementLevel={settlementLevel}
                   />
                 </div>
                 <span className="dock-item-name">{habit.name}</span>

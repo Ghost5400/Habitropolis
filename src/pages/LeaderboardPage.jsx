@@ -29,6 +29,10 @@ export default function LeaderboardPage() {
     leagueData,
     getLeagueInfo,
     loadLeaderboard,
+    daysElapsed,
+    daysRemaining,
+    progressPercent,
+    settlementLevel,
   } = useLeague();
   
   const navigate = useNavigate();
@@ -233,42 +237,32 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {/* League Progression Bar */}
-      <div className="league-progression glass-sm">
-        <div className="progression-row">
-          {prevLeague && (
-            <div className="progression-prev">
-              <ChevronDown size={14} className="text-demote"/>
-              <span style={{ color: prevLeague.color }}>{prevLeague.name}</span>
-            </div>
-          )}
-          <div className="progression-current">
-            <Star size={14} className="text-current"/>
-            <strong style={{ color: league.color }}>{league.name}</strong>
-          </div>
-          {nextLeague && (
-            <div className="progression-next">
-              <ChevronUp size={14} className="text-promote"/>
-              <span style={{ color: nextLeague.color }}>{nextLeague.name}</span>
-            </div>
+      {/* 7-Day Cycle Progress Bar */}
+      <div className="league-cycle-bar glass-sm">
+        <div className="cycle-header">
+          <span className="cycle-day-label">📅 Day {daysElapsed} of 7</span>
+          {daysElapsed >= 7 ? (
+            <span className="cycle-end-badge">🔥 Results today!</span>
+          ) : (
+            <span className="cycle-days-left">{daysRemaining} day{daysRemaining !== 1 ? 's' : ''} left</span>
           )}
         </div>
-        <div className="progression-bar">
-          <div 
-            className="progression-fill"
-            style={{ 
-              width: `${Math.min(100, ((league.id - 1) / 27) * 100)}%`,
-              background: `linear-gradient(90deg, ${league.color}, ${league.color}dd)` 
-            }}
+        <div className="cycle-progress-track">
+          <div
+            className={`cycle-progress-fill ${daysElapsed >= 7 ? 'cycle-complete' : ''}`}
+            style={{ width: `${progressPercent}%`, background: `linear-gradient(90deg, ${league.color}, ${league.color}cc)` }}
           />
           {[...Array(7)].map((_, i) => (
-            <div 
-              key={i} 
-              className={`progression-marker ${league.city_level > i + 1 ? 'completed' : league.city_level === i + 1 ? 'current' : ''}`}
-              style={{ left: `${(i / 6) * 100}%` }}
-              title={['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'][i]}
+            <div
+              key={i}
+              className={`cycle-tick ${i < daysElapsed ? 'done' : i === daysElapsed ? 'current' : ''}`}
+              style={{ left: `${((i + 1) / 7) * 100}%` }}
             />
           ))}
+        </div>
+        <div className="cycle-footer">
+          <span>League resets every 7 days • Top players promote</span>
+          <span>Settlement Lv {settlementLevel}</span>
         </div>
       </div>
 

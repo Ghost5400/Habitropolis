@@ -158,17 +158,15 @@ export default function PublicCityPage() {
   }
 
   // Stats calculate
-  const highestStars = Math.max(0, ...buildings.map(b => b.golden_stars || 0));
-  const cityLvl = Math.min(7, highestStars + 1);
+  const settlementLvl = profile?.settlement_level || 1;
   const cityTitles = ['Dwelling', 'Settlement', 'Village', 'Town', 'City', 'Metropolis', 'Megalopolis'];
-  const currentTitle = cityTitles[cityLvl - 1] || 'City';
+  const currentTitle = cityTitles[settlementLvl - 1] || 'City';
 
   // Extract layout placements
   const placedHabits = habits.filter(h => layout[h.id] != null);
   const placedDecorations = decorations.filter(od => layout[`deco_${od.id}`] != null);
 
-  const getBuildingForHabit = (id) => buildings.find(b => b.habit_id === id) || { floors: 0, golden_stars: 0 };
-  const getMaxFloors = (freq) => freq === 'daily' ? 1 : freq === 'weekly' ? 3 : 5;
+  const getBuildingForHabit = (id) => buildings.find(b => b.habit_id === id) || { decorations: [] };
 
   const GRID_SIZE = 4;
   const tiles = [];
@@ -331,13 +329,13 @@ export default function PublicCityPage() {
                         pointerEvents: 'none' /* read only */
                       }}
                     >
-                      <Building
-                        habit={habit}
-                        building={building}
-                        maxFloors={getMaxFloors(habit.frequency)}
-                        isSelected={false}
-                        onClick={() => {}}
-                      />
+                       <Building
+                         habit={habit}
+                         building={building}
+                         settlementLevel={settlementLvl}
+                         isSelected={false}
+                         onClick={() => {}}
+                       />
                     </div>
                   );
                 })}

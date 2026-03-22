@@ -103,7 +103,7 @@ export const useLeague = () => {
       // Step 1: First just fetch the profile to see if league columns exist
       const { data: profile, error: profileErr } = await supabase
         .from('profiles')
-        .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url')
+        .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url, league_cycle_start, settlement_level')
         .eq('user_id', user.id)
         .single();
 
@@ -137,7 +137,7 @@ export const useLeague = () => {
         // Re-fetch profile after bracket assignment
         const { data: updatedProfile } = await supabase
           .from('profiles')
-          .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url')
+          .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url, league_cycle_start, settlement_level')
           .eq('user_id', user.id)
           .single();
 
@@ -232,6 +232,19 @@ export const useLeague = () => {
     }
   }, [user]);
 
+  // Compute cycle progress from league_cycle_start
+  const getCycleProgress = useCallback(() => {
+    const cycleStart = userProfile?.league_cycle_start;
+    if (!cycleStart) return { daysElapsed: 0, daysRemaining: 7, progressPercent: 0 };
+    const msElapsed = Date.now() - new Date(cycleStart).getTime();
+    const daysElapsed = Math.min(7, Math.floor(msElapsed / 86400000));
+    return {
+      daysElapsed,
+      daysRemaining: 7 - daysElapsed,
+      progressPercent: Math.round((daysElapsed / 7) * 100),
+    };
+  }, [userProfile]);
+
   return {
     userProfile,
     leaderboard,
@@ -242,5 +255,7 @@ export const useLeague = () => {
     getLeagueInfo,
     loadLeaderboard,
     addWeeklyScore,
+    settlementLevel: userProfile?.settlement_level || 1,
+    ...getCycleProgress(),
   };
 };

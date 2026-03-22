@@ -267,72 +267,94 @@
   color: var(--text-muted);
 }
 
-/* ---- Progression Bar ---- */
-.league-progression {
-  padding: 1rem 1.5rem;
+/* ---- 7-Day Cycle Bar ---- */
+.league-cycle-bar {
+  padding: 1.25rem 1.75rem;
   border-radius: 14px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.progression-row {
+.cycle-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cycle-day-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.cycle-days-left {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cycle-end-badge {
   font-size: 0.8rem;
-  margin-bottom: 0.75rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
 }
 
-.progression-prev,
-.progression-current,
-.progression-next {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.text-promote { color: #4ade80; }
-.text-demote { color: #f87171; }
-.text-current { color: var(--accent-gold); }
-
-.progression-bar {
+.cycle-progress-track {
   position: relative;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 3px;
-  overflow: visible;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  margin-bottom: 1rem;
 }
 
-.progression-fill {
+.cycle-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  border-radius: 3px;
-  transition: width 1s ease;
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--league-color) 40%, transparent);
 }
 
-.progression-marker {
+.cycle-progress-fill.cycle-complete {
+  background: linear-gradient(90deg, #f97316, #eab308) !important;
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
+}
+
+.cycle-tick {
   position: absolute;
   top: 50%;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.15);
   transform: translate(-50%, -50%);
+  border: 2px solid var(--bg-secondary);
   transition: all 0.3s;
 }
 
-.progression-marker.completed {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 6px rgba(99, 102, 241, 0.4);
+.cycle-tick.done {
+  background: var(--league-color, var(--accent-primary));
 }
 
-.progression-marker.current {
-  background: var(--accent-gold);
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 10px var(--accent-gold-glow);
-  animation: pulse 2s ease-in-out infinite;
+.cycle-tick.current {
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+}
+
+.cycle-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ---- Leaderboard Board ---- */

@@ -8,8 +8,6 @@ export const ACHIEVEMENT_DEFINITIONS = [
   { name: 'Week Warrior', description: 'Reach a 7-day streak', icon: '🔥', condition_type: 'streak', condition_value: 7, reward_coins: 50 },
   { name: 'Month Master', description: 'Reach a 30-day streak', icon: '👑', condition_type: 'streak', condition_value: 30, reward_coins: 200 },
   { name: 'City Planner', description: 'Own 5 buildings', icon: '🏗️', condition_type: 'buildings', condition_value: 5, reward_coins: 100 },
-  { name: 'Skyscraper', description: 'Reach max floors on a building', icon: '🏢', condition_type: 'max_floors', condition_value: 1, reward_coins: 100 },
-  { name: 'Golden Collection', description: 'Earn 5 golden stars', icon: '⭐', condition_type: 'golden_stars', condition_value: 5, reward_coins: 300 },
   { name: 'Decorator', description: 'Buy your first decoration', icon: '🎨', condition_type: 'decorations', condition_value: 1, reward_coins: 20 },
   { name: 'Hydration Hero', description: 'Complete a counter habit 30 times', icon: '💧', condition_type: 'counter_completions', condition_value: 30, reward_coins: 75 },
   { name: 'Bad Habit Breaker', description: 'Resist a bad habit for 30 days', icon: '💪', condition_type: 'bad_habit_streak', condition_value: 30, reward_coins: 150 },
@@ -37,8 +35,6 @@ export const useAchievements = () => {
     // Construct local tracking stats based on universal game properties
     const stats = {
       buildings: (buildings || []).length,
-      max_floors: buildings?.length ? Math.max(0, ...buildings.map(b => b.floors || 0)) : 0,
-      golden_stars: (buildings || []).reduce((s, b) => s + (b.golden_stars || 0), 0),
       decorations: (ownedDecorations || []).length,
     };
 

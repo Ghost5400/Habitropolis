@@ -11,7 +11,7 @@ export default function HabitDetailPage() {
   const navigate = useNavigate();
   const { getHabitById, getHabitLogs, deleteHabit } = useHabits();
   const { streaks } = useStreaks();
-  const { getBuildingForHabit, getMaxFloors } = useCity();
+  const { getBuildingForHabit } = useCity();
   const [habit, setHabit] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,9 +56,7 @@ export default function HabitDetailPage() {
     );
   }
 
-  const streak = streaks[id];
   const building = getBuildingForHabit(id);
-  const maxFloors = getMaxFloors(habit.frequency);
   const completedLogs = logs.filter(l => l.completed);
 
   // Build heatmap
@@ -113,11 +111,6 @@ export default function HabitDetailPage() {
           <CalendarDays size={24} />
           <div className="detail-card-value">{completedLogs.length}</div>
           <div className="detail-card-label">Completions</div>
-        </div>
-        <div className="detail-card glass-sm">
-          <Shield size={24} />
-          <div className="detail-card-value">{building.floors}/{maxFloors}</div>
-          <div className="detail-card-label">Building</div>
         </div>
       </div>
 
