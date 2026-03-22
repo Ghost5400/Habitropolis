@@ -49,6 +49,8 @@ export function AuthProvider({ children }) {
           premium: false,
           league_id: 1,
           weekly_score: 0,
+          bio: '',
+          gecko_active: false,
         }).select().single();
         setProfile(newProfile);
       } else {

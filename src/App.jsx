@@ -18,6 +18,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import AchievementsPage from './pages/AchievementsPage';
 import StatsPage from './pages/StatsPage';
 import SettingsPage from './pages/SettingsPage';
+import SocialPage from './pages/SocialPage';
 
 import './App.css';
 import { useAchievements } from './hooks/useAchievements';
@@ -57,6 +58,7 @@ function AppRoutes() {
           <Route path="/achievements" element={<AchievementsPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/social" element={<SocialPage />} />
         </Route>
       </Route>
 

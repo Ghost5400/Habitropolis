@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { useCoins } from '../hooks/useCoins';
 import { useStreaks } from '../hooks/useStreaks';
 import { useHabits } from '../hooks/useHabits';
-import { ShoppingBag, Palette, Coins, Shield, Check, Package, Gift, Sparkles } from 'lucide-react';
+import { ShoppingBag, Palette, Coins, Shield, Check, Package, Gift, Sparkles, EyeOff } from 'lucide-react';
 import DecorationSVG from '../components/DecorationSVG';
 import soundManager from '../lib/SoundManager';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
@@ -51,12 +53,19 @@ export default function ShopPage() {
   const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData } = useGame();
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
+  const { user, profile, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('decorations');
   const [selectedHabit, setSelectedHabit] = useState(null);
   const [purchaseMessage, setPurchaseMessage] = useState('');
+  const [geckoActive, setGeckoActive] = useState(false);
   
   // Gacha State
   const [openingChest, setOpeningChest] = useState(false);
+
+  // Sync gecko state from profile
+  useEffect(() => {
+    setGeckoActive(!!profile?.gecko_active);
+  }, [profile]);
 
   const showMessage = (msg) => {
     setPurchaseMessage(msg);
@@ -135,6 +144,35 @@ export default function ShopPage() {
 
   const handleBuyCoins = (pkg) => {
     showMessage('💳 Payment integration coming soon! (Stripe → Wise)');
+  };
+
+  const handleToggleGecko = async () => {
+    if (!geckoActive) {
+      // Purchasing gecko: costs 100 coins
+      if (coins < 100) {
+        showMessage('Need 100 coins for Gecko Shield! 💸');
+        return;
+      }
+      const spent = await spendCoins(100, 'Gecko Shield activation');
+      if (!spent) return;
+      try {
+        await updateProfile({ gecko_active: true });
+        setGeckoActive(true);
+        soundManager.playSuccess();
+        showMessage('🦎 Gecko Shield activated! You\'re invisible now.');
+      } catch {
+        showMessage('Failed to activate Gecko Shield.');
+      }
+    } else {
+      // Deactivating gecko (free)
+      try {
+        await updateProfile({ gecko_active: false });
+        setGeckoActive(false);
+        showMessage('Gecko Shield deactivated. You\'re visible again.');
+      } catch {
+        showMessage('Failed to deactivate Gecko Shield.');
+      }
+    }
   };
 
   const tabs = [
@@ -319,6 +357,41 @@ export default function ShopPage() {
                   </button>
                 </div>
               ))}
+            </div>
+
+            {/* Gecko Shield Section */}
+            <div className="gecko-section glass-sm" style={{ marginTop: '1.5rem', padding: '1.25rem', borderRadius: 'var(--radius-lg)', border: geckoActive ? '2px solid #4ade80' : '2px solid var(--bg-tertiary)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '2rem' }}>🦎</span>
+                <div>
+                  <h3 style={{ margin: 0, color: '#4ade80', fontSize: '1.1rem', fontWeight: 700 }}>Gecko Stealth Shield</h3>
+                  <p style={{ margin: '0.2rem 0 0', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                    Browse other mayors' cities without leaving a trace in their "Who Viewed Me" feed.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {geckoActive ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                    <span style={{ color: '#4ade80', fontWeight: 600, fontSize: '0.85rem' }}>
+                      <EyeOff size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                      Stealth Mode Active
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.85rem', flex: 1 }}>
+                    <Coins size={14} />
+                    <span>100 coins</span>
+                  </div>
+                )}
+                <button
+                  className={`btn btn-sm ${geckoActive ? 'btn-secondary' : 'btn-primary'}`}
+                  onClick={handleToggleGecko}
+                  style={geckoActive ? { borderColor: '#4ade80', color: '#4ade80' } : { background: 'linear-gradient(135deg, #22c55e, #4ade80)' }}
+                >
+                  {geckoActive ? 'Deactivate' : 'Activate'}
+                </button>
+              </div>
             </div>
           </div>
         )}

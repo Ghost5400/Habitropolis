@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLeague } from '../hooks/useLeague';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2 } from 'lucide-react';
+import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2, UserPlus, UserCheck } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './LeaderboardPage.css';
 
 const TIER_ICONS = {
@@ -33,6 +34,43 @@ export default function LeaderboardPage() {
   const navigate = useNavigate();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [followStates, setFollowStates] = useState({}); // { [userId]: 'none' | 'pending' | 'following' }
+
+  // Load follow states for leaderboard users
+  useEffect(() => {
+    const loadFollowStates = async () => {
+      if (!user || !leaderboard.length) return;
+      try {
+        const { data } = await supabase
+          .from('follows')
+          .select('followed_id, status')
+          .eq('follower_id', user.id)
+          .in('followed_id', leaderboard.map(u => u.user_id));
+        const states = {};
+        (data || []).forEach(f => {
+          states[f.followed_id] = f.status === 'accepted' ? 'following' : 'pending';
+        });
+        setFollowStates(states);
+      } catch (err) {
+        // Silently fail if follows table doesn't exist yet
+      }
+    };
+    loadFollowStates();
+  }, [user, leaderboard]);
+
+  const handleFollowFromBoard = async (targetId) => {
+    if (!user || targetId === user.id) return;
+    const current = followStates[targetId];
+    if (current === 'following' || current === 'pending') {
+      // Unfollow
+      await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', targetId);
+      setFollowStates(prev => ({ ...prev, [targetId]: undefined }));
+    } else {
+      // Follow
+      await supabase.from('follows').insert({ follower_id: user.id, followed_id: targetId });
+      setFollowStates(prev => ({ ...prev, [targetId]: 'pending' }));
+    }
+  };
 
   const league = useMemo(() => {
     return getLeagueInfo(userProfile?.league_id || 1);
@@ -308,6 +346,16 @@ export default function LeaderboardPage() {
                 </div>
                 
                 <div className="board-actions">
+                  {!isMe && (
+                    <button
+                      className={`visit-btn ${followStates[u.user_id] ? 'followed' : ''}`}
+                      title={followStates[u.user_id] === 'following' ? 'Following' : followStates[u.user_id] === 'pending' ? 'Pending' : `Follow ${u.display_name || 'Mayor'}`}
+                      onClick={() => handleFollowFromBoard(u.user_id)}
+                      style={followStates[u.user_id] ? { color: '#4ade80', borderColor: '#4ade80' } : {}}
+                    >
+                      {followStates[u.user_id] ? <UserCheck size={16} /> : <UserPlus size={16} />}
+                    </button>
+                  )}
                   <button 
                     className="visit-btn" 
                     title={`Visit ${u.display_name || 'City'}`}

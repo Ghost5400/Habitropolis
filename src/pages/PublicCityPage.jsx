@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import Building from '../components/Building';
 import DecorationSVG from '../components/DecorationSVG';
 import { getBuildingName } from '../components/CityBuildingSVG';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { ArrowLeft, Map, Sunrise, Moon } from 'lucide-react';
+import { ArrowLeft, Map, Sunrise, Moon, UserPlus, UserCheck, UserMinus } from 'lucide-react';
 import './CityPage.css'; // Reuse existing CSS for grid visuals
 
 const DECORATION_CATALOG = {
@@ -42,6 +43,7 @@ const getScreenPos = (col, row) => ({
 export default function PublicCityPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,6 +55,8 @@ export default function PublicCityPage() {
   const [decorations, setDecorations] = useState([]);
 
   const [isDay, setIsDay] = useState(true);
+  const [followStatus, setFollowStatus] = useState('none'); // 'none' | 'pending' | 'following'
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     const curHour = new Date().getHours();
@@ -67,7 +71,7 @@ export default function PublicCityPage() {
         // Fetch Profile
         const { data: prof, error: profErr } = await supabase
           .from('profiles')
-          .select('display_name, avatar_url, city_layout, league_id')
+          .select('display_name, avatar_url, city_layout, league_id, bio')
           .eq('user_id', userId)
           .single();
 
@@ -87,6 +91,39 @@ export default function PublicCityPage() {
         const { data: decos } = await supabase.from('user_decorations').select('*').eq('user_id', userId);
         setDecorations(decos || []);
 
+        // Record profile view
+        if (user && user.id !== userId) {
+          try {
+            const { data: myProfile } = await supabase
+              .from('profiles')
+              .select('gecko_active')
+              .eq('user_id', user.id)
+              .single();
+            if (!myProfile?.gecko_active) {
+              await supabase
+                .from('profile_views')
+                .insert({ viewer_id: user.id, viewed_id: userId });
+            }
+          } catch (viewErr) {
+            console.error('Failed to record view', viewErr);
+          }
+
+          // Check follow status
+          try {
+            const { data: existingFollow } = await supabase
+              .from('follows')
+              .select('id, status')
+              .eq('follower_id', user.id)
+              .eq('followed_id', userId)
+              .maybeSingle();
+            if (existingFollow) {
+              setFollowStatus(existingFollow.status === 'accepted' ? 'following' : 'pending');
+            }
+          } catch (followErr) {
+            console.error('Failed to check follow status', followErr);
+          }
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Public city fetch error", err);
@@ -96,7 +133,7 @@ export default function PublicCityPage() {
     };
 
     if (userId) fetchCityData();
-  }, [userId]);
+  }, [userId, user]);
 
   if (loading) {
     return (
@@ -167,8 +204,39 @@ export default function PublicCityPage() {
             }}>
               {profile?.avatar_url?.length > 5 ? '👤' : (profile?.avatar_url || '🤖')}
             </div>
-            <h1>{profile?.display_name || 'Mayor'}'s {currentTitle}</h1>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h1>{profile?.display_name || 'Mayor'}'s {currentTitle}</h1>
+              {profile?.bio && (
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '300px' }}>
+                  {profile.bio}
+                </p>
+              )}
+            </div>
           </div>
+          {user && user.id !== userId && (
+            <button
+              className={`btn btn-sm ${followStatus === 'following' ? 'btn-secondary' : followStatus === 'pending' ? 'btn-secondary' : 'btn-primary'}`}
+              disabled={followLoading}
+              onClick={async () => {
+                if (followStatus === 'following' || followStatus === 'pending') {
+                  setFollowLoading(true);
+                  await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', userId);
+                  setFollowStatus('none');
+                  setFollowLoading(false);
+                } else {
+                  setFollowLoading(true);
+                  await supabase.from('follows').insert({ follower_id: user.id, followed_id: userId });
+                  setFollowStatus('pending');
+                  setFollowLoading(false);
+                }
+              }}
+              style={{ marginLeft: '0.5rem', whiteSpace: 'nowrap' }}
+            >
+              {followStatus === 'following' ? <><UserCheck size={14} /> Following</> :
+               followStatus === 'pending' ? <><UserMinus size={14} /> Pending</> :
+               <><UserPlus size={14} /> Follow</>}
+            </button>
+          )}
         </div>
         
         <div className="city-overview" style={{ marginLeft: 'auto' }}>
@@ -225,27 +293,27 @@ export default function PublicCityPage() {
 
                 {/* Render Standalone Decorations */}
                 {placedDecorations.map(od => {
-                  const pos = layout[`deco_${od.id}`];
-                  const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
-                  const info = DECORATION_CATALOG[od.decoration_id] || { type: 'tree-oak', name: od.decoration_id };
-                  
-                  return (
-                    <div
-                      key={`deco_${od.id}`}
-                      className="grid-decoration-item"
-                      title={info.name}
-                      style={{
-                        position: 'absolute',
-                        left: x, top: `${y}px`, zIndex: zIndex + 2,
-                        transform: 'translate(-50%, -50%)',
-                        width: '240px', height: '240px',
-                        pointerEvents: 'none' /* read only */
-                      }}
-                    >
-                      <DecorationSVG type={info.type} style={{ width: '100%', height: '100%' }} />
-                    </div>
-                  );
-                })}
+                   const pos = layout[`deco_${od.id}`];
+                   const { x, y, zIndex } = getScreenPos(pos.col, pos.row);
+                   const info = DECORATION_CATALOG[od.decoration_id] || { type: 'tree-oak', name: od.decoration_id };
+                   
+                   return (
+                     <div
+                       key={`deco_${od.id}`}
+                       className="grid-decoration-item"
+                       title={info.name}
+                       style={{
+                         position: 'absolute',
+                         left: x, top: `${y}px`, zIndex: zIndex + 2,
+                         transform: 'translate(-50%, -50%)',
+                         width: '240px', height: '240px',
+                         pointerEvents: 'none' /* read only */
+                       }}
+                     >
+                       <DecorationSVG type={info.type} style={{ width: '100%', height: '100%' }} />
+                     </div>
+                   );
+                 })}
 
                 {/* Render Buildings */}
                 {placedHabits.map(habit => {

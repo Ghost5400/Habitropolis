@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [tempName, setTempName] = useState('');
   const [tempAvatar, setTempAvatar] = useState('');
+  const [tempBio, setTempBio] = useState('');
 
   const AVATARS = ['🦊', '🤖', '🐶', '🦁', '🐯', '🐼', '🐧', '🦉', '🚀', '⭐', '💎', '🎮'];
 
@@ -35,6 +36,7 @@ export default function SettingsPage() {
   const startEditing = () => {
     setTempName(profile?.display_name || user?.email?.split('@')[0] || '');
     setTempAvatar(profile?.avatar_url || '🤖');
+    setTempBio(profile?.bio || '');
     setIsEditingProfile(true);
   };
 
@@ -43,6 +45,7 @@ export default function SettingsPage() {
       await updateProfile({
         display_name: tempName,
         avatar_url: tempAvatar,
+        bio: tempBio,
       });
       setMessage('Profile updated! ✨');
       setIsEditingProfile(false);
@@ -98,6 +101,18 @@ export default function SettingsPage() {
                 maxLength={20}
               />
             </div>
+            <div className="setting-col">
+              <label>Bio <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>({tempBio.length}/150)</span></label>
+              <textarea
+                className="input"
+                value={tempBio}
+                onChange={e => setTempBio(e.target.value)}
+                maxLength={150}
+                rows={3}
+                placeholder="Tell the world about your city..."
+                style={{ resize: 'none', fontFamily: 'inherit' }}
+              />
+            </div>
             <div className="profile-edit-actions">
               <button className="btn-secondary" onClick={() => setIsEditingProfile(false)}>Cancel</button>
               <button className="btn-primary" onClick={handleSaveProfile} disabled={!tempName.trim()}>Save Changes</button>
@@ -112,6 +127,12 @@ export default function SettingsPage() {
                 <span className="setting-value">{profile?.display_name || user?.email}</span>
               </div>
             </div>
+            {profile?.bio && (
+              <div className="setting-row">
+                <span className="setting-label">Bio</span>
+                <span className="setting-value" style={{ fontSize: '0.85rem', maxWidth: '250px', textAlign: 'right' }}>{profile.bio}</span>
+              </div>
+            )}
             <div className="setting-row">
               <span className="setting-label">Account Email</span>
               <span className="setting-value text-muted">{user?.email}</span>
