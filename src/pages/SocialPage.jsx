@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useSocial } from '../hooks/useSocial';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Users, UserPlus, UserCheck, Eye, Building2, Check, X, RefreshCw, Search, Gift } from 'lucide-react';
+import { Users, UserPlus, UserCheck, Eye, Building2, Check, X, RefreshCw, Search, Gift, Swords } from 'lucide-react';
 import GiftDecorationModal from '../components/GiftDecorationModal';
+import { useDuels } from '../hooks/useDuels';
 import './SocialPage.css';
 
 function timeAgo(dateStr) {
@@ -43,6 +44,8 @@ export default function SocialPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [pendingOutgoing, setPendingOutgoing] = useState([]);
   const [giftRecipient, setGiftRecipient] = useState(null);
+  
+  const { challengeFriend } = useDuels();
 
   // Load pending outgoing requests
   useEffect(() => {
@@ -112,6 +115,15 @@ export default function SocialPage() {
   const handleReject = async (followId, name) => {
     const success = await rejectFollowRequest(followId);
     if (success) showMessage(`Rejected ${name}'s request.`);
+  };
+
+  const handleDuel = async (friendId, name) => {
+    const success = await challengeFriend(friendId, 50);
+    if (success) {
+      showMessage(`⚔️ Challenged ${name} to a Duel for 50 Coins!`);
+    } else {
+       showMessage(`Not enough coins or already dueling ${name}.`);
+    }
   };
 
   const handleUnfollow = async (targetId, name) => {
@@ -249,6 +261,9 @@ export default function SocialPage() {
                         <span className="friend-badge">🤝 Friends</span>
                       </div>
                       <div className="social-card-actions">
+                        <button className="btn btn-sm btn-secondary" onClick={() => handleDuel(f.user_id, f.display_name)}>
+                          <Swords size={14} /> Duel
+                        </button>
                         <button className="btn btn-sm btn-secondary" onClick={() => setGiftRecipient(f)}>
                           <Gift size={14} /> Gift
                         </button>

@@ -1,0 +1,111 @@
+.scratch-card {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  text-align: center;
+}
+
+.scratch-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+.scratch-header h3 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; }
+.scratch-header p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+
+.scratch-buy-view {
+  padding: 3rem 1rem;
+}
+.btn-huge {
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto;
+}
+
+.scratch-play-area {
+  position: relative;
+}
+
+.scratch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0 auto 1.5rem;
+  max-width: 300px;
+}
+
+.scratch-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--bg-default);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+
+.scratch-cell:active {
+  transform: scale(0.95);
+}
+
+.scratch-cell.revealed .scratch-foil {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scratch-cell.revealed .scratch-symbol {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scratch-cell.winner-cell {
+  background: rgba(74, 222, 128, 0.2);
+  border-color: var(--success);
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+  animation: pulse 1.5s infinite;
+}
+
+.scratch-foil {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #cbd5e1 100%);
+  background-size: 200% 200%;
+  transition: opacity 0.5s ease-out;
+  z-index: 2;
+}
+
+.scratch-symbol {
+  font-size: 2.5rem;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1;
+}
+
+.scratch-winner-announcement {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-surface);
+  border: 2px solid var(--accent-gold);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  z-index: 10;
+  width: 90%;
+}
+.scratch-winner-announcement h2 { font-size: 2rem; margin: 0.5rem 0; color: var(--accent-gold); }
+.bounce-in { animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }

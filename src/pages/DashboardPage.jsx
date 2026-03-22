@@ -11,6 +11,7 @@ import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2, MailOpen } 
 import ParthBanner from '../components/ParthBanner';
 import { useBounties } from '../hooks/useBounties';
 import { useGifts } from '../hooks/useGifts';
+import { useDuels } from '../hooks/useDuels';
 import DecorationSVG from '../components/DecorationSVG';
 import './DashboardPage.css';
 
@@ -41,6 +42,8 @@ export default function DashboardPage() {
   const { addCoins, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift } = useGifts();
+  const { activeDuels, incrementDuelScore, pendingDuels, acceptDuel, declineDuel } = useDuels();
+  const { user } = useAuth();
   
   const [openingGift, setOpeningGift] = useState(null);
 
@@ -77,6 +80,9 @@ export default function DashboardPage() {
 
         // Grow building
         await growBuilding(habit.id, habit.frequency);
+        
+        // Update active duel points
+        await incrementDuelScore(1);
       } else {
         await updateStreak(habit.id, false);
       }
@@ -129,6 +135,28 @@ export default function DashboardPage() {
       <ParthBanner show={true} />
       <QuoteBanner />
 
+      {/* Pending Duels */}
+      {pendingDuels?.filter(d => d.defender_id === user?.id).length > 0 && (
+        <div className="pending-duels-section mb-4">
+          {pendingDuels.filter(d => d.defender_id === user?.id).map(duel => (
+            <div key={duel.id} className="duel-invite-card glass-sm" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #f59e0b' }}>
+              <div>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                   ⚔️ Duel Challenge!
+                </h3>
+                <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                  <strong>{duel.challenger?.display_name || 'A Mayor'}</strong> challenged you for <strong>{duel.wager} Coins</strong>!
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="btn btn-sm btn-secondary" onClick={() => declineDuel(duel)}>Decline</button>
+                <button className="btn btn-sm btn-primary" onClick={() => acceptDuel(duel)}>Accept</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Gifts Mailbox */}
       {unreadGifts?.length > 0 && (
         <div className="gifts-mailbox-section">
@@ -160,6 +188,48 @@ export default function DashboardPage() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Active Duels Widget */}
+      {activeDuels?.length > 0 && (
+        <div className="duels-widget-section mb-4">
+          <h2 className="section-title text-gold" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            ⚔️ Active Habit Duels
+          </h2>
+          {activeDuels.map(duel => {
+            const isChallenger = duel.challenger_id === user?.id;
+            const myScore = isChallenger ? duel.challenger_score : duel.defender_score;
+            const theirScore = isChallenger ? duel.defender_score : duel.challenger_score;
+            const opponentName = isChallenger ? duel.defender?.display_name : duel.challenger?.display_name;
+            const timeRemaining = Math.max(0, new Date(duel.end_time) - new Date());
+            const hoursLeft = Math.floor(timeRemaining / (1000 * 60 * 60));
+            const isWinning = myScore > theirScore;
+            
+            return (
+              <div key={duel.id} className="duels-card glass-sm" style={{ padding: '1.25rem', marginBottom: '1rem', border: isWinning ? '1px solid var(--success)' : ''}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                   <span style={{ fontWeight: 600 }}>vs {opponentName || 'Mayor'}</span>
+                   <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{hoursLeft}h left</span>
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '10px' }}>
+                   <div style={{ textAlign: 'center' }}>
+                     <div style={{ fontSize: '1.5rem', fontWeight: 700, color: isWinning ? 'var(--success)' : 'white' }}>{myScore}</div>
+                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>You</div>
+                   </div>
+                   <div style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>-</div>
+                   <div style={{ textAlign: 'center' }}>
+                     <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{theirScore}</div>
+                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Them</div>
+                   </div>
+                </div>
+                <div style={{ fontSize: '0.8rem', textAlign: 'center', marginTop: '0.75rem', color: 'var(--accent-gold)' }}>
+                   Wager: {duel.wager} Coins | Winner Takes All!
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

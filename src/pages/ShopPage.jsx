@@ -8,6 +8,7 @@ import DecorationSVG from '../components/DecorationSVG';
 import soundManager from '../lib/SoundManager';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import ScratchOff from '../components/ScratchOff';
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
@@ -177,6 +178,7 @@ export default function ShopPage() {
 
   const tabs = [
     { id: 'decorations', label: 'Decorations', icon: Palette },
+    { id: 'themes', label: 'Themes', icon: Sparkles },
     { id: 'coins', label: 'Buy Coins', icon: Coins },
     { id: 'shields', label: 'Shields', icon: Shield },
     { id: 'inventory', label: 'My Items', icon: Package },
@@ -216,6 +218,10 @@ export default function ShopPage() {
         {activeTab === 'decorations' && (
           <div className="decorations-content">
             
+            <div className="mb-4">
+              <ScratchOff />
+            </div>
+
             <div className={`mystery-chest-banner glass ${openingChest ? 'is-opening' : ''}`}>
                <div className="chest-visual">
                   {openingChest ? <Sparkles className="chest-sparkles" size={48} /> : <Gift className="chest-icon" size={48} />}

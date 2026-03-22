@@ -12,6 +12,7 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import DecorationSVG from '../components/DecorationSVG';
 import { supabase } from '../lib/supabase';
 import './CityPage.css';
+import './CityThemes.css';
 
 const DECORATION_CATALOG = {
   '11111111-0000-0000-0000-000000000001': { type: 'tree-oak', name: 'Oak Tree' },
@@ -45,7 +46,10 @@ const getScreenPos = (col, row) => ({
 });
 
 export default function CityPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  
+  const activeTitle = profile?.active_title || 'Mayor';
+  const themeClass = profile?.city_theme && profile.city_theme !== 'default' ? `theme-${profile.city_theme}` : '';
   const { habits, loading: habitsLoading } = useHabits();
   const { buildings, getBuildingForHabit, placeDecoration } = useCity();
   const { ownedDecorations } = useGame();
@@ -238,11 +242,11 @@ export default function CityPage() {
 
 
   return (
-    <div className="city-page">
+    <div className={`city-page ${themeClass}`}>
       <div className="city-header">
         <div className="city-title-row">
           <Building2 size={32} className="city-icon" />
-          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} {currentTitle} (Lv {settlementLevel})</h1>
+          <h1>{user?.user_metadata?.full_name?.split(' ')[0] || 'Your'} the {activeTitle} (Lv {settlementLevel} {currentTitle})</h1>
         </div>
         <div className="city-overview">
           <div className="city-stat glass-sm">{habits.length} Buildings</div>
