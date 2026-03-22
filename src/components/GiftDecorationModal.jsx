@@ -5,6 +5,7 @@ import { useCoins } from '../hooks/useCoins';
 import { useGifts } from '../hooks/useGifts';
 import { useGame } from '../contexts/GameContext';
 import '../pages/ShopPage.css';
+import './GiftDecorationModal.css';
 
 const DECORATION_CATALOG = [
   { id: '11111111-0000-0000-0000-000000000001', name: 'Oak Tree', category: 'nature', price_coins: 30, type: 'tree-oak' },
@@ -96,7 +97,8 @@ export default function GiftDecorationModal({ onClose, receiverId, receiverName 
           </div>
         ) : (
           <>
-            <div className="decorations-grid max-h-64 overflow-y-auto">
+            <div className="gift-selection-area">
+              <div className="decorations-grid">
               {DECORATION_CATALOG.map((item) => (
                 <div 
                   key={item.id} 
@@ -116,6 +118,7 @@ export default function GiftDecorationModal({ onClose, receiverId, receiverName 
                   </div>
                 </div>
               ))}
+              </div>
             </div>
 
             {errorMsg && <div className="error-msg text-center mt-4 text-demote">{errorMsg}</div>}
