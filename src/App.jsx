@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { GameProvider } from './contexts/GameContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -72,12 +73,14 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <GameProvider>
-          <GlobalAchievementEngine />
-          <AppRoutes />
-        </GameProvider>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <GameProvider>
+            <GlobalAchievementEngine />
+            <AppRoutes />
+          </GameProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
