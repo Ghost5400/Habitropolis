@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useHabits } from '../hooks/useHabits';
 import { useStreaks } from '../hooks/useStreaks';
 import { useGame } from '../contexts/GameContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useCity } from '../hooks/useCity';
 import { useCoins } from '../hooks/useCoins';
 import QuoteBanner from '../components/QuoteBanner';
