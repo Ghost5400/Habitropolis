@@ -30,3 +30,7 @@ dist-ssr
 
 .vercel
 nul
+
+# Capacitor native projects (generated)
+android
+ios

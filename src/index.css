@@ -41,9 +41,36 @@ html, body, #root {
   color: var(--text-primary);
   font-family: var(--font-inter);
   overflow-x: hidden;
+  /* Mobile PWA UX */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
-body { font-size: 15px; line-height: 1.6; }
+body {
+  font-size: 15px;
+  line-height: 1.6;
+  /* Safe area padding for notch/status bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Prevent long-press context menu and text selection for app feel */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Allow text selection in input fields */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Prevent pull-to-refresh on the whole page */
+html {
+  overscroll-behavior-y: contain;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
