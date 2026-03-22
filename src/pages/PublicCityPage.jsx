@@ -6,8 +6,9 @@ import Building from '../components/Building';
 import DecorationSVG from '../components/DecorationSVG';
 import { getBuildingName } from '../components/CityBuildingSVG';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { ArrowLeft, Map, Sunrise, Moon, UserPlus, UserCheck, UserMinus } from 'lucide-react';
+import { ArrowLeft, Map, Sunrise, Moon, UserPlus, UserCheck, UserMinus, Gift } from 'lucide-react';
 import { recordDailyVisit } from '../hooks/useBounties';
+import GiftDecorationModal from '../components/GiftDecorationModal';
 import './CityPage.css'; // Reuse existing CSS for grid visuals
 
 const DECORATION_CATALOG = {
@@ -58,6 +59,7 @@ export default function PublicCityPage() {
   const [isDay, setIsDay] = useState(true);
   const [followStatus, setFollowStatus] = useState('none'); // 'none' | 'pending' | 'following'
   const [followLoading, setFollowLoading] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
 
   useEffect(() => {
     const curHour = new Date().getHours();
@@ -237,6 +239,16 @@ export default function PublicCityPage() {
                <><UserPlus size={14} /> Follow</>}
             </button>
           )}
+
+          {user && user.id !== userId && followStatus === 'following' && (
+            <button
+              className="btn btn-sm btn-primary"
+              style={{ marginLeft: '0.5rem', whiteSpace: 'nowrap' }}
+              onClick={() => setShowGiftModal(true)}
+            >
+              <Gift size={14} /> Gift
+            </button>
+          )}
         </div>
         
         <div className="city-overview" style={{ marginLeft: 'auto' }}>
@@ -353,6 +365,14 @@ export default function PublicCityPage() {
           </p>
         </div>
       </div>
+
+      {showGiftModal && (
+        <GiftDecorationModal
+          receiverId={userId}
+          receiverName={profile?.display_name || 'Mayor'}
+          onClose={() => setShowGiftModal(false)}
+        />
+      )}
     </div>
   );
 }

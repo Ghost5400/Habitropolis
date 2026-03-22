@@ -198,3 +198,61 @@
   animation: pulse 2s infinite;
   white-space: nowrap;
 }
+
+/* ---- Gifts Sandbox ---- */
+.gifts-mailbox-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.gift-inbox-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.02));
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.15);
+}
+
+.gift-inbox-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.gift-inbox-icon {
+  background: rgba(255,255,255,0.05);
+  padding: 0.75rem;
+  border-radius: 12px;
+}
+
+.gift-inbox-text h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+}
+
+.gift-inbox-text p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.gift-reveal {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.pulse-anim {
+  animation: pulse 2s infinite;
+}
+
+.d-block {
+  display: block;
+}

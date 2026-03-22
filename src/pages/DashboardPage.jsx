@@ -7,9 +7,11 @@ import { useCoins } from '../hooks/useCoins';
 import QuoteBanner from '../components/QuoteBanner';
 import HabitCard from '../components/HabitCard';
 import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
-import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2 } from 'lucide-react';
+import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2, MailOpen } from 'lucide-react';
 import ParthBanner from '../components/ParthBanner';
 import { useBounties } from '../hooks/useBounties';
+import { useGifts } from '../hooks/useGifts';
+import DecorationSVG from '../components/DecorationSVG';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -18,8 +20,11 @@ export default function DashboardPage() {
   const { coins } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
-  const { addCoins } = useGame();
+  const { addCoins, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
+  const { unreadGifts, openGift } = useGifts();
+  
+  const [openingGift, setOpeningGift] = useState(null);
 
   useEffect(() => {
     registerServiceWorker();
@@ -62,6 +67,16 @@ export default function DashboardPage() {
     }
   };
 
+  const handleOpenGift = async (giftId) => {
+    setOpeningGift(giftId);
+    await openGift(giftId);
+    // Give enough time to show an animation before it disappears from the array
+    setTimeout(() => {
+      setOpeningGift(null);
+      fetchGameData(); // Refresh UI to make sure UserDecorations is updated on City Page
+    }, 1500);
+  };
+
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -95,6 +110,38 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       <ParthBanner show={true} />
       <QuoteBanner />
+
+      {/* Gifts Mailbox */}
+      {unreadGifts?.length > 0 && (
+        <div className="gifts-mailbox-section">
+          {unreadGifts.map(gift => (
+            <div key={gift.id} className="gift-inbox-card glass-sm">
+              <div className="gift-inbox-content">
+                <div className="gift-inbox-icon">
+                  {openingGift === gift.id ? <MailOpen size={30} className="text-promote" /> : <Gift size={30} className="text-gold pulse-anim" />}
+                </div>
+                <div className="gift-inbox-text">
+                  <h3>Special Delivery!</h3>
+                  <p>You received a gift from <strong>{gift.sender?.display_name || 'Mayor'}</strong>!</p>
+                  {openingGift === gift.id && (
+                     <div className="gift-reveal fadeIn">
+                       <DecorationSVG type={gift.item_id} />
+                       <span className="text-promote font-bold mt-2 d-block">Item added to your inventory!</span>
+                     </div>
+                  )}
+                </div>
+              </div>
+              <button 
+                className="btn btn-primary btn-icon"
+                onClick={() => handleOpenGift(gift.id)}
+                disabled={openingGift === gift.id}
+              >
+                {openingGift === gift.id ? 'Opening...' : 'Open Gift'}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Parth Motivator */}
       {habits.length > 0 && (
