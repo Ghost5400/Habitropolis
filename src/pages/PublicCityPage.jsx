@@ -7,6 +7,7 @@ import DecorationSVG from '../components/DecorationSVG';
 import { getBuildingName } from '../components/CityBuildingSVG';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { ArrowLeft, Map, Sunrise, Moon, UserPlus, UserCheck, UserMinus } from 'lucide-react';
+import { recordDailyVisit } from '../hooks/useBounties';
 import './CityPage.css'; // Reuse existing CSS for grid visuals
 
 const DECORATION_CATALOG = {
@@ -94,6 +95,7 @@ export default function PublicCityPage() {
         // Record profile view
         if (user && user.id !== userId) {
           try {
+            recordDailyVisit(user.id); // Trigger daily bounty progress
             const { data: myProfile } = await supabase
               .from('profiles')
               .select('gecko_active')

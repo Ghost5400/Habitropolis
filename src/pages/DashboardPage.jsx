@@ -7,8 +7,9 @@ import { useCoins } from '../hooks/useCoins';
 import QuoteBanner from '../components/QuoteBanner';
 import HabitCard from '../components/HabitCard';
 import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
-import { Target, Flame, Coins, Building2 } from 'lucide-react';
+import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2 } from 'lucide-react';
 import ParthBanner from '../components/ParthBanner';
+import { useBounties } from '../hooks/useBounties';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
   const { addCoins } = useGame();
+  const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
 
   useEffect(() => {
     registerServiceWorker();
@@ -116,6 +118,65 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Daily Bounties */}
+      <div className="daily-bounties-section">
+        <div className="bounties-header">
+          <h2>🎯 Parth's Daily Requests</h2>
+          <div className="tiger-tokens-badge glass-sm">
+            🐯 {tigerTokens} Tokens
+          </div>
+        </div>
+        
+        <div className="bounties-grid">
+          {bounties?.map(bounty => {
+            const progress = calculateProgress(bounty);
+            const isReadyToClaim = progress >= bounty.target && !bounty.is_claimed;
+            
+            return (
+              <div key={bounty.id} className={`bounty-card glass-sm ${bounty.is_claimed ? 'claimed' : isReadyToClaim ? 'ready' : ''}`}>
+                <div className="bounty-icon-wrapper">
+                  {bounty.is_claimed ? <CheckCircle2 size={24} className="claimed-icon" /> : <Gift size={24} />}
+                </div>
+                <div className="bounty-info">
+                  <h3 className="bounty-title">{bounty.title}</h3>
+                  <p className="bounty-desc">{bounty.desc}</p>
+                  
+                  {!bounty.is_claimed && (
+                    <div className="bounty-progress">
+                      <div className="bounty-progress-bar">
+                        <div 
+                          className="bounty-progress-fill" 
+                          style={{ width: `${Math.min(100, (progress / bounty.target) * 100)}%` }}
+                        />
+                      </div>
+                      <span className="bounty-progress-text">{progress}/{bounty.target}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="bounty-action">
+                  {bounty.is_claimed ? (
+                    <span className="bounty-status-text text-muted">Claimed</span>
+                  ) : isReadyToClaim ? (
+                    <button 
+                      className="btn btn-primary btn-sm claim-btn"
+                      onClick={() => claimBounty(bounty.id)}
+                    >
+                      Claim {bounty.reward} 🐯
+                    </button>
+                  ) : (
+                    <div className="bounty-reward-box">
+                      <span className="reward-val">{bounty.reward}</span>
+                      <span className="reward-icon">🐯</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="dashboard-stats tour-dashboard-stats">
         <div className="stat-card glass-sm">
