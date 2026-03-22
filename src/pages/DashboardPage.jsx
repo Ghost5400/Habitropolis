@@ -14,6 +14,24 @@ import { useGifts } from '../hooks/useGifts';
 import DecorationSVG from '../components/DecorationSVG';
 import './DashboardPage.css';
 
+const DECORATION_CATALOG = {
+  '11111111-0000-0000-0000-000000000001': { type: 'tree-oak', name: 'Oak Tree' },
+  '11111111-0000-0000-0000-000000000002': { type: 'tree-pine', name: 'Pine Tree' },
+  '11111111-0000-0000-0000-000000000003': { type: 'shrubbery', name: 'Park Shrubbery' },
+  '11111111-0000-0000-0000-000000000004': { type: 'flower-garden', name: 'Flower Garden' },
+  '11111111-0000-0000-0000-000000000005': { type: 'zen-garden', name: 'Zen Rock Garden' },
+  '11111111-0000-0000-0000-000000000006': { type: 'fountain', name: 'Water Fountain' },
+  '11111111-0000-0000-0000-000000000007': { type: 'statue', name: 'Statue Monument' },
+  '11111111-0000-0000-0000-000000000008': { type: 'bench', name: 'City Bench' },
+  '11111111-0000-0000-0000-000000000009': { type: 'street-lamp', name: 'Street Lamp' },
+  '11111111-0000-0000-0000-000000000010': { type: 'pool', name: 'Swimming Pool' },
+  '11111111-0000-0000-0000-000000000011': { type: 'cobblestone', name: 'Cobblestone Patch' },
+  '11111111-0000-0000-0000-000000000012': { type: 'road', name: 'Asphalt Road' },
+  '11111111-0000-0000-0000-000000000013': { type: 'crosswalk', name: 'Crosswalk' },
+  '11111111-0000-0000-0000-000000000014': { type: 'bus-stop', name: 'Bus Shelter' },
+  '11111111-0000-0000-0000-000000000015': { type: 'kiosk', name: 'Food Stand' },
+};
+
 export default function DashboardPage() {
   const { habits, todayLogs, loading, completeHabit, fetchHabits } = useHabits();
   const { streaks, updateStreak } = useStreaks();
@@ -125,8 +143,10 @@ export default function DashboardPage() {
                   <p>You received a gift from <strong>{gift.sender?.display_name || 'Mayor'}</strong>!</p>
                   {openingGift === gift.id && (
                      <div className="gift-reveal fadeIn">
-                       <DecorationSVG type={gift.item_id} />
-                       <span className="text-promote font-bold mt-2 d-block">Item added to your inventory!</span>
+                       <DecorationSVG type={DECORATION_CATALOG[gift.item_id]?.type || 'tree-oak'} />
+                       <span className="text-promote font-bold mt-2 d-block">
+                         {DECORATION_CATALOG[gift.item_id]?.name || 'Item'} added to your inventory!
+                       </span>
                      </div>
                   )}
                 </div>
