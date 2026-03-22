@@ -48,7 +48,7 @@ export default function SocialPage() {
       if (!user) return;
       const { data } = await supabase
         .from('follows')
-        .select('*, followed:profiles!follows_followed_id_fkey(user_id, display_name, avatar_url)')
+        .select('*, followed:profiles!follows_followed_profile_fkey(user_id, display_name, avatar_url)')
         .eq('follower_id', user.id)
         .eq('status', 'pending');
       setPendingOutgoing(data || []);
@@ -93,7 +93,7 @@ export default function SocialPage() {
       const { supabase } = await import('../lib/supabase');
       const { data } = await supabase
         .from('follows')
-        .select('*, followed:profiles!follows_followed_id_fkey(user_id, display_name, avatar_url)')
+        .select('*, followed:profiles!follows_followed_profile_fkey(user_id, display_name, avatar_url)')
         .eq('follower_id', user.id)
         .eq('status', 'pending');
       setPendingOutgoing(data || []);

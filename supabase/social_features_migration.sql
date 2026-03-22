@@ -26,11 +26,32 @@ CREATE TABLE IF NOT EXISTS profile_views (
   viewed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. Enable RLS
+-- 4. Add explicit foreign keys to profiles table for Supabase joins
+-- (The auth.users FKs handle cascade deletion, these enable PostgREST joins)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'follows_follower_profile_fkey') THEN
+    ALTER TABLE follows ADD CONSTRAINT follows_follower_profile_fkey
+      FOREIGN KEY (follower_id) REFERENCES profiles(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'follows_followed_profile_fkey') THEN
+    ALTER TABLE follows ADD CONSTRAINT follows_followed_profile_fkey
+      FOREIGN KEY (followed_id) REFERENCES profiles(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profile_views_viewer_profile_fkey') THEN
+    ALTER TABLE profile_views ADD CONSTRAINT profile_views_viewer_profile_fkey
+      FOREIGN KEY (viewer_id) REFERENCES profiles(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profile_views_viewed_profile_fkey') THEN
+    ALTER TABLE profile_views ADD CONSTRAINT profile_views_viewed_profile_fkey
+      FOREIGN KEY (viewed_id) REFERENCES profiles(user_id);
+  END IF;
+END $$;
+
+-- 5. Enable RLS
 ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profile_views ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS Policies for follows
+-- 6. RLS Policies for follows
 
 -- Anyone can read follows they are involved in
 DROP POLICY IF EXISTS "Users can view their follows" ON follows;
@@ -52,7 +73,7 @@ DROP POLICY IF EXISTS "Users can delete follows" ON follows;
 CREATE POLICY "Users can delete follows" ON follows
   FOR DELETE USING (auth.uid() = follower_id OR auth.uid() = followed_id);
 
--- 6. RLS Policies for profile_views
+-- 7. RLS Policies for profile_views
 
 -- Users can see views on their own profile
 DROP POLICY IF EXISTS "Users can view their profile views" ON profile_views;
@@ -64,7 +85,7 @@ DROP POLICY IF EXISTS "Users can record profile views" ON profile_views;
 CREATE POLICY "Users can record profile views" ON profile_views
   FOR INSERT WITH CHECK (auth.uid() = viewer_id);
 
--- 7. Create indexes for performance
+-- 8. Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
 CREATE INDEX IF NOT EXISTS idx_follows_followed ON follows(followed_id);
 CREATE INDEX IF NOT EXISTS idx_profile_views_viewed ON profile_views(viewed_id);

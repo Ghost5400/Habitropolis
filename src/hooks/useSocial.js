@@ -17,28 +17,28 @@ export function useSocial() {
       // People who follow ME (accepted)
       const { data: followersData } = await supabase
         .from('follows')
-        .select('*, follower:profiles!follows_follower_id_fkey(user_id, display_name, avatar_url, bio)')
+        .select('*, follower:profiles!follows_follower_profile_fkey(user_id, display_name, avatar_url, bio)')
         .eq('followed_id', user.id)
         .eq('status', 'accepted');
 
       // People I follow (accepted)
       const { data: followingData } = await supabase
         .from('follows')
-        .select('*, followed:profiles!follows_followed_id_fkey(user_id, display_name, avatar_url, bio)')
+        .select('*, followed:profiles!follows_followed_profile_fkey(user_id, display_name, avatar_url, bio)')
         .eq('follower_id', user.id)
         .eq('status', 'accepted');
 
       // Pending requests TO ME
       const { data: pendingData } = await supabase
         .from('follows')
-        .select('*, follower:profiles!follows_follower_id_fkey(user_id, display_name, avatar_url, bio)')
+        .select('*, follower:profiles!follows_follower_profile_fkey(user_id, display_name, avatar_url, bio)')
         .eq('followed_id', user.id)
         .eq('status', 'pending');
 
       // Who viewed my profile (last 50, most recent first)
       const { data: viewsData } = await supabase
         .from('profile_views')
-        .select('*, viewer:profiles!profile_views_viewer_id_fkey(user_id, display_name, avatar_url, gecko_active)')
+        .select('*, viewer:profiles!profile_views_viewer_profile_fkey(user_id, display_name, avatar_url, gecko_active)')
         .eq('viewed_id', user.id)
         .order('viewed_at', { ascending: false })
         .limit(50);
