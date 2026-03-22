@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS duels (
 ALTER TABLE duels ENABLE ROW LEVEL SECURITY;
 
 DO $$ 
-BEGIN;
+BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own duels') THEN
       CREATE POLICY "Users can view their own duels" ON duels FOR SELECT USING (auth.uid() = challenger_id OR auth.uid() = defender_id);
   END IF;
