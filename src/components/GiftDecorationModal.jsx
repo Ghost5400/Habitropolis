@@ -96,24 +96,23 @@ export default function GiftDecorationModal({ onClose, receiverId, receiverName 
           </div>
         ) : (
           <>
-            <div className="shop-grid">
+            <div className="decorations-grid max-h-64 overflow-y-auto">
               {DECORATION_CATALOG.map((item) => (
                 <div 
                   key={item.id} 
-                  className={`shop-item glass-sm ${selectedItem?.id === item.id ? 'selected' : ''}`}
+                  className={`decoration-card glass-sm ${selectedItem?.id === item.id ? 'gift-selected' : ''}`}
                   onClick={() => setSelectedItem(item)}
+                  style={{ cursor: 'pointer', border: selectedItem?.id === item.id ? '2px solid #4ade80' : 'none' }}
                 >
-                  <div className="item-preview">
+                  <div className="decoration-emoji" style={{ height: '50px', width: '50px', margin: '0 auto' }}>
                     <DecorationSVG type={item.type} />
                   </div>
-                  <div className="item-info">
-                    <h4 className="item-name">{item.name}</h4>
-                    <div className="item-price">
-                      <Coins size={14} className="text-gold" />
+                  <div className="decoration-name" style={{ marginTop: '0.5rem' }}>{item.name}</div>
+                  <div className="decoration-price" style={{ justifyContent: 'center' }}>
+                    <Coins size={14} className="text-gold" />
                       <span className={coins >= item.price_coins ? '' : 'text-demote'}>
                         {item.price_coins}
                       </span>
-                    </div>
                   </div>
                 </div>
               ))}

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSocial } from '../hooks/useSocial';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Users, UserPlus, UserCheck, Eye, Building2, Check, X, RefreshCw, Search } from 'lucide-react';
+import { Users, UserPlus, UserCheck, Eye, Building2, Check, X, RefreshCw, Search, Gift } from 'lucide-react';
+import GiftDecorationModal from '../components/GiftDecorationModal';
 import './SocialPage.css';
 
 function timeAgo(dateStr) {
@@ -41,6 +42,7 @@ export default function SocialPage() {
   const [searching, setSearching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [pendingOutgoing, setPendingOutgoing] = useState([]);
+  const [giftRecipient, setGiftRecipient] = useState(null);
 
   // Load pending outgoing requests
   useEffect(() => {
@@ -247,6 +249,9 @@ export default function SocialPage() {
                         <span className="friend-badge">🤝 Friends</span>
                       </div>
                       <div className="social-card-actions">
+                        <button className="btn btn-sm btn-secondary" onClick={() => setGiftRecipient(f)}>
+                          <Gift size={14} /> Gift
+                        </button>
                         <button className="btn btn-sm btn-primary" onClick={() => navigate(`/visit/${f.user_id}`)}>
                           <Building2 size={14} /> Visit
                         </button>
@@ -411,6 +416,14 @@ export default function SocialPage() {
           </>
         )}
       </div>
+
+      {giftRecipient && (
+        <GiftDecorationModal
+          receiverId={giftRecipient.user_id}
+          receiverName={giftRecipient.display_name || 'Mayor'}
+          onClose={() => setGiftRecipient(null)}
+        />
+      )}
     </div>
   );
 }
