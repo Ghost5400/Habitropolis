@@ -57,7 +57,7 @@ export default function HabitsPage() {
   };
 
   if (loading) {
-    return <div className="dashboard-loading"><div className="loading-spinner" />Loading habits...</div>;
+    return <div className="dashboard-loading"><img src="/parth.png" alt="Parth" style={{ width: '100px', height: '100px', objectFit: 'contain', animation: 'float 2s ease-in-out infinite' }} /><p>Loading habits...</p></div>;
   }
 
   return (
@@ -90,9 +90,9 @@ export default function HabitsPage() {
 
       {filtered.length === 0 ? (
         <div className="empty-state glass">
-          <Target size={48} className="empty-icon" />
+          <img src="/parth-waving.png" alt="Parth" style={{ width: '110px', height: '110px', objectFit: 'contain', marginBottom: '0.5rem' }} />
           <h3>{filter === 'all' ? 'No habits yet' : `No ${filter} habits`}</h3>
-          <p>Create your first habit to start building your city!</p>
+          <p>Parth is waiting! Create your first habit to start building your city!</p>
           <button className="btn btn-primary" onClick={() => navigate('/habits/new')}>
             <Plus size={18} /> Create Habit
           </button>

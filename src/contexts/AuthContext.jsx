@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
   if (loading) {
     return (
       <div className="loading-screen">
-        <div className="loading-spinner" />
+        <img src="/parth.png" alt="Parth" style={{ width: '120px', height: '120px', objectFit: 'contain', animation: 'float 2s ease-in-out infinite' }} />
         <p className="loading-text">Loading Habitropolis...</p>
       </div>
     );

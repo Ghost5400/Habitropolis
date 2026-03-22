@@ -51,3 +51,23 @@
 .password-toggle:hover {
   color: var(--text-primary);
 }
+
+/* Mascot on auth pages */
+.auth-mascot {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.auth-mascot .mascot-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  animation: mascotBounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 20px rgba(99, 102, 241, 0.25));
+}
+
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

@@ -31,6 +31,9 @@ export default function LoginPage() {
   return (
     <div className="auth-container glass">
       <div className="auth-box">
+        <div className="auth-mascot">
+          <img src="/parth-waving.png" alt="Parth the Tiger" className="mascot-img" />
+        </div>
         <h2>Welcome Back</h2>
         <p className="text-muted">Sign in to your Habitropolis</p>
 

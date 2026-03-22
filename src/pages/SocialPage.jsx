@@ -221,7 +221,7 @@ export default function SocialPage() {
       <div className="social-content">
         {loading ? (
           <div className="social-loading">
-            <div className="loading-spinner" />
+            <img src="/parth.png" alt="Parth" style={{ width: '100px', height: '100px', objectFit: 'contain', animation: 'float 2s ease-in-out infinite' }} />
             <p>Loading social data...</p>
           </div>
         ) : (
@@ -231,7 +231,7 @@ export default function SocialPage() {
               <div className="social-list">
                 {friends.length === 0 ? (
                   <div className="social-empty glass-sm">
-                    <Users size={40} className="empty-icon" />
+                    <img src="/parth-waving.png" alt="Parth" style={{ width: '90px', height: '90px', objectFit: 'contain', marginBottom: '0.5rem' }} />
                     <h3>No friends yet</h3>
                     <p>Search for mayors above or follow people from the Leaderboard!</p>
                   </div>

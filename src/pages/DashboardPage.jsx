@@ -8,6 +8,7 @@ import QuoteBanner from '../components/QuoteBanner';
 import HabitCard from '../components/HabitCard';
 import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
 import { Target, Flame, Coins, Building2 } from 'lucide-react';
+import ParthBanner from '../components/ParthBanner';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -62,7 +63,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="dashboard-loading">
-        <div className="loading-spinner" />
+        <img src="/parth.png" alt="Parth" style={{ width: '120px', height: '120px', objectFit: 'contain', animation: 'float 2s ease-in-out infinite' }} />
         <p>Loading your habitropolis...</p>
       </div>
     );
@@ -90,7 +91,31 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
+      <ParthBanner show={true} />
       <QuoteBanner />
+
+      {/* Parth Motivator */}
+      {habits.length > 0 && (
+        <div className="parth-motivator glass-sm">
+          <img
+            src={completedToday === habits.length ? '/parth.png' : completedToday > 0 ? '/parth-waving.png' : '/parth-construction.png'}
+            alt="Parth"
+            className="parth-motivator-img"
+          />
+          <div className="parth-motivator-text">
+            <div className="parth-quote">
+              {completedToday === habits.length
+                ? "All habits done! You're a legend today! 🏆"
+                : completedToday > habits.length / 2
+                ? `Almost there! Just ${habits.length - completedToday} more to go! 💪`
+                : completedToday > 0
+                ? `Good start! ${completedToday} down, ${habits.length - completedToday} to go! 🔥`
+                : "Hey Mayor! Your city needs you — let's crush some habits! 🐯"}
+            </div>
+            <div className="parth-name">— Parth 🐯</div>
+          </div>
+        </div>
+      )}
 
       <div className="dashboard-stats tour-dashboard-stats">
         <div className="stat-card glass-sm">
@@ -125,9 +150,9 @@ export default function DashboardPage() {
 
       {habits.length === 0 ? (
         <div className="empty-state glass">
-          <Building2 size={48} className="empty-icon" />
+          <img src="/parth-waving.png" alt="Parth" style={{ width: '140px', height: '140px', objectFit: 'contain', marginBottom: '1rem' }} />
           <h3>Welcome to Habitropolis!</h3>
-          <p>Click <strong>"NEW HABIT"</strong> in the quote above to start building your city of good habits.</p>
+          <p>I'm <strong>Parth</strong>, your city-building buddy! Click <strong>"NEW HABIT"</strong> in the quote above to start building your city of good habits.</p>
         </div>
       ) : (
         <>
