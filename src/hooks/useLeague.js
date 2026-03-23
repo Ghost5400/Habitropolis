@@ -214,27 +214,26 @@ export const useLeague = () => {
         }
       }
 
-      // Reset score, update cycle start, assign new league, new bracket
-      const newGroup = crypto.randomUUID();
+      // Reset score, update cycle start, assign new league, clear bracket
       await supabase
         .from('profiles')
         .update({
           weekly_score: 0,
           league_cycle_start: lastMonday.toISOString(),
           league_id: newLeagueId,
-          leaderboard_group_id: newGroup,
+          leaderboard_group_id: null,
         })
         .eq('user_id', user.id);
 
       setWeekReset(true);
-      bracketAssignedRef.current = true;
+      bracketAssignedRef.current = false; // Let the ensureBracket logic fetch a new group
 
       return {
         ...profile,
         weekly_score: 0,
         league_cycle_start: lastMonday.toISOString(),
         league_id: newLeagueId,
-        leaderboard_group_id: newGroup,
+        leaderboard_group_id: null,
       };
     }
 

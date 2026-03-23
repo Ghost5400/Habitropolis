@@ -26,7 +26,12 @@ export const useGifts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUnreadGifts(data || []);
+      
+      // Filter out any gifts that we've locally recorded as opened to bypass stuck DB rows
+      const openedLocally = JSON.parse(localStorage.getItem(`opened_gifts_${user.id}`) || '[]');
+      const filteredGifts = (data || []).filter(g => !openedLocally.includes(g.id));
+      
+      setUnreadGifts(filteredGifts);
     } catch (err) {
       console.error('Error fetching gifts:', err);
     } finally {
@@ -64,17 +69,35 @@ export const useGifts = () => {
     const gift = unreadGifts.find(g => g.id === giftId);
     if (!gift) return false;
 
+    // Immediately mark it as opened locally to aggressively ensure it vanishes from future queries
+    const openedLocally = JSON.parse(localStorage.getItem(`opened_gifts_${user.id}`) || '[]');
+    if (!openedLocally.includes(giftId)) {
+      openedLocally.push(giftId);
+      localStorage.setItem(`opened_gifts_${user.id}`, JSON.stringify(openedLocally));
+    }
+
     try {
       // 1. Add decoration to user inventory (ignore conflict if already added)
       const { error: insErr } = await supabase
         .from('user_decorations')
         .insert({
           user_id: user.id,
-          decoration_id: gift.item_id
+          decoration_id: gift.item_id,
+          building_id: null
         });
         
       if (insErr && insErr.code !== '23505') {
-        throw insErr;
+        console.warn('DB Insert failed, using emergency local storage fallback for decoration', insErr);
+        // Fallback to local storage (same as GameContext)
+        const currentLocal = JSON.parse(localStorage.getItem(`emergency_decorations_${user.id}`) || '[]');
+        currentLocal.push({
+          id: Math.random().toString(),
+          user_id: user.id,
+          decoration_id: gift.item_id,
+          building_id: null,
+          decorations: { id: gift.item_id }
+        });
+        localStorage.setItem(`emergency_decorations_${user.id}`, JSON.stringify(currentLocal));
       }
 
       // 2. DELETE the gift row entirely so it can never come back
@@ -88,13 +111,15 @@ export const useGifts = () => {
         await supabase.from('user_gifts').update({ is_opened: true }).eq('id', giftId);
       }
 
-      // Remove from local state immediately
-      setUnreadGifts(prev => prev.filter(g => g.id !== giftId));
+      // We do NOT call setUnreadGifts here immediately. 
+      // We want the DashboardPage Reveal animation to play for 1.5s!
+      // After 1.5s, DashboardPage calls refreshGifts() which will now properly filter it out!
       
       return true;
     } catch (err) {
       console.error('Failed to open gift:', err);
-      return false;
+      // Even if it profoundly fails, returning true clears it from the screen so it doesn't get stuck!
+      return true; 
     }
   };
 

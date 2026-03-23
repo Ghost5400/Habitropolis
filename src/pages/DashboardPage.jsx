@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const { coins } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
-  const { addCoins, addWeeklyXP, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
+  const { addCoins, addWeeklyXP, refreshData } = useGame(); // Fixed from fetchGameData
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift, refreshGifts } = useGifts();
   
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         // Re-query gifts from DB to ensure opened gift is gone
         await refreshGifts();
         // Refresh game data so the new decoration appears in City Page
-        fetchGameData();
+        if (refreshData) refreshData();
       }
     }, 1500);
   };
