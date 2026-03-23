@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useHabits } from '../hooks/useHabits';
 import { useStreaks } from '../hooks/useStreaks';
 import { useGame } from '../contexts/GameContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useCity } from '../hooks/useCity';
 import { useCoins } from '../hooks/useCoins';
 import QuoteBanner from '../components/QuoteBanner';
@@ -38,7 +39,7 @@ export default function DashboardPage() {
   const { coins } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
-  const { addCoins, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
+  const { addCoins, addWeeklyXP, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift } = useGifts();
   
@@ -77,6 +78,9 @@ export default function DashboardPage() {
 
         // Grow building
         await growBuilding(habit.id, habit.frequency);
+
+        // Award weekly league XP (10 XP per habit completion)
+        await addWeeklyXP(10);
       } else {
         await updateStreak(habit.id, false);
       }
