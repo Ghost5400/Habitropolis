@@ -59,13 +59,13 @@ export const useGifts = () => {
   };
 
   const openGift = async (giftId) => {
-    if (!user) return;
+    if (!user) return false;
     
     const gift = unreadGifts.find(g => g.id === giftId);
-    if (!gift) return;
+    if (!gift) return false;
 
     try {
-      // 1. Add decoration to user_decorations
+      // 1. Add decoration to user inventory (ignore conflict if already added)
       const { error: insErr } = await supabase
         .from('user_decorations')
         .insert({
@@ -73,9 +73,12 @@ export const useGifts = () => {
           decoration_id: gift.item_id
         });
         
-      if (insErr) throw insErr;
+      if (insErr && insErr.code !== '23505') {
+        // 23505 = unique constraint violation (already in inventory) — that's fine
+        throw insErr;
+      }
 
-      // 2. Mark gift as opened
+      // 2. Mark gift as opened (always do this regardless of decoration insert result)
       const { error: updErr } = await supabase
         .from('user_gifts')
         .update({ is_opened: true })
@@ -83,7 +86,7 @@ export const useGifts = () => {
         
       if (updErr) throw updErr;
 
-      // Update local state
+      // Remove from local state immediately for snappy UI
       setUnreadGifts(prev => prev.filter(g => g.id !== giftId));
       
       return true;

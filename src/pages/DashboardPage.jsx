@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const { getCoinReward } = useCoins();
   const { addCoins, addWeeklyXP, fetchGameData } = useGame(); // Need fetchGameData to refresh decorations after opening gift
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
-  const { unreadGifts, openGift } = useGifts();
+  const { unreadGifts, openGift, refreshGifts } = useGifts();
   
   const [openingGift, setOpeningGift] = useState(null);
 
@@ -91,11 +91,16 @@ export default function DashboardPage() {
 
   const handleOpenGift = async (giftId) => {
     setOpeningGift(giftId);
-    await openGift(giftId);
-    // Give enough time to show an animation before it disappears from the array
-    setTimeout(() => {
+    const success = await openGift(giftId);
+    // Show the reveal animation for 1.5s, then clear + refresh
+    setTimeout(async () => {
       setOpeningGift(null);
-      fetchGameData(); // Refresh UI to make sure UserDecorations is updated on City Page
+      if (success) {
+        // Re-query gifts from DB to ensure opened gift is gone
+        await refreshGifts();
+        // Refresh game data so the new decoration appears in City Page
+        fetchGameData();
+      }
     }, 1500);
   };
 
