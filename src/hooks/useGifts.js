@@ -74,19 +74,21 @@ export const useGifts = () => {
         });
         
       if (insErr && insErr.code !== '23505') {
-        // 23505 = unique constraint violation (already in inventory) — that's fine
         throw insErr;
       }
 
-      // 2. Mark gift as opened (always do this regardless of decoration insert result)
-      const { error: updErr } = await supabase
+      // 2. DELETE the gift row entirely so it can never come back
+      const { error: delErr } = await supabase
         .from('user_gifts')
-        .update({ is_opened: true })
+        .delete()
         .eq('id', giftId);
         
-      if (updErr) throw updErr;
+      if (delErr) {
+        // Fallback: try marking as opened if delete fails (RLS might block delete)
+        await supabase.from('user_gifts').update({ is_opened: true }).eq('id', giftId);
+      }
 
-      // Remove from local state immediately for snappy UI
+      // Remove from local state immediately
       setUnreadGifts(prev => prev.filter(g => g.id !== giftId));
       
       return true;

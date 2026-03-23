@@ -137,18 +137,31 @@ export const useLeague = () => {
             .eq('league_id', profile.league_id)
             .order('weekly_score', { ascending: false });
 
-          if (bracket && bracket.length > 1) {
+          if (bracket && bracket.length > 0) {
             const myRank = bracket.findIndex(b => b.user_id === user.id) + 1;
             const total = bracket.length;
-            const promoteCutoff = Math.max(1, Math.ceil(total * 0.30)); // Top 30%
-            const demoteCutoff = total - Math.max(1, Math.floor(total * 0.23)) + 1; // Bottom 23%
+            const myScore = profile.weekly_score || 0;
 
-            if (myRank <= promoteCutoff && newLeagueId < 28) {
-              newLeagueId = newLeagueId + 1;
-              console.log('⬆️ Promoted to league', newLeagueId);
-            } else if (myRank >= demoteCutoff && newLeagueId > 1) {
-              newLeagueId = newLeagueId - 1;
-              console.log('⬇️ Demoted to league', newLeagueId);
+            if (total === 1) {
+              // Solo bracket: promote if you earned any XP at all
+              if (myScore > 0 && newLeagueId < 28) {
+                newLeagueId = newLeagueId + 1;
+                console.log('⬆️ Solo bracket promotion to league', newLeagueId);
+              }
+            } else {
+              // Multi-person bracket: top 30% promote, bottom 23% demote
+              // Minimum 3 promotions for brackets of 10+
+              const rawPromote = Math.ceil(total * 0.30);
+              const promoteCutoff = total >= 10 ? Math.max(3, rawPromote) : Math.max(1, rawPromote);
+              const demoteCutoff = total - Math.max(1, Math.floor(total * 0.23)) + 1;
+
+              if (myRank <= promoteCutoff && newLeagueId < 28) {
+                newLeagueId = newLeagueId + 1;
+                console.log(`⬆️ Promoted (rank ${myRank}/${total}, cutoff ${promoteCutoff}) to league`, newLeagueId);
+              } else if (myRank >= demoteCutoff && newLeagueId > 1) {
+                newLeagueId = newLeagueId - 1;
+                console.log(`⬇️ Demoted (rank ${myRank}/${total}, cutoff ${demoteCutoff}) to league`, newLeagueId);
+              }
             }
           }
         } catch (err) {
