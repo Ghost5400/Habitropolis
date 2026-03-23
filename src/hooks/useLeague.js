@@ -180,14 +180,22 @@ export const useLeague = () => {
         try {
           const { data: bracket } = await supabase
             .from('profiles')
-            .select('user_id, weekly_score')
+            .select('user_id, weekly_score, last_week_score, league_cycle_start')
             .eq('leaderboard_group_id', profile.leaderboard_group_id)
-            .eq('league_id', profile.league_id)
-            .order('weekly_score', { ascending: false });
+            .eq('league_id', profile.league_id);
 
           if (bracket && bracket.length > 0) {
-            const myRank = bracket.findIndex(b => b.user_id === user.id) + 1;
-            const total = bracket.length;
+            // RACE CONDITION FIX: Some users may have already reset their week (weekly_score = 0).
+            // We evaluate their true final score based on when their last cycle start was set.
+            const sortedBracket = bracket.map(b => {
+              const bStart = b.league_cycle_start ? new Date(b.league_cycle_start) : null;
+              const hasReset = bStart && bStart >= lastMonday;
+              const trueFinalScore = hasReset ? (b.last_week_score || 0) : (b.weekly_score || 0);
+              return { ...b, trueFinalScore };
+            }).sort((a, b) => b.trueFinalScore - a.trueFinalScore);
+
+            const myRank = sortedBracket.findIndex(b => b.user_id === user.id) + 1;
+            const total = sortedBracket.length;
             const myScore = profile.weekly_score || 0;
 
             if (total === 1) {
@@ -200,9 +208,10 @@ export const useLeague = () => {
               // Get the rigorous cutoff limits mapped to this specific league rules
               const { promoteCutoff, demoteCutoff } = getLeagueBracketRules(profile.league_id, total);
 
-              if (promoteCutoff > 0 && myRank <= promoteCutoff && newLeagueId < 28) {
+              // Require myScore > 0 to promote! No freeloading to the next league!
+              if (promoteCutoff > 0 && myRank <= promoteCutoff && newLeagueId < 28 && myScore > 0) {
                 newLeagueId = newLeagueId + 1;
-                console.log(`⬆️ Promoted (rank ${myRank}/${total}, cutoff ${promoteCutoff}) to league`, newLeagueId);
+                console.log(`⬆️ Promoted (rank ${myRank}/${total}, cutoff ${promoteCutoff}, score ${myScore}) to league`, newLeagueId);
               } else if (demoteCutoff <= total && myRank >= demoteCutoff && newLeagueId > 1) {
                 newLeagueId = newLeagueId - 1;
                 console.log(`⬇️ Demoted (rank ${myRank}/${total}, cutoff ${demoteCutoff}) to league`, newLeagueId);
@@ -214,10 +223,11 @@ export const useLeague = () => {
         }
       }
 
-      // Reset score, update cycle start, assign new league, clear bracket
+      // Reset score, SNAPSHOT last week score, update cycle start, assign new league, clear bracket
       await supabase
         .from('profiles')
         .update({
+          last_week_score: profile.weekly_score || 0,
           weekly_score: 0,
           league_cycle_start: lastMonday.toISOString(),
           league_id: newLeagueId,
