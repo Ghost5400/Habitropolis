@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const { coins } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
-  const { addCoins, addWeeklyXP, refreshData } = useGame(); // Fixed from fetchGameData
+  const { addCoins, addXP, refreshData } = useGame(); // Fixed from fetchGameData
   const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift, refreshGifts } = useGifts();
   
@@ -79,8 +79,8 @@ export default function DashboardPage() {
         // Grow building
         await growBuilding(habit.id, habit.frequency);
 
-        // Award weekly league XP (10 XP per habit completion)
-        await addWeeklyXP(10);
+        // Award XP
+        await addXP(10);
       } else {
         await updateStreak(habit.id, false);
       }

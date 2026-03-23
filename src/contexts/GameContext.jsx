@@ -101,24 +101,27 @@ export function GameProvider({ children }) {
     }
   };
 
-  // Increment weekly league score (silently fails if migration not run)
-  const addWeeklyXP = async (points) => {
+  // Increment weekly league score and lifetime XP
+  const addXP = async (points) => {
     if (!user || !points) return;
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('weekly_score')
+        .select('weekly_score, lifetime_xp')
         .eq('user_id', user.id)
         .single();
 
       if (data && data.weekly_score !== undefined) {
         await supabase
           .from('profiles')
-          .update({ weekly_score: (data.weekly_score || 0) + points })
+          .update({ 
+            weekly_score: (data.weekly_score || 0) + points,
+            lifetime_xp: (data.lifetime_xp || 0) + points
+          })
           .eq('user_id', user.id);
       }
     } catch (err) {
-      // Silently fail — league columns may not exist yet
+      // Silently fail if columns do not exist
     }
   };
 
@@ -131,8 +134,8 @@ export function GameProvider({ children }) {
         .update({ coins: newCoins })
         .eq('user_id', user.id);
 
-      // Coins also count as weekly XP
-      await addWeeklyXP(amount);
+      // Coins also count as XP
+      await addXP(amount);
 
       await supabase.from('transactions').insert({
         user_id: user.id,
@@ -150,8 +153,7 @@ export function GameProvider({ children }) {
   };
 
   const spendCoins = async (amount, description = 'Purchase') => {
-    if (!user) { alert("DEBUG spendCoins: No user"); return false; }
-    if (state.coins < amount) { alert(`DEBUG spendCoins: state.coins (${state.coins}) < amount (${amount})`); return false; }
+    if (!user || state.coins < amount) return false;
     try {
       const newCoins = state.coins - amount;
       const res1 = await supabase
@@ -159,7 +161,7 @@ export function GameProvider({ children }) {
         .update({ coins: newCoins })
         .eq('user_id', user.id);
         
-      if (res1.error) alert("DEBUG profiles: " + res1.error.message);
+      if (res1.error) console.error("Error updating coins", res1.error);
 
       const res2 = await supabase.from('transactions').insert({
         user_id: user.id,
@@ -168,12 +170,11 @@ export function GameProvider({ children }) {
         currency: 'coins',
         description,
       });
-      if (res2.error) alert("DEBUG transactions: " + res2.error.message);
+      if (res2.error) console.error("Error recording transaction", res2.error);
 
       dispatch({ type: 'SPEND_COINS', payload: amount });
       return true;
     } catch (err) {
-      alert("DEBUG spendCoins catch: " + err.message);
       console.error('Error spending coins:', err);
       return false;
     }
@@ -197,12 +198,10 @@ export function GameProvider({ children }) {
   };
 
   const buyDecoration = async (decorationObj, buildingId) => {
-    if (!user) { alert("DEBUG: No user found in GameContext"); return false; }
-    if (!decorationObj) { alert("DEBUG: decorationObj is undefined"); return false; }
-    if (state.coins < decorationObj.price_coins) { alert("DEBUG: state.coins is less than price"); return false; }
+    if (!user || !decorationObj || state.coins < decorationObj.price_coins) return false;
 
     const spent = await spendCoins(decorationObj.price_coins, `Bought ${decorationObj.name}`);
-    if (!spent) { alert("DEBUG: spendCoins returned false!"); return false; }
+    if (!spent) return false;
 
     try {
       const { data, error } = await supabase
@@ -240,7 +239,7 @@ export function GameProvider({ children }) {
         dispatch({ type: 'ADD_OWNED_DECORATION', payload: newDeco });
         return true; 
       } catch (critErr) {
-        alert("DEBUG: Even the emergency fallback failed! " + critErr.message);
+        console.error("Critical fallback failed", critErr);
         return false;
       }
     }
@@ -329,7 +328,7 @@ export function GameProvider({ children }) {
         ...state,
         dispatch,
         addCoins,
-        addWeeklyXP,
+        addXP,
         spendCoins,
         updateBuilding,
         buyDecoration,

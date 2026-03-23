@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLeague, getLeagueBracketRules } from '../hooks/useLeague';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2, UserPlus, UserCheck } from 'lucide-react';
+import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2, UserPlus, UserCheck, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './LeaderboardPage.css';
 
@@ -39,6 +39,46 @@ export default function LeaderboardPage() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [followStates, setFollowStates] = useState({}); // { [userId]: 'none' | 'pending' | 'following' }
+
+  const [activeTab, setActiveTab] = useState('weekly');
+  const [globalBoard, setGlobalBoard] = useState([]);
+  const [globalLoading, setGlobalLoading] = useState(false);
+
+  const loadGlobalBoard = async () => {
+    setGlobalLoading(true);
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url, lifetime_xp, league_id')
+        .gt('lifetime_xp', 0)
+        .order('lifetime_xp', { ascending: false })
+        .limit(100);
+      setGlobalBoard(data || []);
+      
+      // Load follow states for global too
+      if (data && user) {
+        const { data: fData } = await supabase
+          .from('follows')
+          .select('followed_id, status')
+          .eq('follower_id', user.id)
+          .in('followed_id', data.map(u => u.user_id));
+        setFollowStates(prev => {
+          const states = { ...prev };
+          (fData || []).forEach(f => {
+            states[f.followed_id] = f.status === 'accepted' ? 'following' : 'pending';
+          });
+          return states;
+        });
+      }
+    } catch (err) {}
+    finally { setGlobalLoading(false); }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'global' && globalBoard.length === 0) {
+      loadGlobalBoard();
+    }
+  }, [activeTab]);
 
   // Load follow states for leaderboard users
   useEffect(() => {
@@ -240,15 +280,32 @@ export default function LeaderboardPage() {
 
       {/* Leaderboard */}
       <div className="league-board glass">
-        <div className="board-header">
-          <h2><Swords size={20} /> This Week's Bracket</h2>
+        <div className="board-tabs">
           <button 
-            className={`btn btn-sm btn-secondary refresh-btn ${refreshing ? 'spinning' : ''}`}
-            onClick={handleRefresh}
+            className={`board-tab ${activeTab === 'weekly' ? 'active' : ''}`}
+            onClick={() => setActiveTab('weekly')}
           >
-            <RefreshCw size={14} />
+            <Swords size={18} /> Weekly Bracket
+          </button>
+          <button 
+            className={`board-tab ${activeTab === 'global' ? 'active' : ''}`}
+            onClick={() => setActiveTab('global')}
+          >
+            <Globe size={18} /> Global Top 100
           </button>
         </div>
+
+        {activeTab === 'weekly' ? (
+          <>
+            <div className="board-header">
+              <h2><Swords size={20} /> Current Bracket</h2>
+              <button 
+                className={`btn btn-sm btn-secondary refresh-btn ${refreshing ? 'spinning' : ''}`}
+                onClick={handleRefresh}
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
 
         <div className="board-zones">
           {league.id < 28 && (
@@ -349,6 +406,96 @@ export default function LeaderboardPage() {
             </div>
           )}
         </div>
+        </>
+        ) : (
+          <>
+            <div className="board-header">
+              <h2><Globe size={20} /> All-Time Legends</h2>
+              <button 
+                className={`btn btn-sm btn-secondary refresh-btn ${globalLoading ? 'spinning' : ''}`}
+                onClick={loadGlobalBoard}
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
+            
+            <div className="board-list">
+              {globalBoard.map((u, i) => {
+                const rank = i + 1;
+                const isMe = u.user_id === user.id;
+                const userL = leagueData.find(l => l.id === u.league_id) || leagueData[0];
+
+                return (
+                  <div
+                    key={'global'+u.user_id}
+                    className={`board-row ${isMe ? 'is-me' : ''}`}
+                    style={{ '--row-delay': `${i * 0.04}s` }}
+                  >
+                    <div className="board-rank-cell">
+                      {rank <= 3 ? (
+                        <span className="rank-medal">{RANK_MEDALS[rank - 1]}</span>
+                      ) : (
+                        <span className="rank-number">{rank}</span>
+                      )}
+                    </div>
+
+                    <div className="board-player">
+                      <div className="player-avatar-emoji" style={{
+                        borderColor: isMe ? 'var(--accent-primary)' : `${userL?.color}88`,
+                        background: isMe ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-tertiary)'
+                      }}>
+                        {u.avatar_url?.length > 5 ? '👤' : (u.avatar_url || '🤖')}
+                      </div>
+                      <div className="player-info">
+                        <span className="player-name">
+                          {u.display_name || u.user_id.split('-')[0]}
+                          {isMe && <span className="you-badge">YOU</span>}
+                        </span>
+                        <span className="player-league-badge" style={{ color: userL?.color, fontSize: '0.75rem', fontWeight: 600 }}>
+                          {userL?.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="board-xp">
+                      <Globe size={14} className="xp-icon text-accent" />
+                      <span>{u.lifetime_xp || 0}</span>
+                      <span className="xp-label">XP</span>
+                    </div>
+                    
+                    <div className="board-actions">
+                      {!isMe && (
+                        <button
+                          className={`visit-btn ${followStates[u.user_id] ? 'followed' : ''}`}
+                          title={followStates[u.user_id] === 'following' ? 'Following' : followStates[u.user_id] === 'pending' ? 'Pending' : `Follow ${u.display_name || 'Mayor'}`}
+                          onClick={() => handleFollowFromBoard(u.user_id)}
+                          style={followStates[u.user_id] ? { color: '#4ade80', borderColor: '#4ade80' } : {}}
+                        >
+                          {followStates[u.user_id] ? <UserCheck size={16} /> : <UserPlus size={16} />}
+                        </button>
+                      )}
+                      <button 
+                        className="visit-btn" 
+                        title={`Visit ${u.display_name || 'City'}`}
+                        onClick={() => navigate(`/visit/${u.user_id}`)}
+                      >
+                        <Building2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {globalBoard.length === 0 && !globalLoading && (
+                <div className="board-empty">
+                  <Star size={32} />
+                  <p>No legends yet...</p>
+                  <span>Earn XP to claim your spot on the Global Board!</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* All Leagues Overview */}
