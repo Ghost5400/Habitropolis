@@ -33,6 +33,54 @@ const LEAGUE_DATA = [
   { id: 28, name: 'Celestial League', city_level: 7, tier: 'Megalopolis', color: '#FFD700' },
 ];
 
+export const getLeagueBracketRules = (leagueId, totalPlayers) => {
+  const currentLeague = LEAGUE_DATA.find(l => l.id === leagueId) || LEAGUE_DATA[0];
+  const cl = currentLeague.city_level;
+  
+  // Hardcoded blueprint rules for promotion vs demotion based on Tier (City Level)
+  // Makes lower leagues easy to climb, higher leagues brutally difficult to stay in
+  const rules = {
+    1: { p: 0.40, d: 0.00 }, // Tier 1: 40% promote, 0% demote
+    2: { p: 0.35, d: 0.05 }, // Tier 2: 35% promote, 5% demote
+    3: { p: 0.30, d: 0.10 }, // Tier 3: 30% promote, 10% demote
+    4: { p: 0.25, d: 0.15 }, // Tier 4: 25% promote, 15% demote
+    5: { p: 0.20, d: 0.20 }, // Tier 5: 20% promote, 20% demote
+    6: { p: 0.15, d: 0.25 }, // Tier 6: 15% promote, 25% demote
+    7: { p: 0.10, d: 0.30 }  // Tier 7: 10% promote, 30% demote
+  };
+  
+  const { p, d } = rules[cl] || { p: 0.20, d: 0.20 };
+  
+  // Calculate raw cutoffs based on percentages
+  let promoteCutoff = Math.max(1, Math.round(totalPlayers * p));
+  let demoteCount = Math.round(totalPlayers * d);
+  let demoteCutoff = totalPlayers - demoteCount + 1;
+  
+  // League 1 cannot be demoted from. 0 demote percentages also force infinite cutoff.
+  if (leagueId <= 1 || d === 0 || demoteCount === 0) {
+    demoteCutoff = totalPlayers + 1;
+  }
+  
+  // League 28 is the absolute peak. Nobody promotes.
+  if (leagueId >= 28 || promoteCutoff < 1) {
+    promoteCutoff = 0;
+  }
+  
+  // Sanity check to ensure cutoffs don't cross in extremely tiny brackets (e.g. 2 players)
+  if (promoteCutoff >= demoteCutoff && promoteCutoff > 0) {
+    demoteCutoff = promoteCutoff + 1;
+    if (demoteCutoff > totalPlayers) demoteCutoff = totalPlayers + 1; // Push it off the edge
+  }
+  
+  // Solo player edge case: if you are completely alone, you safely promote if it isn't League 28.
+  if (totalPlayers === 1) {
+    promoteCutoff = leagueId < 28 ? 1 : 0;
+    demoteCutoff = 2;
+  }
+  
+  return { promoteCutoff, demoteCutoff };
+};
+
 // Get the most recent Monday at midnight UTC
 function getLastMonday() {
   const now = new Date();
@@ -143,22 +191,19 @@ export const useLeague = () => {
             const myScore = profile.weekly_score || 0;
 
             if (total === 1) {
-              // Solo bracket: promote if you earned any XP at all
+              // Solo bracket auto-promote if they actually did habits
               if (myScore > 0 && newLeagueId < 28) {
                 newLeagueId = newLeagueId + 1;
                 console.log('⬆️ Solo bracket promotion to league', newLeagueId);
               }
             } else {
-              // Multi-person bracket: top 30% promote, bottom 23% demote
-              // Minimum 3 promotions for brackets of 10+
-              const rawPromote = Math.ceil(total * 0.30);
-              const promoteCutoff = total >= 10 ? Math.max(3, rawPromote) : Math.max(1, rawPromote);
-              const demoteCutoff = total - Math.max(1, Math.floor(total * 0.23)) + 1;
+              // Get the rigorous cutoff limits mapped to this specific league rules
+              const { promoteCutoff, demoteCutoff } = getLeagueBracketRules(profile.league_id, total);
 
-              if (myRank <= promoteCutoff && newLeagueId < 28) {
+              if (promoteCutoff > 0 && myRank <= promoteCutoff && newLeagueId < 28) {
                 newLeagueId = newLeagueId + 1;
                 console.log(`⬆️ Promoted (rank ${myRank}/${total}, cutoff ${promoteCutoff}) to league`, newLeagueId);
-              } else if (myRank >= demoteCutoff && newLeagueId > 1) {
+              } else if (demoteCutoff <= total && myRank >= demoteCutoff && newLeagueId > 1) {
                 newLeagueId = newLeagueId - 1;
                 console.log(`⬇️ Demoted (rank ${myRank}/${total}, cutoff ${demoteCutoff}) to league`, newLeagueId);
               }
