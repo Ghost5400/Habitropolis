@@ -12,5 +12,5 @@
 
 @media (max-width: 768px) {
   .app-layout { flex-direction: column; }
-  .main-content { margin-left: 0; margin-bottom: 70px; padding: 1rem; }
+  .main-content { margin-left: 0; margin-bottom: 56px; padding: 0.75rem 0.5rem; }
 }

@@ -173,7 +173,7 @@
     height: auto;
     flex-direction: row;
     align-items: center;
-    padding: 1rem;
+    padding: 0.5rem 0.25rem;
     position: fixed;
     bottom: 0;
     top: auto;
@@ -195,6 +195,17 @@
   }
 
   .nav-link {
-    padding: 0.75rem;
+    padding: 0.5rem 0.4rem;
+    border-radius: 8px;
+  }
+
+  .nav-link svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .nav-link.active {
+    padding: 0.5rem 0.6rem;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
   }
 }

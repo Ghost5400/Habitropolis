@@ -733,49 +733,230 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
+  .leaderboard-page {
+    padding: 1rem 0.5rem 5rem;
+    gap: 0.75rem;
+  }
+
+  /* --- Hero: compact horizontal layout --- */
   .league-hero {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+    border-radius: 14px;
   }
 
   .league-hero-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
   }
 
   .league-emblem {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
   }
 
   .emblem-icon {
-    font-size: 1.7rem;
+    font-size: 1.3rem;
+  }
+
+  .emblem-ring-2 {
+    display: none;
+  }
+
+  .league-hero-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .league-tier-label {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    margin-bottom: 0;
   }
 
   .league-hero-name {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .league-hero-sub {
+    display: none;
   }
 
   .league-hero-stats {
-    width: 100%;
-    justify-content: space-around;
+    display: none;
   }
 
-  .hero-stat {
-    padding: 0.5rem 0.75rem;
-    min-width: 65px;
-  }
-
-  .board-row {
+  /* --- Cycle bar: tighter --- */
+  .league-cycle-bar {
     padding: 0.75rem 1rem;
+    border-radius: 10px;
+  }
+
+  .cycle-day-label {
+    font-size: 0.85rem;
+  }
+
+  .cycle-days-left {
+    font-size: 0.75rem;
+  }
+
+  .cycle-footer {
+    font-size: 0.65rem;
+  }
+
+  /* --- Board Tabs: smaller text --- */
+  .board-tab {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+    gap: 0.35rem;
+  }
+
+  .board-tab svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* --- Board Header --- */
+  .board-header {
+    padding: 0.75rem 1rem 0.5rem;
+  }
+
+  .board-header h2 {
+    font-size: 0.95rem;
+    gap: 0.4rem;
+  }
+
+  .board-header h2 svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* --- Board Zones (promote/demote badges) --- */
+  .board-zones {
+    padding: 0 1rem 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .zone-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* --- Board rows: THE key fix --- */
+  .board-row {
+    padding: 0.6rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .board-rank-cell {
+    width: 32px;
+    gap: 0;
+  }
+
+  .rank-medal {
+    font-size: 1.1rem;
+  }
+
+  .rank-number {
+    font-size: 0.85rem;
+  }
+
+  .zone-arrow {
+    display: none;
+  }
+
+  .player-avatar-emoji {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    border-width: 1.5px;
+  }
+
+  .board-player {
+    gap: 0.5rem;
+  }
+
+  .player-name {
+    font-size: 0.82rem;
+    gap: 0.3rem;
+  }
+
+  .player-league-badge {
+    font-size: 0.65rem !important;
+  }
+
+  .you-badge {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.25rem;
+  }
+
+  .board-xp {
+    font-size: 0.8rem;
+    gap: 0.2rem;
+  }
+
+  .board-xp svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .xp-label {
+    font-size: 0.6rem;
+  }
+
+  /* Make action buttons always visible on mobile (no hover on touch) */
+  .board-actions {
+    opacity: 1;
+    gap: 0.25rem;
+  }
+
+  .visit-btn {
+    padding: 0.3rem;
+  }
+
+  .visit-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* --- All 28 Leagues grid --- */
+  .all-leagues {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .all-leagues h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .leagues-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
   }
 
-  .progression-row {
+  .league-chip {
+    padding: 0.4rem 0.5rem;
     font-size: 0.7rem;
+    border-radius: 8px;
+  }
+
+  .chip-tier-icon {
+    font-size: 0.75rem;
+  }
+
+  /* --- Solo/empty notices --- */
+  .board-solo-notice {
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+  }
+
+  .board-empty {
+    padding: 2rem 1rem;
   }
 }
 
