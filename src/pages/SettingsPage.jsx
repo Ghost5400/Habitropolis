@@ -1,4 +1,4 @@
-import { useState } from 'react';
+2import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
 import { Settings, User, Bell, Palette, LogOut } from 'lucide-react';
@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const { coins } = useGame();
   const [notifications, setNotifications] = useState(Notification.permission === 'granted');
   const [message, setMessage] = useState('');
-  
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [tempName, setTempName] = useState('');
   const [tempAvatar, setTempAvatar] = useState('');
@@ -74,14 +74,14 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
-        
+
         {isEditingProfile ? (
           <div className="profile-edit-form">
             <div className="setting-col">
               <label>Avatar</label>
               <div className="avatar-picker">
                 {AVATARS.map(emoji => (
-                  <button 
+                  <button
                     key={emoji}
                     className={`avatar-choice ${tempAvatar === emoji || (tempAvatar.length > 5 && emoji === '🤖') ? 'selected' : ''}`}
                     onClick={() => setTempAvatar(emoji)}
@@ -93,11 +93,11 @@ export default function SettingsPage() {
             </div>
             <div className="setting-col">
               <label>Mayor Name</label>
-              <input 
-                type="text" 
-                className="input" 
-                value={tempName} 
-                onChange={e => setTempName(e.target.value)} 
+              <input
+                type="text"
+                className="input"
+                value={tempName}
+                onChange={e => setTempName(e.target.value)}
                 maxLength={20}
               />
             </div>
@@ -159,17 +159,6 @@ export default function SettingsPage() {
           </div>
         </div>
         <p className="setting-hint">Get reminders for your habits and streak alerts.</p>
-      </div>
-
-      <div className="settings-section glass">
-        <div className="section-header">
-          <Palette size={20} />
-          <h3>Appearance</h3>
-        </div>
-        <div className="setting-row">
-          <span className="setting-label">Theme</span>
-          <span className="setting-value">Dark (Default)</span>
-        </div>
       </div>
 
       <button className="btn btn-danger logout-settings-btn" onClick={handleSignOut}>

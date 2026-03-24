@@ -173,78 +173,64 @@ export const useLeague = () => {
     if (cycleStart < lastMonday) {
       console.log('🔄 Weekly league reset triggered!');
 
-      // Determine promotion/demotion based on last week's bracket ranking
-      let newLeagueId = profile.league_id || 1;
+      // THE BUG FIX: The previous logic evaluated promotion purely on the client side, one user at a time.
+      // This caused "Bracket Shredding" - the first user to login would leave the group, meaning the second 
+      // user faced a smaller opponent pool. By Wednesday, users were logging into "Solo brackets" and getting 
+      // automatically promoted. This caused the "happening everyday" bug. 
+      //
+      // To fix it deeply: We call an atomic RPC to process EVERYONE fairly at the same time, maintaining
+      // the integrity of the bracket without shredding it piecemeal.
 
-      if (profile.leaderboard_group_id) {
-        try {
-          const { data: bracket } = await supabase
-            .from('profiles')
-            .select('user_id, weekly_score, last_week_score, league_cycle_start')
-            .eq('leaderboard_group_id', profile.leaderboard_group_id)
-            .eq('league_id', profile.league_id);
-
-          if (bracket && bracket.length > 0) {
-            // RACE CONDITION FIX: Some users may have already reset their week (weekly_score = 0).
-            // We evaluate their true final score based on when their last cycle start was set.
-            const sortedBracket = bracket.map(b => {
-              const bStart = b.league_cycle_start ? new Date(b.league_cycle_start) : null;
-              const hasReset = bStart && bStart >= lastMonday;
-              const trueFinalScore = hasReset ? (b.last_week_score || 0) : (b.weekly_score || 0);
-              return { ...b, trueFinalScore };
-            }).sort((a, b) => b.trueFinalScore - a.trueFinalScore);
-
-            const myRank = sortedBracket.findIndex(b => b.user_id === user.id) + 1;
-            const total = sortedBracket.length;
-            const myScore = profile.weekly_score || 0;
-
-            if (total === 1) {
-              // Solo bracket auto-promote if they actually did habits
-              if (myScore > 0 && newLeagueId < 28) {
-                newLeagueId = newLeagueId + 1;
-                console.log('⬆️ Solo bracket promotion to league', newLeagueId);
-              }
-            } else {
-              // Get the rigorous cutoff limits mapped to this specific league rules
-              const { promoteCutoff, demoteCutoff } = getLeagueBracketRules(profile.league_id, total);
-
-              // Require myScore > 0 to promote! No freeloading to the next league!
-              if (promoteCutoff > 0 && myRank <= promoteCutoff && newLeagueId < 28 && myScore > 0) {
-                newLeagueId = newLeagueId + 1;
-                console.log(`⬆️ Promoted (rank ${myRank}/${total}, cutoff ${promoteCutoff}, score ${myScore}) to league`, newLeagueId);
-              } else if (demoteCutoff <= total && myRank >= demoteCutoff && newLeagueId > 1) {
-                newLeagueId = newLeagueId - 1;
-                console.log(`⬇️ Demoted (rank ${myRank}/${total}, cutoff ${demoteCutoff}) to league`, newLeagueId);
-              }
-            }
-          }
-        } catch (err) {
-          console.warn('Could not evaluate bracket for promotion:', err.message);
-        }
+      try {
+        // Trigger the backend to atomically calculate cutoffs, promote/demote, and snapshot scores.
+        // Even if 100 people try to run this at exactly Monday 8:00 AM, the RPC processes it 
+        // quickly and leaves leaderboard_group_id as NULL, so subsequent calls safely skip.
+        await supabase.rpc('process_weekly_leaderboards');
+      } catch (err) {
+        console.warn('Backend RPC failed, user profile might not be fully updated:', err);
       }
 
-      // Reset score, SNAPSHOT last week score, update cycle start, assign new league, clear bracket
-      await supabase
+      // After the RPC does the heavy lifting, we fetch our fresh, officially-evaluated profile
+      const { data: refreshedProfile, error: refreshErr } = await supabase
         .from('profiles')
-        .update({
-          last_week_score: profile.weekly_score || 0,
-          weekly_score: 0,
-          league_cycle_start: lastMonday.toISOString(),
-          league_id: newLeagueId,
-          leaderboard_group_id: null,
-        })
-        .eq('user_id', user.id);
+        .select('league_id, weekly_score, leaderboard_group_id, display_name, avatar_url, league_cycle_start, settlement_level')
+        .eq('user_id', user.id)
+        .single();
+
+      if (refreshErr || !refreshedProfile) {
+        console.error('Failed to reload profile after reset', refreshErr);
+        return profile;
+      }
 
       setWeekReset(true);
-      bracketAssignedRef.current = false; // Let the ensureBracket logic fetch a new group
+      bracketAssignedRef.current = false; // We need a newly grouped bracket
 
-      return {
-        ...profile,
-        weekly_score: 0,
-        league_cycle_start: lastMonday.toISOString(),
-        league_id: newLeagueId,
-        leaderboard_group_id: null,
-      };
+      // Safety fallback: if the RPC didn't exist or failed to update our cycle start, we manually 
+      // update our own cycle start so we don't get stuck in an endless refresh loop.
+      const freshCycleStart = refreshedProfile.league_cycle_start 
+        ? new Date(refreshedProfile.league_cycle_start) 
+        : null;
+
+      if (!freshCycleStart || freshCycleStart < lastMonday) {
+        console.log('⚠️ RPC did not update cycle start. Applying manual fallback patch to prevent loops.');
+        await supabase
+          .from('profiles')
+          .update({
+            league_cycle_start: lastMonday.toISOString(),
+            weekly_score: 0,
+            leaderboard_group_id: null
+          })
+          .eq('user_id', user.id);
+          
+        return {
+          ...refreshedProfile,
+          league_cycle_start: lastMonday.toISOString(),
+          weekly_score: 0,
+          leaderboard_group_id: null
+        };
+      }
+
+      return refreshedProfile;
     }
 
     // Case 3: We're still in the current week — do nothing

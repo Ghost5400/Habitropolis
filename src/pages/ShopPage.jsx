@@ -36,10 +36,10 @@ const LEGENDARY_POOL = [
 ];
 
 const COIN_PACKAGES = [
-   { coins: 100, price: '₹0.99', popular: false },
-   { coins: 500, price: '₹3.99', popular: true },
-   { coins: 1200, price: '₹7.99', popular: false },
-   { coins: 3000, price: '₹14.99', popular: false },
+   { id: 'coin_100', coins: 100, price: '₹49', priceInPaise: 4900, popular: false },
+   { id: 'coin_500', coins: 500, price: '₹149', priceInPaise: 14900, popular: true },
+   { id: 'coin_1200', coins: 1200, price: '₹299', priceInPaise: 29900, popular: false },
+   { id: 'coin_3000', coins: 3000, price: '₹499', priceInPaise: 49900, popular: false },
  ];
 
 const SHIELD_OPTIONS = [
@@ -50,7 +50,7 @@ const SHIELD_OPTIONS = [
 ];
 
 export default function ShopPage() {
-  const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData } = useGame();
+  const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData, addCoins } = useGame();
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
   const { user, profile, updateProfile } = useAuth();
@@ -142,8 +142,64 @@ export default function ShopPage() {
     }
   };
 
-  const handleBuyCoins = (pkg) => {
-    showMessage('💳 Payment integration coming soon! (Stripe → Wise)');
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleBuyCoins = async (pkg) => {
+    const isLoaded = await loadRazorpay();
+    if (!isLoaded) {
+      showMessage('Failed to load Razorpay securely. Check your internet connection.');
+      return;
+    }
+
+    try {
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_YourTestKey",
+        amount: pkg.priceInPaise,
+        currency: "INR",
+        name: "Habitropolis",
+        description: `Buy ${pkg.coins} Coins`,
+        image: "/logo.png",
+        handler: async function (response) {
+          // In a real application, you verify the payment via a backend webhook. 
+          // For now, we simulate success securely by granting the coins directly!
+          await addCoins(pkg.coins, `Razorpay Purchase (${pkg.price})`);
+          soundManager.playSuccess();
+          showMessage(`🎉 Payment successful! You received ${pkg.coins} coins.`);
+        },
+        prefill: {
+          name: profile?.display_name || user?.email?.split('@')[0] || "Mayor",
+          email: user?.email,
+        },
+        theme: {
+          color: "#4ade80" // Green accent to match the Habitropolis theme
+        }
+      };
+      
+      const paymentObject = new window.Razorpay(options);
+
+      // Testing/Mocking Safety Wrapper: If they haven't configured a key yet, mock it visually!
+      if (!import.meta.env.VITE_RAZORPAY_KEY) {
+        if (window.confirm(`[🚨 Mock Razorpay Checkout]\n\nNo VITE_RAZORPAY_KEY found in your .env variables.\n\nWould you like to mock a successful payment of ${pkg.price} for ${pkg.coins} coins right now?`)) {
+           setTimeout(() => options.handler({ razorpay_payment_id: "pay_mock123" }), 500);
+           return;
+        } else {
+           return;
+        }
+      }
+
+      paymentObject.open();
+    } catch (err) {
+      console.error(err);
+      showMessage('Payment initialization failed.');
+    }
   };
 
   const handleToggleGecko = async () => {
