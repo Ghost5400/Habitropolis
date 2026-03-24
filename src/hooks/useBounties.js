@@ -156,12 +156,19 @@ export const useBounties = (habits, todayLogs) => {
     }
   };
 
-  // Helper for tracking tokens safely
+  // Helper for tracking tokens safely with fresh DB reads
   const spendTokens = async (amount) => {
-    if (!user || tigerTokens < amount) return false;
-    const newTokens = tigerTokens - amount;
+    if (!user) return false;
     
     try {
+      // Read fresh token state to prevent race conditions
+      const { data } = await supabase.from('profiles').select('tiger_tokens').eq('user_id', user.id).single();
+      const currentDBTokens = data?.tiger_tokens || 0;
+      
+      if (currentDBTokens < amount) return false; // Not enough tokens
+      
+      const newTokens = currentDBTokens - amount;
+      
       const { error } = await supabase
         .from('profiles')
         .update({ tiger_tokens: newTokens })
@@ -172,6 +179,29 @@ export const useBounties = (habits, todayLogs) => {
       return true;
     } catch (err) {
       console.error('Error spending tokens:', err);
+      return false;
+    }
+  };
+
+  const grantTigerTokens = async (amount) => {
+    if (!user) return false;
+    
+    try {
+      // Read fresh token state
+      const { data } = await supabase.from('profiles').select('tiger_tokens').eq('user_id', user.id).single();
+      const currentDBTokens = data?.tiger_tokens || 0;
+      const newTokens = currentDBTokens + amount;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ tiger_tokens: newTokens })
+        .eq('user_id', user.id);
+        
+      if (error) throw error;
+      setTigerTokens(newTokens);
+      return true;
+    } catch (err) {
+      console.error('Error granting tokens:', err);
       return false;
     }
   };
@@ -285,6 +315,7 @@ export const useBounties = (habits, todayLogs) => {
     calculateProgress,
     claimBounty,
     spendTokens,
+    grantTigerTokens,
     feedParth
   };
 };

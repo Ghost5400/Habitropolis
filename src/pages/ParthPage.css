@@ -1,0 +1,193 @@
+.parth-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-dark);
+}
+
+.parth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+}
+
+.parth-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+  text-align: center;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.parth-balances {
+  display: flex;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.balance-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.parth-toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  background: var(--accent-primary);
+  color: white;
+  animation: slideDown 0.3s ease-out;
+}
+
+.parth-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(30, 30, 60, 0.8) 0%, rgba(15, 15, 30, 1) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-spotlight {
+  position: relative;
+  z-index: 10;
+  transform: scale(1.5); /* Make Parth bigger on his dedicated page */
+}
+
+/* Fix mobile scaling for stage */
+@media (max-width: 600px) {
+  .stage-spotlight {
+    transform: scale(1.2);
+  }
+}
+
+.parth-wardrobe-section {
+  flex: 0 0 350px;
+  background: var(--bg-card);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+}
+
+.wardrobe-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2);
+}
+
+.w-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: bold;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.w-tab:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.w-tab.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+.wardrobe-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.w-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.w-card.equipped {
+  border-color: var(--accent-primary);
+  background: rgba(var(--accent-primary-rgb), 0.1);
+}
+
+.w-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.w-name {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  height: 2.4rem;
+}
+
+.w-btn {
+  width: 100%;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.converter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.converter-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.exchange-rate {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent-primary);
+  margin: 1rem 0;
+}

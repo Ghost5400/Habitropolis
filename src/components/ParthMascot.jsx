@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import './ParthMascot.css';
 import soundManager from '../lib/SoundManager';
 
-export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, equippedAura, onPet }) {
-  const [mood, setMood] = useState('neutral');
+export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, equippedAura, forceMood, onPet }) {
+  const [internalMood, setInternalMood] = useState('neutral');
   const [animating, setAnimating] = useState(false);
   const [message, setMessage] = useState('');
   const [baseMessage, setBaseMessage] = useState(''); // Stores the default message before interruption
   const [reaction, setReaction] = useState(null); // { emoji, id } for particles
+
+  // If forceMood is provided (for Social viewing), use it. Otherwise, use calculated internalMood.
+  const mood = forceMood || internalMood;
 
   const completedToday = Object.values(todayLogs).filter(l => l.completed).length;
   const totalHabits = habits.length;
@@ -15,33 +18,36 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   
   // Determine Parth's State
   useEffect(() => {
+    // If we're forcing a mood, we don't need to calculate it locally
+    if (forceMood) return;
+
     let newMsg = '';
     if (totalHabits === 0) {
-      setMood('neutral');
+      setInternalMood('neutral');
       newMsg = "Hey Mayor! Your city needs you — let's crush some habits! 🐯";
     } else if (hunger <= 10) {
-      setMood('sad');
+      setInternalMood('sad');
       newMsg = "*Stomach rumbles* I'm starving... please do a habit...";
     } else if (completedToday === 0) {
-      setMood('sleeping');
+      setInternalMood('sleeping');
       newMsg = "Zzz... Wake me up by completing a habit...";
     } else if (completionPercent === 1) {
-      setMood('ecstatic');
+      setInternalMood('ecstatic');
       newMsg = "PERFECT DAY! You're an absolute legend! 🤩";
     } else if (bestStreak >= 7 && completionPercent >= 0.5) {
-      setMood('fire');
+      setInternalMood('fire');
       newMsg = `UNSTOPPABLE! ${bestStreak} days strong! 🔥`;
     } else if (completionPercent > 0.5) {
-      setMood('happy');
+      setInternalMood('happy');
       newMsg = `Almost there! Just ${totalHabits - completedToday} more to go! 💪`;
     } else {
-      setMood('neutral');
+      setInternalMood('neutral');
       newMsg = `Good start! ${completedToday} down, ${totalHabits - completedToday} to go! 🔥`;
     }
     
     setBaseMessage(newMsg);
     if (!reaction) setMessage(newMsg); // Only update visible if not currently reacting
-  }, [completedToday, totalHabits, bestStreak, hunger, reaction]);
+  }, [completedToday, totalHabits, bestStreak, hunger, reaction, forceMood]);
 
   const MOOD_IMAGES = {
     sad: '/parth-sad.png',

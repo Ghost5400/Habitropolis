@@ -29,21 +29,6 @@ const DECORATION_CATALOG = [
   { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 300, type: 'kiosk' },
 ];
 
-const PARTH_AURAS = [
-  { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 100, icon: '✨' },
-  { id: 'aura_snow', name: 'Winter Snow', desc: 'Gentle falling snow', cost: 150, icon: '❄️' },
-  { id: 'aura_shadow', name: 'Ninja Shadows', desc: 'Dark mysterious pulse', cost: 200, icon: '🦇' },
-  { id: 'aura_gold', name: 'Royal Gold', desc: 'A kingly golden glow', cost: 350, icon: '👑' },
-];
-
-const PARTH_OUTFITS = [
-  { id: 'outfit_shades', name: 'Cool Shades', desc: 'Aviator sunglasses', cost: 80, icon: '🕶️' },
-  { id: 'outfit_cap', name: 'Baseball Cap', desc: 'Sports cap', cost: 100, icon: '🧢' },
-  { id: 'outfit_headband', name: 'Gym Headband', desc: 'Sweatband for grinding', cost: 120, icon: '🏋️' },
-  { id: 'outfit_tophat', name: 'Top Hat', desc: 'Fancy top hat', cost: 250, icon: '🎩' },
-  { id: 'outfit_crown', name: 'Royal Crown', desc: 'Gold crown', cost: 400, icon: '👑' },
-];
-
 // Exclusive legendary items that cannot be bought directly, only won from Gacha chest!
 const LEGENDARY_POOL = [
   { id: '22222222-0000-0000-0000-000000000001', name: 'Golden Trophy', category: 'legendary', type: 'golden-trophy' },
@@ -190,67 +175,6 @@ export default function ShopPage() {
     }
   };
 
-  const handleBuyAura = async (aura) => {
-    const typePrefix = aura.id.split('_')[0]; // 'aura' or 'outfit'
-    const currentEquipped = (profile?.parth_equipped || '').split(',').filter(Boolean);
-    
-    // Remove old item of same type, add new item
-    const newEquippedArr = currentEquipped.filter(id => !id.startsWith(typePrefix));
-    newEquippedArr.push(aura.id);
-    const newEquippedString = newEquippedArr.join(',');
-
-    // Check if owned
-    const ownedAuras = profile?.parth_outfits || [];
-    if (ownedAuras.includes(aura.id)) {
-      // Just equip
-      await updateProfile({ parth_equipped: newEquippedString });
-      soundManager.playSuccess();
-      showMessage(`Equipped ${aura.name}!`);
-      return;
-    }
-
-    if (tigerTokens < aura.cost) {
-      showMessage(`Need ${aura.cost} Tiger Tokens!`);
-      return;
-    }
-
-    const success = await spendTokens(aura.cost);
-    if (success) {
-      await updateProfile({ 
-        parth_outfits: [...ownedAuras, aura.id],
-        parth_equipped: newEquippedString 
-      });
-      soundManager.playSuccess();
-      showMessage(`Bought & Equipped ${aura.name}! 🎉`);
-    }
-  };
-
-  const handleConvertCoinsToTokens = async () => {
-    if (coins < 250) {
-      showMessage('Not enough coins! Need 250 Coins for 5 Tokens.');
-      return;
-    }
-    const spent = await spendCoins(250, 'Converted to Tiger Tokens');
-    if (spent) {
-      await grantTigerTokens(5);
-      soundManager.playSuccess();
-      showMessage('Exchanged 250 Coins for 5 🐯!');
-    }
-  };
-
-  const handleConvertTokensToCoins = async () => {
-    if (tigerTokens < 5) {
-      showMessage('Not enough Tiger Tokens! Need 5 Tokens for 50 Coins.');
-      return;
-    }
-    const spent = await spendTokens(5);
-    if (spent) {
-      await grantPurchasedCoins(50);
-      soundManager.playSuccess();
-      showMessage('Exchanged 5 🐯 for 50 Coins!');
-    }
-  };
-
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -328,10 +252,8 @@ export default function ShopPage() {
   };
 
   const tabs = [
-    { id: 'tiger', label: 'Tiger Rewards', icon: Star },
-    { id: 'decorations', label: 'Decorations', icon: Palette },
-    { id: 'coins', label: 'Buy Coins', icon: Coins },
-    { id: 'shields', label: 'Shields', icon: Shield },
+    { id: 'decorations', label: 'Decorations', icon: Check },
+    { id: 'coins', label: 'More Coins', icon: BatteryCharging },
     { id: 'inventory', label: 'My Items', icon: Package },
   ];
 
@@ -371,108 +293,6 @@ export default function ShopPage() {
       </div>
 
       <div className="shop-content">
-        {activeTab === 'tiger' && (
-          <div className="tiger-rewards-content">
-
-            {/* Premium Currency Converter */}
-            <div className="currency-converter-section glass-sm" style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <h3 className="catalog-title" style={{ marginTop: 0, marginBottom: '1rem' }}>💎 The Black Market</h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>Exchange your standard city coins for rare Tiger Tokens, or sell tokens for quick cash.</p>
-              
-              <div className="converter-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="converter-card" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>💰 ➡️ 🐯</div>
-                  <div style={{ fontWeight: 'bold' }}>Buy Tokens</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>250 Coins = 5 Tokens</div>
-                  <button className="btn btn-primary" onClick={handleConvertCoinsToTokens} style={{ width: '100%' }}>Convert Custom</button>
-                </div>
-
-                <div className="converter-card" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🐯 ➡️ 💰</div>
-                  <div style={{ fontWeight: 'bold' }}>Sell Tokens</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>5 Tokens = 50 Coins (Lossy)</div>
-                  <button className="btn btn-secondary" onClick={handleConvertTokensToCoins} style={{ width: '100%' }}>Quick Sell</button>
-                </div>
-              </div>
-            </div>
-
-            <h3 className="catalog-title">🐯 Special Abilities</h3>
-            <div className="decorations-grid">
-              
-              <div className="decoration-card glass-sm">
-                <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>🍔</div>
-                <div className="decoration-name">Feed Parth</div>
-                <div className="decoration-category">+30 Hunger</div>
-                <button className="btn btn-primary" onClick={() => handleTigerReward('feed', 5)}>
-                  5 🐯
-                </button>
-              </div>
-
-              <div className="decoration-card glass-sm">
-                <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>💰</div>
-                <div className="decoration-name">100 Coins</div>
-                <div className="decoration-category">Instant Wealth</div>
-                <button className="btn btn-primary" onClick={() => handleTigerReward('coins', 20)}>
-                  20 🐯
-                </button>
-              </div>
-
-            </div>
-
-            <h3 className="catalog-title" style={{ marginTop: '2rem' }}>✨ Parth Auras</h3>
-            <div className="decorations-grid">
-              {PARTH_AURAS.map(aura => {
-                const isOwned = (profile?.parth_outfits || []).includes(aura.id);
-                const isEquipped = (profile?.parth_equipped || '').includes(aura.id);
-                
-                return (
-                  <div key={aura.id} className={`decoration-card glass-sm ${isEquipped ? 'equipped' : ''}`}>
-                    <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>
-                      {aura.icon}
-                    </div>
-                    <div className="decoration-name">{aura.name}</div>
-                    <div className="decoration-category">{aura.desc}</div>
-                    
-                    {isEquipped ? (
-                      <button className="btn btn-secondary" disabled>Equipped ✓</button>
-                    ) : isOwned ? (
-                      <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>Equip</button>
-                    ) : (
-                      <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>{aura.cost} 🐯</button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <h3 className="catalog-title" style={{ marginTop: '2rem' }}>👕 Parth's Wardrobe</h3>
-            <div className="decorations-grid">
-              {PARTH_OUTFITS.map(outfit => {
-                const isOwned = (profile?.parth_outfits || []).includes(outfit.id);
-                const isEquipped = (profile?.parth_equipped || '').includes(outfit.id);
-                
-                return (
-                  <div key={outfit.id} className={`decoration-card glass-sm ${isEquipped ? 'equipped' : ''}`}>
-                    <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>
-                      {outfit.icon}
-                    </div>
-                    <div className="decoration-name">{outfit.name}</div>
-                    <div className="decoration-category">{outfit.desc}</div>
-                    
-                    {isEquipped ? (
-                      <button className="btn btn-secondary" disabled>Equipped ✓</button>
-                    ) : isOwned ? (
-                      <button className="btn btn-primary" onClick={() => handleBuyAura(outfit)}>Equip</button>
-                    ) : (
-                      <button className="btn btn-primary" onClick={() => handleBuyAura(outfit)}>{outfit.cost} 🐯</button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {activeTab === 'decorations' && (
           <div className="decorations-content">
             

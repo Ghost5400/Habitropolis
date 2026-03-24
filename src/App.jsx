@@ -19,6 +19,7 @@ import AchievementsPage from './pages/AchievementsPage';
 import StatsPage from './pages/StatsPage';
 import SettingsPage from './pages/SettingsPage';
 import SocialPage from './pages/SocialPage';
+import ParthPage from './pages/ParthPage';
 
 import './App.css';
 import { useAchievements } from './hooks/useAchievements';
@@ -54,6 +55,8 @@ function AppRoutes() {
           <Route path="/city" element={<CityPage />} />
           <Route path="/visit/:userId" element={<PublicCityPage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/parth" element={<ParthPage />} />
+          <Route path="/parth/:userId" element={<ParthPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />
           <Route path="/stats" element={<StatsPage />} />
