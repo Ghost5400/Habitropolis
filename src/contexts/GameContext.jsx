@@ -154,8 +154,34 @@ export function GameProvider({ children }) {
     }
   };
 
-  // Used exclusively by Razorpay checkout — grants coins without awarding XP
-  const grantPurchasedCoins = (amount, description) => addCoins(amount, description, true);
+  // Completely standalone — used ONLY by Razorpay checkout
+  // Does NOT call addCoins or addXP. Does NOT touch weekly_score or lifetime_xp.
+  const grantPurchasedCoins = async (amount, description = 'Coin Purchase') => {
+    if (!user) return;
+    try {
+      const newCoins = state.coins + amount;
+      
+      // Update ONLY coins — no XP, no weekly_score, no lifetime_xp
+      await supabase
+        .from('profiles')
+        .update({ coins: newCoins })
+        .eq('user_id', user.id);
+
+      // Log as purchase transaction
+      await supabase.from('transactions').insert({
+        user_id: user.id,
+        type: 'purchase',
+        amount,
+        currency: 'coins',
+        description,
+      });
+
+      dispatch({ type: 'ADD_COINS', payload: amount });
+      return newCoins;
+    } catch (err) {
+      console.error('Error granting purchased coins:', err);
+    }
+  };
 
   const spendCoins = async (amount, description = 'Purchase') => {
     if (!user || state.coins < amount) return false;

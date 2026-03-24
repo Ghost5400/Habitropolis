@@ -155,32 +155,11 @@ export default function ShopPage() {
   const handleBuyCoins = async (pkg) => {
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
-      showMessage('Failed to load Razorpay securely. Check your internet connection.');
+      showMessage('Failed to load Razorpay. Check your internet connection.');
       return;
     }
 
     try {
-      showMessage('Initializing secure server connection...');
-
-      const orderRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-razorpay-order`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: pkg.priceInPaise, currency: 'INR' }),
-        }
-      );
-      
-      const order = await orderRes.json();
-      
-      if (!order.id) {
-         console.error("Order creation failed on backend", order);
-         showMessage('Server failed to generate a secure order. Please check Razorpay Secret Keys.');
-         return;
-      }
-
-      setPurchaseMessage('');
-
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_SV55yPVUrxm8uj",
         amount: pkg.priceInPaise,
@@ -188,11 +167,9 @@ export default function ShopPage() {
         name: "Habitropolis",
         description: `Buy ${pkg.coins} Coins`,
         image: "/logo.png",
-        order_id: order.id,
         handler: async function (response) {
-          // For now, since webhook takes more setup to properly tie users, 
-          // we securely simulated success here using the unhackable order_id setup
-          await grantPurchasedCoins(pkg.coins, `Razorpay Purchase (${pkg.price})`);
+          // Payment confirmed by Razorpay — grant coins (NO XP)
+          await grantPurchasedCoins(pkg.coins, `Razorpay: ${response.razorpay_payment_id}`);
           soundManager.playSuccess();
           showMessage(`🎉 Payment successful! You received ${pkg.coins} coins.`);
         },
@@ -201,13 +178,11 @@ export default function ShopPage() {
           email: user?.email,
         },
         theme: {
-          color: "#4ade80" // Green accent to match the Habitropolis theme
+          color: "#4ade80"
         }
       };
       
-      const paymentObject = new window.Razorpay(options);
-      
-      paymentObject.open();
+      new window.Razorpay(options).open();
     } catch (err) {
       console.error(err);
       showMessage('Payment initialization failed.');
