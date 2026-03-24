@@ -12,8 +12,11 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   // If forceMood is provided (for Social viewing), use it. Otherwise, use calculated internalMood.
   const mood = forceMood || internalMood;
 
-  const completedToday = Object.values(todayLogs).filter(l => l.completed).length;
-  const totalHabits = habits.length;
+  const safeLogs = todayLogs || {};
+  const safeHabits = habits || [];
+
+  const completedToday = Object.values(safeLogs).filter(l => l.completed).length;
+  const totalHabits = safeHabits.length;
   const completionPercent = totalHabits > 0 ? completedToday / totalHabits : 0;
   
   // Determine Parth's State
