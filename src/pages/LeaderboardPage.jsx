@@ -50,8 +50,8 @@ export default function LeaderboardPage() {
       const { data } = await supabase
         .from('profiles')
         .select('user_id, display_name, avatar_url, lifetime_xp, league_id')
-        .gt('lifetime_xp', 0)
         .order('lifetime_xp', { ascending: false })
+        .order('display_name', { ascending: true })
         .limit(100);
       setGlobalBoard(data || []);
       
