@@ -82,7 +82,7 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   };
 
   return (
-    <div className={`parth-mascot-container glass-sm mood-${mood} ${equippedAura ? 'has-aura-' + equippedAura : ''}`} onClick={handlePet}>
+    <div className={`parth-mascot-container glass-sm mood-${mood}`} onClick={handlePet}>
       <div className="parth-mood-scene">
         <img 
           src={MOOD_IMAGES[mood] || MOOD_IMAGES.neutral} 
@@ -93,19 +93,26 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
         {mood === 'ecstatic' && <div className="confetti-burst" />}
         {mood === 'sad' && <div className="tear-drop" />}
         
-        {/* Equipped Wardrobe Auras */}
-        {equippedAura === 'aura_sparkles' && (
+        {/* Equipped Wardrobe Auras & Outfits */}
+        {equippedAura?.includes('aura_sparkles') && (
           <div className="aura-layer aura-sparkles">
             <span>✨</span><span>✨</span><span>✨</span>
           </div>
         )}
-        {equippedAura === 'aura_snow' && (
+        {equippedAura?.includes('aura_snow') && (
           <div className="aura-layer aura-snow">
             <span>❄️</span><span>❄️</span><span>❄️</span>
           </div>
         )}
-        {equippedAura === 'aura_gold' && <div className="aura-layer aura-gold-ring"></div>}
-        {equippedAura === 'aura_shadow' && <div className="aura-layer aura-shadow-pulse"></div>}
+        {equippedAura?.includes('aura_gold') && <div className="aura-layer aura-gold-ring"></div>}
+        {equippedAura?.includes('aura_shadow') && <div className="aura-layer aura-shadow-pulse"></div>}
+
+        {/* Outfits (Positioned Emojis on Mascot) */}
+        {equippedAura?.includes('outfit_shades') && <div className="outfit-layer outfit-shades">🕶️</div>}
+        {equippedAura?.includes('outfit_cap') && <div className="outfit-layer outfit-cap">🧢</div>}
+        {equippedAura?.includes('outfit_headband') && <div className="outfit-layer outfit-headband">🏋️</div>}
+        {equippedAura?.includes('outfit_tophat') && <div className="outfit-layer outfit-tophat">🎩</div>}
+        {equippedAura?.includes('outfit_crown') && <div className="outfit-layer outfit-crown">👑</div>}
         
         {reaction && (
           <div className="reaction-particles" key={reaction.id}>

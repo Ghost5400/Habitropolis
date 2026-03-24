@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Users, UserPlus, UserCheck, Eye, Building2, Check, X, RefreshCw, Search, Gift } from 'lucide-react';
 import GiftDecorationModal from '../components/GiftDecorationModal';
+import ParthPreviewModal from '../components/ParthPreviewModal';
 import './SocialPage.css';
 
 function timeAgo(dateStr) {
@@ -43,6 +44,7 @@ export default function SocialPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [pendingOutgoing, setPendingOutgoing] = useState([]);
   const [giftRecipient, setGiftRecipient] = useState(null);
+  const [previewMascotId, setPreviewMascotId] = useState(null);
 
   // Load pending outgoing requests
   useEffect(() => {
@@ -134,6 +136,12 @@ export default function SocialPage() {
 
   return (
     <div className="social-page">
+      {previewMascotId && (
+        <ParthPreviewModal
+          friendId={previewMascotId}
+          onClose={() => setPreviewMascotId(null)}
+        />
+      )}
       <div className="social-header">
         <div className="social-title-row">
           <Users size={32} className="social-icon" />
@@ -251,6 +259,9 @@ export default function SocialPage() {
                       <div className="social-card-actions">
                         <button className="btn btn-sm btn-secondary" onClick={() => setGiftRecipient(f)}>
                           <Gift size={14} /> Gift
+                        </button>
+                        <button className="btn btn-sm btn-secondary" onClick={() => setPreviewMascotId(f.user_id)}>
+                          <Eye size={14} /> Mascot
                         </button>
                         <button className="btn btn-sm btn-primary" onClick={() => navigate(`/visit/${f.user_id}`)}>
                           <Building2 size={14} /> Visit

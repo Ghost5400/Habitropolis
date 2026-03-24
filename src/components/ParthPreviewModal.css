@@ -1,0 +1,65 @@
+.parth-preview-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.parth-preview-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(15, 15, 30, 0.98));
+  border: 1px solid var(--accent-primary);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+.preview-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.preview-close-btn:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+  transform: rotate(90deg);
+}
+
+.preview-loading {
+  text-align: center;
+  padding: 3rem 0;
+  color: var(--text-muted);
+}
+
+.parth-preview-card .parth-mascot-container {
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}

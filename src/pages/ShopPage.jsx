@@ -12,28 +12,36 @@ import { supabase } from '../lib/supabase';
 import './ShopPage.css';
 
 const DECORATION_CATALOG = [
-  { id: '11111111-0000-0000-0000-000000000001', name: 'Oak Tree', category: 'nature', price_coins: 30, type: 'tree-oak' },
-  { id: '11111111-0000-0000-0000-000000000002', name: 'Pine Tree', category: 'nature', price_coins: 35, type: 'tree-pine' },
-  { id: '11111111-0000-0000-0000-000000000003', name: 'Park Shrubbery', category: 'nature', price_coins: 15, type: 'shrubbery' },
-  { id: '11111111-0000-0000-0000-000000000004', name: 'Flower Garden', category: 'garden', price_coins: 20, type: 'flower-garden' },
-  { id: '11111111-0000-0000-0000-000000000005', name: 'Zen Rock Garden', category: 'garden', price_coins: 40, type: 'zen-garden' },
-  { id: '11111111-0000-0000-0000-000000000006', name: 'Water Fountain', category: 'fixture', price_coins: 50, type: 'fountain' },
-  { id: '11111111-0000-0000-0000-000000000007', name: 'Statue Monument', category: 'fixture', price_coins: 75, type: 'statue' },
-  { id: '11111111-0000-0000-0000-000000000008', name: 'City Bench', category: 'fixture', price_coins: 15, type: 'bench' },
-  { id: '11111111-0000-0000-0000-000000000009', name: 'Street Lamp', category: 'fixture', price_coins: 20, type: 'street-lamp' },
-  { id: '11111111-0000-0000-0000-000000000010', name: 'Swimming Pool', category: 'fixture', price_coins: 100, type: 'pool' },
-  { id: '11111111-0000-0000-0000-000000000011', name: 'Cobblestone Patch', category: 'path', price_coins: 10, type: 'cobblestone' },
-  { id: '11111111-0000-0000-0000-000000000012', name: 'Asphalt Road', category: 'path', price_coins: 5, type: 'road' },
-  { id: '11111111-0000-0000-0000-000000000013', name: 'Crosswalk', category: 'path', price_coins: 5, type: 'crosswalk' },
-  { id: '11111111-0000-0000-0000-000000000014', name: 'Bus Shelter', category: 'infrastructure', price_coins: 45, type: 'bus-stop' },
-  { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 60, type: 'kiosk' },
+  { id: '11111111-0000-0000-0000-000000000001', name: 'Oak Tree', category: 'nature', price_coins: 150, type: 'tree-oak' },
+  { id: '11111111-0000-0000-0000-000000000002', name: 'Pine Tree', category: 'nature', price_coins: 175, type: 'tree-pine' },
+  { id: '11111111-0000-0000-0000-000000000003', name: 'Park Shrubbery', category: 'nature', price_coins: 75, type: 'shrubbery' },
+  { id: '11111111-0000-0000-0000-000000000004', name: 'Flower Garden', category: 'garden', price_coins: 100, type: 'flower-garden' },
+  { id: '11111111-0000-0000-0000-000000000005', name: 'Zen Rock Garden', category: 'garden', price_coins: 200, type: 'zen-garden' },
+  { id: '11111111-0000-0000-0000-000000000006', name: 'Water Fountain', category: 'fixture', price_coins: 250, type: 'fountain' },
+  { id: '11111111-0000-0000-0000-000000000007', name: 'Statue Monument', category: 'fixture', price_coins: 375, type: 'statue' },
+  { id: '11111111-0000-0000-0000-000000000008', name: 'City Bench', category: 'fixture', price_coins: 75, type: 'bench' },
+  { id: '11111111-0000-0000-0000-000000000009', name: 'Street Lamp', category: 'fixture', price_coins: 100, type: 'street-lamp' },
+  { id: '11111111-0000-0000-0000-000000000010', name: 'Swimming Pool', category: 'fixture', price_coins: 500, type: 'pool' },
+  { id: '11111111-0000-0000-0000-000000000011', name: 'Cobblestone Patch', category: 'path', price_coins: 30, type: 'cobblestone' },
+  { id: '11111111-0000-0000-0000-000000000012', name: 'Asphalt Road', category: 'path', price_coins: 25, type: 'road' },
+  { id: '11111111-0000-0000-0000-000000000013', name: 'Crosswalk', category: 'path', price_coins: 25, type: 'crosswalk' },
+  { id: '11111111-0000-0000-0000-000000000014', name: 'Bus Shelter', category: 'infrastructure', price_coins: 225, type: 'bus-stop' },
+  { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 300, type: 'kiosk' },
 ];
 
 const PARTH_AURAS = [
-  { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 20, icon: '✨' },
-  { id: 'aura_snow', name: 'Winter Snow', desc: 'Gentle falling snow', cost: 25, icon: '❄️' },
-  { id: 'aura_shadow', name: 'Ninja Shadows', desc: 'Dark mysterious pulse', cost: 30, icon: '🦇' },
-  { id: 'aura_gold', name: 'Royal Gold', desc: 'A kingly golden glow', cost: 50, icon: '👑' },
+  { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 100, icon: '✨' },
+  { id: 'aura_snow', name: 'Winter Snow', desc: 'Gentle falling snow', cost: 150, icon: '❄️' },
+  { id: 'aura_shadow', name: 'Ninja Shadows', desc: 'Dark mysterious pulse', cost: 200, icon: '🦇' },
+  { id: 'aura_gold', name: 'Royal Gold', desc: 'A kingly golden glow', cost: 350, icon: '👑' },
+];
+
+const PARTH_OUTFITS = [
+  { id: 'outfit_shades', name: 'Cool Shades', desc: 'Aviator sunglasses', cost: 80, icon: '🕶️' },
+  { id: 'outfit_cap', name: 'Baseball Cap', desc: 'Sports cap', cost: 100, icon: '🧢' },
+  { id: 'outfit_headband', name: 'Gym Headband', desc: 'Sweatband for grinding', cost: 120, icon: '🏋️' },
+  { id: 'outfit_tophat', name: 'Top Hat', desc: 'Fancy top hat', cost: 250, icon: '🎩' },
+  { id: 'outfit_crown', name: 'Royal Crown', desc: 'Gold crown', cost: 400, icon: '👑' },
 ];
 
 // Exclusive legendary items that cannot be bought directly, only won from Gacha chest!
@@ -62,7 +70,7 @@ export default function ShopPage() {
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
   const { user, profile, updateProfile } = useAuth();
-  const { tigerTokens, spendTokens, feedParth } = useBounties(habits, {});
+  const { tigerTokens, spendTokens, feedParth, grantTigerTokens } = useBounties(habits, {});
   const [activeTab, setActiveTab] = useState('decorations');
   const [selectedHabit, setSelectedHabit] = useState(null);
   const [purchaseMessage, setPurchaseMessage] = useState('');
@@ -183,11 +191,19 @@ export default function ShopPage() {
   };
 
   const handleBuyAura = async (aura) => {
+    const typePrefix = aura.id.split('_')[0]; // 'aura' or 'outfit'
+    const currentEquipped = (profile?.parth_equipped || '').split(',').filter(Boolean);
+    
+    // Remove old item of same type, add new item
+    const newEquippedArr = currentEquipped.filter(id => !id.startsWith(typePrefix));
+    newEquippedArr.push(aura.id);
+    const newEquippedString = newEquippedArr.join(',');
+
     // Check if owned
     const ownedAuras = profile?.parth_outfits || [];
     if (ownedAuras.includes(aura.id)) {
       // Just equip
-      await updateProfile({ parth_equipped: aura.id });
+      await updateProfile({ parth_equipped: newEquippedString });
       soundManager.playSuccess();
       showMessage(`Equipped ${aura.name}!`);
       return;
@@ -202,10 +218,36 @@ export default function ShopPage() {
     if (success) {
       await updateProfile({ 
         parth_outfits: [...ownedAuras, aura.id],
-        parth_equipped: aura.id 
+        parth_equipped: newEquippedString 
       });
       soundManager.playSuccess();
       showMessage(`Bought & Equipped ${aura.name}! 🎉`);
+    }
+  };
+
+  const handleConvertCoinsToTokens = async () => {
+    if (coins < 250) {
+      showMessage('Not enough coins! Need 250 Coins for 5 Tokens.');
+      return;
+    }
+    const spent = await spendCoins(250, 'Converted to Tiger Tokens');
+    if (spent) {
+      await grantTigerTokens(5);
+      soundManager.playSuccess();
+      showMessage('Exchanged 250 Coins for 5 🐯!');
+    }
+  };
+
+  const handleConvertTokensToCoins = async () => {
+    if (tigerTokens < 5) {
+      showMessage('Not enough Tiger Tokens! Need 5 Tokens for 50 Coins.');
+      return;
+    }
+    const spent = await spendTokens(5);
+    if (spent) {
+      await grantPurchasedCoins(50);
+      soundManager.playSuccess();
+      showMessage('Exchanged 5 🐯 for 50 Coins!');
     }
   };
 
@@ -331,6 +373,29 @@ export default function ShopPage() {
       <div className="shop-content">
         {activeTab === 'tiger' && (
           <div className="tiger-rewards-content">
+
+            {/* Premium Currency Converter */}
+            <div className="currency-converter-section glass-sm" style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 className="catalog-title" style={{ marginTop: 0, marginBottom: '1rem' }}>💎 The Black Market</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>Exchange your standard city coins for rare Tiger Tokens, or sell tokens for quick cash.</p>
+              
+              <div className="converter-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="converter-card" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>💰 ➡️ 🐯</div>
+                  <div style={{ fontWeight: 'bold' }}>Buy Tokens</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>250 Coins = 5 Tokens</div>
+                  <button className="btn btn-primary" onClick={handleConvertCoinsToTokens} style={{ width: '100%' }}>Convert Custom</button>
+                </div>
+
+                <div className="converter-card" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🐯 ➡️ 💰</div>
+                  <div style={{ fontWeight: 'bold' }}>Sell Tokens</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>5 Tokens = 50 Coins (Lossy)</div>
+                  <button className="btn btn-secondary" onClick={handleConvertTokensToCoins} style={{ width: '100%' }}>Quick Sell</button>
+                </div>
+              </div>
+            </div>
+
             <h3 className="catalog-title">🐯 Special Abilities</h3>
             <div className="decorations-grid">
               
@@ -358,7 +423,7 @@ export default function ShopPage() {
             <div className="decorations-grid">
               {PARTH_AURAS.map(aura => {
                 const isOwned = (profile?.parth_outfits || []).includes(aura.id);
-                const isEquipped = profile?.parth_equipped === aura.id;
+                const isEquipped = (profile?.parth_equipped || '').includes(aura.id);
                 
                 return (
                   <div key={aura.id} className={`decoration-card glass-sm ${isEquipped ? 'equipped' : ''}`}>
@@ -374,6 +439,32 @@ export default function ShopPage() {
                       <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>Equip</button>
                     ) : (
                       <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>{aura.cost} 🐯</button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <h3 className="catalog-title" style={{ marginTop: '2rem' }}>👕 Parth's Wardrobe</h3>
+            <div className="decorations-grid">
+              {PARTH_OUTFITS.map(outfit => {
+                const isOwned = (profile?.parth_outfits || []).includes(outfit.id);
+                const isEquipped = (profile?.parth_equipped || '').includes(outfit.id);
+                
+                return (
+                  <div key={outfit.id} className={`decoration-card glass-sm ${isEquipped ? 'equipped' : ''}`}>
+                    <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>
+                      {outfit.icon}
+                    </div>
+                    <div className="decoration-name">{outfit.name}</div>
+                    <div className="decoration-category">{outfit.desc}</div>
+                    
+                    {isEquipped ? (
+                      <button className="btn btn-secondary" disabled>Equipped ✓</button>
+                    ) : isOwned ? (
+                      <button className="btn btn-primary" onClick={() => handleBuyAura(outfit)}>Equip</button>
+                    ) : (
+                      <button className="btn btn-primary" onClick={() => handleBuyAura(outfit)}>{outfit.cost} 🐯</button>
                     )}
                   </div>
                 );
