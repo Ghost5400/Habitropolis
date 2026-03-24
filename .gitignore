@@ -34,3 +34,7 @@ nul
 # Capacitor native projects (generated)
 android
 ios
+
+# Electron artifacts
+electron-dist/
+Habitropolis-win32-x64/

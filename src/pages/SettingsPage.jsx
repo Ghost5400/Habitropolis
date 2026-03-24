@@ -1,4 +1,4 @@
-2import { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
 import { Settings, User, Bell, Palette, LogOut } from 'lucide-react';
