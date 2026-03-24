@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+.parth-mascot-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(8, 8, 20, 0.8), rgba(20, 20, 45, 0.8));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.parth-mascot-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+.parth-mood-scene {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parth-mascot-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mood-sleeping .parth-mascot-img {
+  animation: sleepingBreathe 4s ease-in-out infinite;
+}
+
+.mood-happy .parth-mascot-img {
+  animation: float 3s ease-in-out infinite;
+}
+
+.mood-fire .parth-mascot-img {
+  filter: drop-shadow(0 0 20px #f97316) drop-shadow(0 0 40px #ef4444);
+  animation: powerAura 2s infinite alternate;
+}
+
+@keyframes powerAura {
+  0% { transform: scale(1); filter: drop-shadow(0 0 15px #f97316); }
+  100% { transform: scale(1.05); filter: drop-shadow(0 0 35px #ef4444); }
+}
+
+@keyframes sleepingBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05, 0.95); }
+}
+
+/* Animations that trigger when clicking him */
+.pet-bounce {
+  animation: petBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes petBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.1, 0.9); }
+  60% { transform: scale(0.9, 1.1) translateY(-10px); }
+  100% { transform: scale(1); }
+}
+
+.parth-status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.parth-speech-bubble {
+  font-family: var(--font-outfit);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 0.25rem;
+}
+
+.parth-name {
+  font-size: 0.85rem;
+  color: #f97316; /* Tiger Orange */
+  font-weight: 700;
+  align-self: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.hunger-bar-container {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.hunger-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.hunger-val {
+  color: var(--text-primary);
+}
+
+.hunger-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.hunger-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #4ade80);
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hunger-fill.critical {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  animation: pulse 1s infinite alternate;
+}
+
+.hunger-fill.full {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.floating-zzz {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0.7;
+  animation: floatZ 3s infinite;
+}
+
+@keyframes floatZ {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { transform: translateY(-30px) scale(1.2); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .parth-mascot-container {
+    flex-direction: column;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .parth-name {
+    align-self: center;
+  }
+  
+  .parth-speech-bubble {
+    font-size: 1rem;
+  }
+}

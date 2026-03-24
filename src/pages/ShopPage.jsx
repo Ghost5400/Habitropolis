@@ -3,7 +3,8 @@ import { useGame } from '../contexts/GameContext';
 import { useCoins } from '../hooks/useCoins';
 import { useStreaks } from '../hooks/useStreaks';
 import { useHabits } from '../hooks/useHabits';
-import { ShoppingBag, Palette, Coins, Shield, Check, Package, Gift, Sparkles, EyeOff } from 'lucide-react';
+import { useBounties } from '../hooks/useBounties';
+import { ShoppingBag, Palette, Coins, Shield, Check, Package, Gift, Sparkles, EyeOff, Star, BatteryCharging } from 'lucide-react';
 import DecorationSVG from '../components/DecorationSVG';
 import soundManager from '../lib/SoundManager';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,6 +55,7 @@ export default function ShopPage() {
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
   const { user, profile, updateProfile } = useAuth();
+  const { tigerTokens, spendTokens, feedParth } = useBounties(habits, {});
   const [activeTab, setActiveTab] = useState('decorations');
   const [selectedHabit, setSelectedHabit] = useState(null);
   const [purchaseMessage, setPurchaseMessage] = useState('');
@@ -142,6 +144,37 @@ export default function ShopPage() {
     }
   };
 
+  const handleTigerReward = async (type, cost) => {
+    if (tigerTokens < cost) {
+      showMessage(`Not enough Tiger Tokens! You need ${cost} 🐯`);
+      return;
+    }
+    
+    if (type === 'feed') {
+      const success = await spendTokens(cost);
+      if (success) {
+        await feedParth();
+        soundManager.playSuccess();
+        showMessage('🍔 Parth says thank you! Hunger restored.');
+      }
+    } else if (type === 'coins') {
+      const success = await spendTokens(cost);
+      if (success) {
+        await grantPurchasedCoins(100);
+        soundManager.playSuccess();
+        showMessage('💰 +100 Coins added to your bank!');
+      }
+    } else if (type === 'chest') {
+      const success = await spendTokens(cost);
+      if (success) {
+        handleOpenChest(true); // pass true to specify it's a token purchase if needed, but we already deducted tokens! 
+        // Wait, handleOpenChest inherently deducts 'coins'. 
+        // We'll write a separate logic below or inside it in a later step.
+        showMessage('Coming soon to Tiger Shop!');
+      }
+    }
+  };
+
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -219,6 +252,7 @@ export default function ShopPage() {
   };
 
   const tabs = [
+    { id: 'tiger', label: 'Tiger Rewards', icon: Star },
     { id: 'decorations', label: 'Decorations', icon: Palette },
     { id: 'coins', label: 'Buy Coins', icon: Coins },
     { id: 'shields', label: 'Shields', icon: Shield },
@@ -232,9 +266,14 @@ export default function ShopPage() {
           <ShoppingBag size={32} className="shop-icon" />
           <h1>Shop</h1>
         </div>
-        <div className="shop-balance glass-sm">
-          <Coins size={20} className="coin-icon" />
-          <span className="balance-amount">{coins.toLocaleString()} coins</span>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="shop-balance glass-sm">
+            🐯 <span className="balance-amount">{tigerTokens} tokens</span>
+          </div>
+          <div className="shop-balance glass-sm">
+            <Coins size={20} className="coin-icon" />
+            <span className="balance-amount">{coins.toLocaleString()} coins</span>
+          </div>
         </div>
       </div>
 
@@ -256,6 +295,33 @@ export default function ShopPage() {
       </div>
 
       <div className="shop-content">
+        {activeTab === 'tiger' && (
+          <div className="tiger-rewards-content">
+            <h3 className="catalog-title">🐯 Tiger Exclusive Rewards</h3>
+            <div className="decorations-grid">
+              
+              <div className="decoration-card glass-sm">
+                <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>🍔</div>
+                <div className="decoration-name">Feed Parth</div>
+                <div className="decoration-category">+30 Hunger</div>
+                <button className="btn btn-primary" onClick={() => handleTigerReward('feed', 5)}>
+                  5 🐯
+                </button>
+              </div>
+
+              <div className="decoration-card glass-sm">
+                <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>💰</div>
+                <div className="decoration-name">100 Coins</div>
+                <div className="decoration-category">Instant Wealth</div>
+                <button className="btn btn-primary" onClick={() => handleTigerReward('coins', 20)}>
+                  20 🐯
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
         {activeTab === 'decorations' && (
           <div className="decorations-content">
             

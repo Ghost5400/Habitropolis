@@ -9,7 +9,7 @@ import QuoteBanner from '../components/QuoteBanner';
 import HabitCard from '../components/HabitCard';
 import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
 import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2, MailOpen } from 'lucide-react';
-import ParthBanner from '../components/ParthBanner';
+import ParthMascot from '../components/ParthMascot';
 import { useBounties } from '../hooks/useBounties';
 import { useGifts } from '../hooks/useGifts';
 import DecorationSVG from '../components/DecorationSVG';
@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
   const { addCoins, addXP, refreshData } = useGame(); // Fixed from fetchGameData
-  const { bounties, tigerTokens, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
+  const { bounties, tigerTokens, parthHunger, feedParth, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift, refreshGifts } = useGifts();
   
   const [openingGift, setOpeningGift] = useState(null);
@@ -135,7 +135,6 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <ParthBanner show={true} />
       <QuoteBanner />
 
       {/* Gifts Mailbox */}
@@ -172,27 +171,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Parth Motivator */}
+      {/* Interactive Mascot */}
       {habits.length > 0 && (
-        <div className="parth-motivator glass-sm">
-          <img
-            src={completedToday === habits.length ? '/parth.png' : completedToday > 0 ? '/parth-waving.png' : '/parth-construction.png'}
-            alt="Parth"
-            className="parth-motivator-img"
-          />
-          <div className="parth-motivator-text">
-            <div className="parth-quote">
-              {completedToday === habits.length
-                ? "All habits done! You're a legend today! 🏆"
-                : completedToday > habits.length / 2
-                ? `Almost there! Just ${habits.length - completedToday} more to go! 💪`
-                : completedToday > 0
-                ? `Good start! ${completedToday} down, ${habits.length - completedToday} to go! 🔥`
-                : "Hey Mayor! Your city needs you — let's crush some habits! 🐯"}
-            </div>
-            <div className="parth-name">— Parth 🐯</div>
-          </div>
-        </div>
+        <ParthMascot 
+          habits={habits}
+          todayLogs={todayLogs}
+          bestStreak={bestStreak}
+          hunger={parthHunger || 50}
+          onPet={() => { /* Potential tap-to-pet feedback like hearts */ }}
+        />
       )}
 
       {/* Daily Bounties */}
