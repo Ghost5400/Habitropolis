@@ -50,7 +50,7 @@ const SHIELD_OPTIONS = [
 ];
 
 export default function ShopPage() {
-  const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData, addCoins } = useGame();
+  const { coins, spendCoins, buyDecoration, buyMysteryChest, ownedDecorations, refreshData, grantPurchasedCoins } = useGame();
   const { habits } = useHabits();
   const { buyShield } = useStreaks();
   const { user, profile, updateProfile } = useAuth();
@@ -170,7 +170,7 @@ export default function ShopPage() {
         handler: async function (response) {
           // In a real application, you verify the payment via a backend webhook. 
           // For now, we simulate success securely by granting the coins directly!
-          await addCoins(pkg.coins, `Razorpay Purchase (${pkg.price})`);
+          await grantPurchasedCoins(pkg.coins, `Razorpay Purchase (${pkg.price})`);
           soundManager.playSuccess();
           showMessage(`🎉 Payment successful! You received ${pkg.coins} coins.`);
         },

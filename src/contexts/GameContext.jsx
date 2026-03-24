@@ -125,7 +125,7 @@ export function GameProvider({ children }) {
     }
   };
 
-  const addCoins = async (amount, description = 'Habit completion') => {
+  const addCoins = async (amount, description = 'Habit completion', skipXP = false) => {
     if (!user) return;
     try {
       const newCoins = state.coins + amount;
@@ -134,12 +134,14 @@ export function GameProvider({ children }) {
         .update({ coins: newCoins })
         .eq('user_id', user.id);
 
-      // Coins also count as XP
-      await addXP(amount);
+      // Only grant XP for habit completions, NOT for purchased coins
+      if (!skipXP) {
+        await addXP(amount);
+      }
 
       await supabase.from('transactions').insert({
         user_id: user.id,
-        type: 'earn',
+        type: skipXP ? 'purchase' : 'earn',
         amount,
         currency: 'coins',
         description,
@@ -151,6 +153,9 @@ export function GameProvider({ children }) {
       console.error('Error adding coins:', err);
     }
   };
+
+  // Used exclusively by Razorpay checkout — grants coins without awarding XP
+  const grantPurchasedCoins = (amount, description) => addCoins(amount, description, true);
 
   const spendCoins = async (amount, description = 'Purchase') => {
     if (!user || state.coins < amount) return false;
@@ -330,6 +335,7 @@ export function GameProvider({ children }) {
         addCoins,
         addXP,
         spendCoins,
+        grantPurchasedCoins,
         updateBuilding,
         buyDecoration,
         buyMysteryChest,
