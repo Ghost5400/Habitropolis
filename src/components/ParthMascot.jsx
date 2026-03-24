@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import './ParthMascot.css';
 import soundManager from '../lib/SoundManager';
 
-export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, onPet }) {
+export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, equippedAura, onPet }) {
   const [mood, setMood] = useState('neutral');
   const [animating, setAnimating] = useState(false);
   const [message, setMessage] = useState('');
+  const [baseMessage, setBaseMessage] = useState(''); // Stores the default message before interruption
+  const [reaction, setReaction] = useState(null); // { emoji, id } for particles
 
   const completedToday = Object.values(todayLogs).filter(l => l.completed).length;
   const totalHabits = habits.length;
@@ -13,35 +15,33 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   
   // Determine Parth's State
   useEffect(() => {
+    let newMsg = '';
     if (totalHabits === 0) {
       setMood('neutral');
-      setMessage("Hey Mayor! Your city needs you — let's crush some habits! 🐯");
-      return;
-    }
-
-    if (hunger <= 10) {
+      newMsg = "Hey Mayor! Your city needs you — let's crush some habits! 🐯";
+    } else if (hunger <= 10) {
       setMood('sad');
-      setMessage("*Stomach rumbles* I'm starving... please do a habit...");
-      return;
-    }
-
-    if (completedToday === 0) {
+      newMsg = "*Stomach rumbles* I'm starving... please do a habit...";
+    } else if (completedToday === 0) {
       setMood('sleeping');
-      setMessage("Zzz... Wake me up by completing a habit...");
+      newMsg = "Zzz... Wake me up by completing a habit...";
     } else if (completionPercent === 1) {
       setMood('ecstatic');
-      setMessage("PERFECT DAY! You're an absolute legend! 🤩");
+      newMsg = "PERFECT DAY! You're an absolute legend! 🤩";
     } else if (bestStreak >= 7 && completionPercent >= 0.5) {
       setMood('fire');
-      setMessage(`UNSTOPPABLE! ${bestStreak} days strong! 🔥`);
+      newMsg = `UNSTOPPABLE! ${bestStreak} days strong! 🔥`;
     } else if (completionPercent > 0.5) {
       setMood('happy');
-      setMessage(`Almost there! Just ${totalHabits - completedToday} more to go! 💪`);
+      newMsg = `Almost there! Just ${totalHabits - completedToday} more to go! 💪`;
     } else {
       setMood('neutral');
-      setMessage(`Good start! ${completedToday} down, ${totalHabits - completedToday} to go! 🔥`);
+      newMsg = `Good start! ${completedToday} down, ${totalHabits - completedToday} to go! 🔥`;
     }
-  }, [completedToday, totalHabits, bestStreak, hunger]);
+    
+    setBaseMessage(newMsg);
+    if (!reaction) setMessage(newMsg); // Only update visible if not currently reacting
+  }, [completedToday, totalHabits, bestStreak, hunger, reaction]);
 
   const MOOD_IMAGES = {
     sad: '/parth-sad.png',
@@ -52,16 +52,37 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
     fire: '/parth-fire.png'
   };
 
+  const REACTIONS = [
+    { text: "I love this city! You're a great mayor!", emoji: '💕' },
+    { text: "Hehe, that tickles!", emoji: '😂' },
+    { text: "Let's crush those habits!", emoji: '💪' },
+    { text: "Feed me more Tiger Tokens!", emoji: '🍕' },
+    { text: "La la la~ Habit time!", emoji: '🎵' },
+    { text: "You're doing amazing today!", emoji: '✨' },
+    { text: "Roarrr! I'm fired up!", emoji: '🔥' }
+  ];
+
   const handlePet = () => {
     if (animating) return;
     setAnimating(true);
     soundManager.playNav();
+    
+    // Pick random reaction
+    const rand = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
+    setReaction({ ...rand, id: Date.now() });
+    setMessage(rand.text);
+
     if (onPet) onPet();
-    setTimeout(() => setAnimating(false), 1000);
+    
+    setTimeout(() => {
+      setAnimating(false);
+      setReaction(null);
+      setMessage(baseMessage); // Restore original message
+    }, 2500);
   };
 
   return (
-    <div className={`parth-mascot-container glass-sm mood-${mood}`} onClick={handlePet}>
+    <div className={`parth-mascot-container glass-sm mood-${mood} ${equippedAura ? 'has-aura-' + equippedAura : ''}`} onClick={handlePet}>
       <div className="parth-mood-scene">
         <img 
           src={MOOD_IMAGES[mood] || MOOD_IMAGES.neutral} 
@@ -71,6 +92,28 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
         {mood === 'sleeping' && <div className="floating-zzz">Zzz...</div>}
         {mood === 'ecstatic' && <div className="confetti-burst" />}
         {mood === 'sad' && <div className="tear-drop" />}
+        
+        {/* Equipped Wardrobe Auras */}
+        {equippedAura === 'aura_sparkles' && (
+          <div className="aura-layer aura-sparkles">
+            <span>✨</span><span>✨</span><span>✨</span>
+          </div>
+        )}
+        {equippedAura === 'aura_snow' && (
+          <div className="aura-layer aura-snow">
+            <span>❄️</span><span>❄️</span><span>❄️</span>
+          </div>
+        )}
+        {equippedAura === 'aura_gold' && <div className="aura-layer aura-gold-ring"></div>}
+        {equippedAura === 'aura_shadow' && <div className="aura-layer aura-shadow-pulse"></div>}
+        
+        {reaction && (
+          <div className="reaction-particles" key={reaction.id}>
+            <span className="particle p1">{reaction.emoji}</span>
+            <span className="particle p2">{reaction.emoji}</span>
+            <span className="particle p3">{reaction.emoji}</span>
+          </div>
+        )}
       </div>
       
       <div className="parth-status">

@@ -1,0 +1,190 @@
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.login-modal-overlay.stage-entrance {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.login-modal-overlay.stage-pop {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.login-modal-card {
+  width: 90%;
+  max-width: 440px;
+  background: linear-gradient(145deg, rgba(30, 30, 60, 0.9), rgba(15, 15, 30, 0.95));
+  border: 1px solid var(--accent-primary);
+  box-shadow: 0 0 60px rgba(99, 102, 241, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  transform: scale(0.8) translateY(40px);
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-entrance .login-modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.stage-pop .login-modal-card {
+  transform: scale(1.02) translateY(0);
+}
+
+.login-modal-title {
+  color: white;
+  font-family: var(--font-outfit);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.streak-day-badge {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-family: var(--font-outfit);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+}
+
+.parth-reward-scene {
+  height: 180px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.parth-modal-img {
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5));
+}
+
+.float-anim {
+  animation: floatReward 4s ease-in-out infinite;
+}
+
+@keyframes floatReward {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.login-modal-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.reward-boxes-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 2.5rem;
+}
+
+.reward-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 0.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.reward-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at top, rgba(255,255,255,0.05) 0%, transparent 60%);
+}
+
+.reward-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
+.reward-amt {
+  font-family: var(--font-outfit);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.reward-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.login-claim-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+}
+
+.login-claim-btn:active {
+  transform: scale(0.97);
+}
+
+.confetti-explosion {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle, #f97316 2px, transparent 2px),
+    radial-gradient(circle, #4ade80 2px, transparent 2px),
+    radial-gradient(circle, #eab308 3px, transparent 3px),
+    radial-gradient(circle, #ef4444 2px, transparent 2px);
+  background-size: 100% 100%;
+  background-position: center;
+  animation: explode 0.8s ease-out forwards;
+}
+
+@keyframes explode {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}

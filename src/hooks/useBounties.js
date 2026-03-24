@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getHabitTheme } from '../components/CityBuildingSVG';
 
+const STREAK_REWARDS = [3, 5, 8, 10, 12, 15, 25]; // Day 1 to Day 7 Tiger Tokens
+
 const BOUNTY_DB = [
   // Existing
   { id: 'any_3', title: 'Consistent Citizen', desc: 'Complete any 3 habits today', target: 3, reward: 10, type: 'complete_any' },
@@ -39,8 +41,14 @@ export const useBounties = (habits, todayLogs) => {
   const [tigerTokens, setTigerTokens] = useState(0);
   const [parthHunger, setParthHunger] = useState(50);
   const [loading, setLoading] = useState(true);
+  const [streakReward, setStreakReward] = useState(null); // { day, tokens, coins } if newly rewarded today
 
   const getTodayString = () => new Date().toISOString().split('T')[0];
+  const getYesterdayString = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().split('T')[0];
+  };
 
   const fetchBounties = useCallback(async () => {
     if (!user) return;
@@ -49,7 +57,7 @@ export const useBounties = (habits, todayLogs) => {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('daily_bounties, last_bounty_date, tiger_tokens, parth_hunger')
+        .select('daily_bounties, last_bounty_date, tiger_tokens, parth_hunger, login_streak, last_login_date')
         .eq('user_id', user.id)
         .single();
 
@@ -76,12 +84,37 @@ export const useBounties = (habits, todayLogs) => {
           is_claimed: false,
         }));
 
+        // --- NEW DAY RECORD LOGIN ---
+        let newLoginStreak = 1;
+        if (data.last_login_date === getYesterdayString()) {
+           newLoginStreak = (data.login_streak || 0) + 1;
+        }
+        if (newLoginStreak > 7) newLoginStreak = 1; // loop resetting to day 1 after week finishes
+        
+        const dayIdx = newLoginStreak - 1;
+        const rewardTokens = STREAK_REWARDS[dayIdx] || 3;
+        const rewardCoins = newLoginStreak === 5 ? 15 : 0;
+        
+        const newTotalTokens = (data.tiger_tokens || 0) + rewardTokens;
+        
+        // Let the UI know there's a reward payload to show!
+        setStreakReward({
+           day: newLoginStreak,
+           tokens: rewardTokens,
+           coins: rewardCoins,
+           chest: newLoginStreak === 7
+        });
+
+        // Execute combined single query update
         const { data: updateData, error: updateErr } = await supabase
           .from('profiles')
           .update({
             daily_bounties: selected,
             last_bounty_date: today,
-            parth_hunger: currentHunger
+            parth_hunger: currentHunger,
+            login_streak: newLoginStreak,
+            last_login_date: today,
+            tiger_tokens: newTotalTokens
           })
           .eq('user_id', user.id)
           .select('daily_bounties, tiger_tokens, parth_hunger')
@@ -247,6 +280,7 @@ export const useBounties = (habits, todayLogs) => {
     bounties,
     tigerTokens,
     parthHunger,
+    streakReward, // Can be consumed by the dashboard modal
     loading,
     calculateProgress,
     claimBounty,

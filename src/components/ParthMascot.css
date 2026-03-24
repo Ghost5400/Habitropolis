@@ -179,3 +179,98 @@
     font-size: 1rem;
   }
 }
+
+/* Tap Reaction Particles */
+.reaction-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.particle {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0;
+  animation: floatParticle 1.5s ease-out forwards;
+}
+
+.p1 { left: 10%; animation-delay: 0s; }
+.p2 { left: 50%; animation-delay: 0.1s; }
+.p3 { right: 10%; animation-delay: 0.2s; }
+
+@keyframes floatParticle {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+  100% { transform: translateY(-80px) scale(1) rotate(20deg); opacity: 0; }
+}
+
+/* Wardrobe Auras */
+.aura-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.aura-sparkles span {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: twinkle 2s infinite ease-in-out alternate;
+}
+.aura-sparkles span:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+.aura-sparkles span:nth-child(2) { top: 20%; right: 5%; animation-delay: 0.5s; }
+.aura-sparkles span:nth-child(3) { bottom: 10%; left: 50%; animation-delay: 1s; }
+
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1.2) rotate(45deg); }
+}
+
+.aura-snow span {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: fall 3s infinite linear;
+}
+.aura-snow span:nth-child(1) { left: 20%; top: -10%; animation-delay: 0s; }
+.aura-snow span:nth-child(2) { left: 50%; top: -5%; animation-delay: 1s; }
+.aura-snow span:nth-child(3) { right: 10%; top: 0; animation-delay: 2s; }
+
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(100px) rotate(180deg); opacity: 0; }
+}
+
+.aura-gold-ring {
+  background: radial-gradient(circle at center, rgba(234, 179, 8, 0.4) 0%, transparent 70%);
+  animation: pulseAura 2s infinite alternate;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.aura-shadow-pulse {
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+  animation: shadowPulse 3s infinite;
+  z-index: -1;
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgba(88, 28, 135, 0.5);
+}
+
+@keyframes pulseAura {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 10px #eab308); }
+}
+
+@keyframes shadowPulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.9; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}

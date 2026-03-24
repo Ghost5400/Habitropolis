@@ -10,6 +10,7 @@ import HabitCard from '../components/HabitCard';
 import { scheduleHabitReminders, registerServiceWorker, requestNotificationPermission } from '../lib/notifications';
 import { Target, Flame, Coins, Building2, Gift, Check, CheckCircle2, MailOpen } from 'lucide-react';
 import ParthMascot from '../components/ParthMascot';
+import LoginStreakModal from '../components/LoginStreakModal';
 import { useBounties } from '../hooks/useBounties';
 import { useGifts } from '../hooks/useGifts';
 import DecorationSVG from '../components/DecorationSVG';
@@ -34,16 +35,24 @@ const DECORATION_CATALOG = {
 };
 
 export default function DashboardPage() {
+  const { profile } = useAuth();
   const { habits, todayLogs, loading, completeHabit, fetchHabits } = useHabits();
   const { streaks, updateStreak } = useStreaks();
   const { coins } = useGame();
   const { growBuilding } = useCity();
   const { getCoinReward } = useCoins();
   const { addCoins, addXP, refreshData } = useGame(); // Fixed from fetchGameData
-  const { bounties, tigerTokens, parthHunger, feedParth, calculateProgress, claimBounty } = useBounties(habits, todayLogs);
+  const { bounties, tigerTokens, parthHunger, feedParth, calculateProgress, claimBounty, streakReward } = useBounties(habits, todayLogs);
   const { unreadGifts, openGift, refreshGifts } = useGifts();
   
   const [openingGift, setOpeningGift] = useState(null);
+  const [showStreakModal, setShowStreakModal] = useState(false);
+
+  useEffect(() => {
+    if (streakReward) {
+      setShowStreakModal(true);
+    }
+  }, [streakReward]);
 
   useEffect(() => {
     registerServiceWorker();
@@ -135,6 +144,14 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
+
+      {showStreakModal && (
+        <LoginStreakModal 
+          rewardInfo={streakReward} 
+          onClose={() => setShowStreakModal(false)} 
+        />
+      )}
+
       <QuoteBanner />
 
       {/* Gifts Mailbox */}
@@ -178,6 +195,7 @@ export default function DashboardPage() {
           todayLogs={todayLogs}
           bestStreak={bestStreak}
           hunger={parthHunger || 50}
+          equippedAura={profile?.parth_equipped}
           onPet={() => { /* Potential tap-to-pet feedback like hearts */ }}
         />
       )}

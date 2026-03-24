@@ -29,6 +29,13 @@ const DECORATION_CATALOG = [
   { id: '11111111-0000-0000-0000-000000000015', name: 'Food Stand', category: 'infrastructure', price_coins: 60, type: 'kiosk' },
 ];
 
+const PARTH_AURAS = [
+  { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 20, icon: '✨' },
+  { id: 'aura_snow', name: 'Winter Snow', desc: 'Gentle falling snow', cost: 25, icon: '❄️' },
+  { id: 'aura_shadow', name: 'Ninja Shadows', desc: 'Dark mysterious pulse', cost: 30, icon: '🦇' },
+  { id: 'aura_gold', name: 'Royal Gold', desc: 'A kingly golden glow', cost: 50, icon: '👑' },
+];
+
 // Exclusive legendary items that cannot be bought directly, only won from Gacha chest!
 const LEGENDARY_POOL = [
   { id: '22222222-0000-0000-0000-000000000001', name: 'Golden Trophy', category: 'legendary', type: 'golden-trophy' },
@@ -175,6 +182,33 @@ export default function ShopPage() {
     }
   };
 
+  const handleBuyAura = async (aura) => {
+    // Check if owned
+    const ownedAuras = profile?.parth_outfits || [];
+    if (ownedAuras.includes(aura.id)) {
+      // Just equip
+      await updateProfile({ parth_equipped: aura.id });
+      soundManager.playSuccess();
+      showMessage(`Equipped ${aura.name}!`);
+      return;
+    }
+
+    if (tigerTokens < aura.cost) {
+      showMessage(`Need ${aura.cost} Tiger Tokens!`);
+      return;
+    }
+
+    const success = await spendTokens(aura.cost);
+    if (success) {
+      await updateProfile({ 
+        parth_outfits: [...ownedAuras, aura.id],
+        parth_equipped: aura.id 
+      });
+      soundManager.playSuccess();
+      showMessage(`Bought & Equipped ${aura.name}! 🎉`);
+    }
+  };
+
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -297,7 +331,7 @@ export default function ShopPage() {
       <div className="shop-content">
         {activeTab === 'tiger' && (
           <div className="tiger-rewards-content">
-            <h3 className="catalog-title">🐯 Tiger Exclusive Rewards</h3>
+            <h3 className="catalog-title">🐯 Special Abilities</h3>
             <div className="decorations-grid">
               
               <div className="decoration-card glass-sm">
@@ -318,6 +352,32 @@ export default function ShopPage() {
                 </button>
               </div>
 
+            </div>
+
+            <h3 className="catalog-title" style={{ marginTop: '2rem' }}>✨ Parth Auras</h3>
+            <div className="decorations-grid">
+              {PARTH_AURAS.map(aura => {
+                const isOwned = (profile?.parth_outfits || []).includes(aura.id);
+                const isEquipped = profile?.parth_equipped === aura.id;
+                
+                return (
+                  <div key={aura.id} className={`decoration-card glass-sm ${isEquipped ? 'equipped' : ''}`}>
+                    <div className="decoration-emoji" style={{ height: '60px', fontSize: '3rem', margin: '0 auto' }}>
+                      {aura.icon}
+                    </div>
+                    <div className="decoration-name">{aura.name}</div>
+                    <div className="decoration-category">{aura.desc}</div>
+                    
+                    {isEquipped ? (
+                      <button className="btn btn-secondary" disabled>Equipped ✓</button>
+                    ) : isOwned ? (
+                      <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>Equip</button>
+                    ) : (
+                      <button className="btn btn-primary" onClick={() => handleBuyAura(aura)}>{aura.cost} 🐯</button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
