@@ -5,8 +5,16 @@ import { useGame } from '../contexts/GameContext';
 import { supabase } from '../lib/supabase';
 import { ArrowLeft, Shirt, BatteryCharging, Smile, Droplets, Zap, Moon, Music, ChevronUp, X, Check } from 'lucide-react';
 import soundManager from '../lib/SoundManager';
-import ParthMascot from '../components/ParthMascot';
 import './ParthPage.css';
+
+const MOOD_IMAGES = {
+  sad: '/parth-sad.png',
+  sleeping: '/parth-sleeping.png',
+  neutral: '/parth.png',
+  happy: '/parth-waving.png',
+  ecstatic: '/parth-ecstatic.png',
+  fire: '/parth-fire.png'
+};
 
 const PARTH_AURAS = [
   { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 100, icon: '✨' },
@@ -272,6 +280,14 @@ export default function ParthPage() {
 
   const equippedAuraString = isSocialView ? friendData?.parth_equipped : profile?.parth_equipped;
 
+  // SPRITE SWAPPER: Which PNG to show right now?
+  let currentSprite = MOOD_IMAGES[mascotMood] || MOOD_IMAGES.neutral;
+  if (animatingAction === 'sleep') currentSprite = MOOD_IMAGES.sleeping;
+  else if (animatingAction === 'dance') currentSprite = MOOD_IMAGES.fire;
+  else if (animatingAction === 'eat') currentSprite = MOOD_IMAGES.ecstatic;
+  else if (animatingAction === 'pet') currentSprite = MOOD_IMAGES.happy;
+  else if (animatingAction === 'wash') currentSprite = MOOD_IMAGES.neutral;
+
   if (isSocialView && loadingFriend) return <div className="parth-page-container">Loading Pet...</div>;
 
   return (
@@ -305,14 +321,34 @@ export default function ParthPage() {
         ))}
         
         {/* Grime overlay if low hygiene */}
-        {hygiene < 30 && <div className="pt-grime-overlay">🪰</div>}
         
-        <ParthMascot 
-          forceMood={mascotMood} 
-          hunger={hunger} 
-          equippedAura={equippedAuraString || ''} 
-          onPet={handlePet}
-        />
+        <div className="pt-character-container">
+          <img 
+            src={currentSprite} 
+            alt="Parth" 
+            className="pt-character-img"
+          />
+          
+          {/* EQUIPPED AURA/OUTFITS RENDERED DIRECTLY OVER THE IMG */}
+          {equippedAuraString?.includes('aura_sparkles') && (
+            <div className="pt-aura pt-sparkles"><span>✨</span><span>✨</span><span>✨</span></div>
+          )}
+          {equippedAuraString?.includes('aura_snow') && (
+            <div className="pt-aura pt-snow"><span>❄️</span><span>❄️</span><span>❄️</span></div>
+          )}
+          {equippedAuraString?.includes('aura_gold') && <div className="pt-aura pt-gold"></div>}
+          {equippedAuraString?.includes('aura_shadow') && <div className="pt-aura pt-shadow"></div>}
+
+          {equippedAuraString?.includes('outfit_shades') && <div className="pt-outfit pt-shades">🕶️</div>}
+          {equippedAuraString?.includes('outfit_cap') && <div className="pt-outfit pt-cap">🧢</div>}
+          {equippedAuraString?.includes('outfit_headband') && <div className="pt-outfit pt-headband">🏋️</div>}
+          {equippedAuraString?.includes('outfit_tophat') && <div className="pt-outfit pt-tophat">🎩</div>}
+          {equippedAuraString?.includes('outfit_crown') && <div className="pt-outfit pt-crown">👑</div>}
+          
+          {/* Action-specific overlays */}
+          {animatingAction === 'sleep' && <div className="pt-floating-zzz">Zzz...</div>}
+          {animatingAction === 'wash'  && <div className="pt-rain">💧 💧 💧</div>}
+        </div>
       </div>
 
       {/* 3. STATUS BARS */}
