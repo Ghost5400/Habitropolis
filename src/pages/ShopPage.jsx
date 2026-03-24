@@ -182,7 +182,7 @@ export default function ShopPage() {
       setPurchaseMessage('');
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY,
+        key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_SV55yPVUrxm8uj",
         amount: pkg.priceInPaise,
         currency: "INR",
         name: "Habitropolis",
