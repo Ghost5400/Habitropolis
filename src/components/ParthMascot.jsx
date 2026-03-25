@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './ParthMascot.css';
 import soundManager from '../lib/SoundManager';
 
-export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, equippedAura, forceMood, onPet }) {
+export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50, forceMood, onPet }) {
   const [internalMood, setInternalMood] = useState('neutral');
   const [animating, setAnimating] = useState(false);
   const [message, setMessage] = useState('');
@@ -29,7 +29,7 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
       setInternalMood('neutral');
       newMsg = "Hey Mayor! Your city needs you — let's crush some habits! 🐯";
     } else if (hunger <= 10) {
-      setInternalMood('sad');
+      setInternalMood('starving');
       newMsg = "*Stomach rumbles* I'm starving... please do a habit...";
     } else if (completedToday === 0) {
       setInternalMood('sleeping');
@@ -54,11 +54,12 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
 
   const MOOD_IMAGES = {
     sad: '/parth-sad.png',
-    sleeping: '/parth-sleeping.png',
+    starving: '/parth-sad.png',
+    sleeping: '/parth.png',
     neutral: '/parth.png',
     happy: '/parth-waving.png',
-    ecstatic: '/parth-ecstatic.png',
-    fire: '/parth-fire.png'
+    ecstatic: '/parth-waving.png',
+    fire: '/parth-waving.png'
   };
 
   const REACTIONS = [
@@ -101,27 +102,6 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
         {mood === 'sleeping' && <div className="floating-zzz">Zzz...</div>}
         {mood === 'ecstatic' && <div className="confetti-burst" />}
         {mood === 'sad' && <div className="tear-drop" />}
-        
-        {/* Equipped Wardrobe Auras & Outfits */}
-        {equippedAura?.includes('aura_sparkles') && (
-          <div className="aura-layer aura-sparkles">
-            <span>✨</span><span>✨</span><span>✨</span>
-          </div>
-        )}
-        {equippedAura?.includes('aura_snow') && (
-          <div className="aura-layer aura-snow">
-            <span>❄️</span><span>❄️</span><span>❄️</span>
-          </div>
-        )}
-        {equippedAura?.includes('aura_gold') && <div className="aura-layer aura-gold-ring"></div>}
-        {equippedAura?.includes('aura_shadow') && <div className="aura-layer aura-shadow-pulse"></div>}
-
-        {/* Outfits (Positioned Emojis on Mascot) */}
-        {equippedAura?.includes('outfit_shades') && <div className="outfit-layer outfit-shades">🕶️</div>}
-        {equippedAura?.includes('outfit_cap') && <div className="outfit-layer outfit-cap">🧢</div>}
-        {equippedAura?.includes('outfit_headband') && <div className="outfit-layer outfit-headband">🏋️</div>}
-        {equippedAura?.includes('outfit_tophat') && <div className="outfit-layer outfit-tophat">🎩</div>}
-        {equippedAura?.includes('outfit_crown') && <div className="outfit-layer outfit-crown">👑</div>}
         
         {reaction && (
           <div className="reaction-particles" key={reaction.id}>

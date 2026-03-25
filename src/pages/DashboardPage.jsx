@@ -195,7 +195,6 @@ export default function DashboardPage() {
           todayLogs={todayLogs}
           bestStreak={bestStreak}
           hunger={parthHunger || 50}
-          equippedAura={profile?.parth_equipped}
           onPet={() => { /* Potential tap-to-pet feedback like hearts */ }}
         />
       )}
@@ -292,7 +291,7 @@ export default function DashboardPage() {
 
       {habits.length === 0 ? (
         <div className="empty-state glass">
-          <img src="/parth-waving.png" alt="Parth" style={{ width: '140px', height: '140px', objectFit: 'contain', marginBottom: '1rem' }} />
+          <img src="/parth-flyingkiss.png" alt="Parth" style={{ width: '140px', height: '140px', objectFit: 'contain', marginBottom: '1rem' }} />
           <h3>Welcome to Habitropolis!</h3>
           <p>I'm <strong>Parth</strong>, your city-building buddy! Click <strong>"NEW HABIT"</strong> in the quote above to start building your city of good habits.</p>
         </div>

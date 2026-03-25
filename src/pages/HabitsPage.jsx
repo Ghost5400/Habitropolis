@@ -90,7 +90,7 @@ export default function HabitsPage() {
 
       {filtered.length === 0 ? (
         <div className="empty-state glass">
-          <img src="/parth-waving.png" alt="Parth" style={{ width: '110px', height: '110px', objectFit: 'contain', marginBottom: '0.5rem' }} />
+          <img src="/parth-flyingkiss.png" alt="Parth" style={{ width: '110px', height: '110px', objectFit: 'contain', marginBottom: '0.5rem' }} />
           <h3>{filter === 'all' ? 'No habits yet' : `No ${filter} habits`}</h3>
           <p>Parth is waiting! Create your first habit to start building your city!</p>
           <button className="btn btn-primary" onClick={() => navigate('/habits/new')}>

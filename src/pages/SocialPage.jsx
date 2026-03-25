@@ -233,7 +233,7 @@ export default function SocialPage() {
               <div className="social-list">
                 {friends.length === 0 ? (
                   <div className="social-empty glass-sm">
-                    <img src="/parth-waving.png" alt="Parth" style={{ width: '90px', height: '90px', objectFit: 'contain', marginBottom: '0.5rem' }} />
+                    <img src="/parth-flyingkiss.png" alt="Parth" style={{ width: '90px', height: '90px', objectFit: 'contain', marginBottom: '0.5rem' }} />
                     <h3>No friends yet</h3>
                     <p>Search for mayors above or follow people from the Leaderboard!</p>
                   </div>

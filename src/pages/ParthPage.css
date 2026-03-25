@@ -438,78 +438,7 @@
   margin: 1.5rem 0;
 }
 
-/* Wardrobe Auras (Extracted from Dashboard for Room use) */
-.pt-aura {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 5;
-}
 
-.pt-sparkles span {
-  position: absolute; font-size: 1.5rem;
-  animation: ptTwinkle 2s infinite ease-in-out alternate;
-}
-.pt-sparkles span:nth-child(1) { top: -10px; left: -10px; animation-delay: 0s; }
-.pt-sparkles span:nth-child(2) { top: 30%; right: -20px; animation-delay: 0.5s; }
-.pt-sparkles span:nth-child(3) { bottom: -10px; left: 40%; animation-delay: 1s; }
-
-@keyframes ptTwinkle {
-  0% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
-  100% { opacity: 1; transform: scale(1.2) rotate(45deg); }
-}
-
-.pt-snow span {
-  position: absolute; font-size: 1.5rem;
-  animation: ptFall 3s infinite linear;
-}
-.pt-snow span:nth-child(1) { left: 0%; top: -30%; animation-delay: 0s; }
-.pt-snow span:nth-child(2) { left: 50%; top: -20%; animation-delay: 1s; }
-.pt-snow span:nth-child(3) { right: -10%; top: -10%; animation-delay: 2s; }
-
-@keyframes ptFall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translateY(150px) rotate(180deg); opacity: 0; }
-}
-
-.pt-gold {
-  background: radial-gradient(circle at center, rgba(234, 179, 8, 0.4) 0%, transparent 80%);
-  animation: ptPulseAura 2s infinite alternate; z-index: -1; border-radius: 50%; filter: drop-shadow(0 0 20px #eab308);
-}
-.pt-shadow {
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
-  animation: ptShadowPulse 3s infinite; z-index: -1; border-radius: 50%; box-shadow: inset 0 0 30px rgba(88, 28, 135, 0.6);
-}
-
-@keyframes ptPulseAura {
-  0% { transform: scale(0.9); opacity: 0.7; }
-  100% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 10px #eab308); }
-}
-
-@keyframes ptShadowPulse {
-  0% { transform: scale(0.9); opacity: 0.5; }
-  50% { transform: scale(1.3); opacity: 0.9; }
-  100% { transform: scale(0.9); opacity: 0.5; }
-}
-
-/* Outfits */
-.pt-outfit {
-  position: absolute; pointer-events: none; z-index: 6;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-  transition: transform 0.2s ease-out;
-}
-
-/* Head alignments for full-screen Parth */
-.pt-cap { font-size: 3rem; top: -15px; left: 50%; transform: translateX(-50%) rotate(-5deg); }
-.pt-shades { font-size: 2.5rem; top: 15px; left: 50%; transform: translateX(-50%); }
-.pt-headband { font-size: 3.5rem; top: -15px; left: 50%; transform: translateX(-50%); }
-.pt-tophat { font-size: 4rem; top: -45px; left: 50%; transform: translateX(-50%) rotate(5deg); }
-.pt-crown { font-size: 3.5rem; top: -35px; left: 50%; transform: translateX(-50%); }
-
-.anim-sleep .pt-outfit {
-  transform: translateX(-50%) translateY(45px) rotate(-15deg);
-}
 
 .pt-character-container {
   position: relative;
@@ -546,4 +475,13 @@
   font-weight: bold;
   color: white;
   animation: ptFall 3s infinite reverse;
+}
+
+/* Character Filters */
+.dirty-filter {
+  filter: sepia(0.6) hue-rotate(30deg) brightness(0.7) contrast(1.2);
+}
+
+.dim-filter {
+  filter: brightness(0.5) contrast(0.9);
 }

@@ -47,7 +47,7 @@ export default function LoginStreakModal({ rewardInfo, onClose }) {
         </div>
         
         <div className="parth-reward-scene">
-          <img src="/parth-ecstatic.png" alt="Happy Parth" className="parth-modal-img float-anim" />
+          <img src="/parth-maxed.png" alt="Happy Parth" className="parth-modal-img float-anim" />
         </div>
         
         <p className="login-modal-subtitle">

@@ -52,7 +52,7 @@ export default function SignupPage() {
     <div className="auth-container glass">
       <div className="auth-box">
         <div className="auth-mascot">
-          <img src="/parth-waving.png" alt="Parth the Tiger" className="mascot-img" />
+          <img src="/parth-flyingkiss.png" alt="Parth the Tiger" className="mascot-img" />
         </div>
         <h2>Join Habitropolis</h2>
         <p className="text-muted">Create your account and start building!</p>

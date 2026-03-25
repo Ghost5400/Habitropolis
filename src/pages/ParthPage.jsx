@@ -9,27 +9,14 @@ import './ParthPage.css';
 
 const MOOD_IMAGES = {
   sad: '/parth-sad.png',
-  sleeping: '/parth-sleeping.png',
+  starving: '/parth-sad.png',
+  dirty: '/parth-sad.png',
+  sleeping: '/parth.png',
   neutral: '/parth.png',
   happy: '/parth-waving.png',
-  ecstatic: '/parth-ecstatic.png',
-  fire: '/parth-fire.png'
+  ecstatic: '/parth-waving.png',
+  fire: '/parth-waving.png'
 };
-
-const PARTH_AURAS = [
-  { id: 'aura_sparkles', name: 'Fairy Sparkles', desc: 'Magical sparkles follow Parth', cost: 100, icon: '✨' },
-  { id: 'aura_snow', name: 'Winter Snow', desc: 'Gentle falling snow', cost: 150, icon: '❄️' },
-  { id: 'aura_shadow', name: 'Ninja Shadows', desc: 'Dark mysterious pulse', cost: 200, icon: '🦇' },
-  { id: 'aura_gold', name: 'Royal Gold', desc: 'A kingly golden glow', cost: 350, icon: '👑' },
-];
-
-const PARTH_OUTFITS = [
-  { id: 'outfit_shades', name: 'Cool Shades', desc: 'Aviator sunglasses', cost: 80, icon: '🕶️' },
-  { id: 'outfit_cap', name: 'Baseball Cap', desc: 'Sports cap', cost: 100, icon: '🧢' },
-  { id: 'outfit_headband', name: 'Gym Headband', desc: 'Sweatband for grinding', cost: 120, icon: '🏋️' },
-  { id: 'outfit_tophat', name: 'Top Hat', desc: 'Fancy top hat', cost: 250, icon: '🎩' },
-  { id: 'outfit_crown', name: 'Royal Crown', desc: 'Gold crown', cost: 400, icon: '👑' },
-];
 
 export default function ParthPage() {
   const { userId } = useParams();
@@ -52,8 +39,6 @@ export default function ParthPage() {
 
   // UI State
   const [message, setMessage] = useState('');
-  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('outfits');
   const [animatingAction, setAnimatingAction] = useState(null);
   const [floatingEmojis, setFloatingEmojis] = useState([]);
 
@@ -67,7 +52,7 @@ export default function ParthPage() {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('display_name, parth_hunger, parth_happiness, parth_hygiene, parth_xp, parth_level, tiger_tokens, parth_equipped')
+          .select('display_name, parth_hunger, parth_happiness, parth_hygiene, parth_xp, parth_level, tiger_tokens')
           .eq('user_id', targetId)
           .single();
         if (error) throw error;
@@ -210,60 +195,6 @@ export default function ParthPage() {
     }
   };
 
-  // -------------------------
-  // WARDROBE OVERLAY LOGIC
-  // -------------------------
-
-  const handleBuyOrEquip = async (item) => {
-    if (isSocialView) return;
-
-    const typePrefix = item.id.split('_')[0]; 
-    const currentEquipped = (profile?.parth_equipped || '').split(',').filter(Boolean);
-    
-    const newEquippedArr = currentEquipped.filter(id => !id.startsWith(typePrefix));
-    newEquippedArr.push(item.id);
-    const newEquippedString = newEquippedArr.join(',');
-
-    const ownedItems = profile?.parth_outfits || [];
-    
-    if (ownedItems.includes(item.id)) {
-      await updateProfile({ parth_equipped: newEquippedString });
-      soundManager.playSuccess();
-      return;
-    }
-
-    if (tigerTokens < item.cost) {
-      showMessage(`Need ${item.cost} 🐯!`);
-      return;
-    }
-
-    try {
-      await updateProfile({ 
-        parth_outfits: [...ownedItems, item.id],
-        parth_equipped: newEquippedString,
-        tiger_tokens: tigerTokens - item.cost
-      });
-      setTigerTokens(prev => prev - item.cost);
-      soundManager.playSuccess();
-      showMessage(`Bought ${item.name}! 🎉`);
-    } catch(e) { console.error(e) }
-  };
-
-  const handleConvertCoinsToTokens = async () => {
-    if (coins < 250) {
-      showMessage('Need 250 Coins to buy 5 Tokens.');
-      return;
-    }
-    const spent = await spendCoins(250, 'Converted to Tiger Tokens');
-    if (spent) {
-      try {
-        await updateProfile({ tiger_tokens: tigerTokens + 5 });
-        setTigerTokens(prev => prev + 5);
-        soundManager.playSuccess();
-        showMessage('Bought 5 🐯!');
-      } catch(e) { console.error(e) }
-    }
-  };
 
   // Determine Room BG based on level
   let roomClass = 'room-bg-1';
@@ -274,19 +205,15 @@ export default function ParthPage() {
 
   // Calculate composite mood (lowest stat drags him down)
   let mascotMood = 'neutral';
-  if (happiness <= 30 || hunger <= 20) mascotMood = 'sad';
+  if (hunger <= 10) mascotMood = 'starving';
+  else if (hygiene <= 20) mascotMood = 'dirty';
+  else if (happiness <= 30 || hunger <= 20) mascotMood = 'sad';
   else if (hygiene <= 25) mascotMood = 'sad';
+  else if (happiness >= 80 && hunger >= 80 && hygiene >= 80) mascotMood = 'ecstatic';
   else if (happiness >= 80 && hunger >= 80) mascotMood = 'happy';
-
-  const equippedAuraString = isSocialView ? friendData?.parth_equipped : profile?.parth_equipped;
 
   // SPRITE SWAPPER: Which PNG to show right now?
   let currentSprite = MOOD_IMAGES[mascotMood] || MOOD_IMAGES.neutral;
-  if (animatingAction === 'sleep') currentSprite = MOOD_IMAGES.sleeping;
-  else if (animatingAction === 'dance') currentSprite = MOOD_IMAGES.fire;
-  else if (animatingAction === 'eat') currentSprite = MOOD_IMAGES.ecstatic;
-  else if (animatingAction === 'pet') currentSprite = MOOD_IMAGES.happy;
-  else if (animatingAction === 'wash') currentSprite = MOOD_IMAGES.neutral;
 
   if (isSocialView && loadingFriend) return <div className="parth-page-container">Loading Pet...</div>;
 
@@ -320,30 +247,12 @@ export default function ParthPage() {
           <div key={e.id} className="pt-floating-emoji">{e.type}</div>
         ))}
         
-        {/* Grime overlay if low hygiene */}
-        
         <div className="pt-character-container">
           <img 
             src={currentSprite} 
             alt="Parth" 
-            className="pt-character-img"
+            className={`pt-character-img ${hygiene <= 25 ? 'dirty-filter' : ''} ${animatingAction === 'sleep' ? 'dim-filter' : ''}`}
           />
-          
-          {/* EQUIPPED AURA/OUTFITS RENDERED DIRECTLY OVER THE IMG */}
-          {equippedAuraString?.includes('aura_sparkles') && (
-            <div className="pt-aura pt-sparkles"><span>✨</span><span>✨</span><span>✨</span></div>
-          )}
-          {equippedAuraString?.includes('aura_snow') && (
-            <div className="pt-aura pt-snow"><span>❄️</span><span>❄️</span><span>❄️</span></div>
-          )}
-          {equippedAuraString?.includes('aura_gold') && <div className="pt-aura pt-gold"></div>}
-          {equippedAuraString?.includes('aura_shadow') && <div className="pt-aura pt-shadow"></div>}
-
-          {equippedAuraString?.includes('outfit_shades') && <div className="pt-outfit pt-shades">🕶️</div>}
-          {equippedAuraString?.includes('outfit_cap') && <div className="pt-outfit pt-cap">🧢</div>}
-          {equippedAuraString?.includes('outfit_headband') && <div className="pt-outfit pt-headband">🏋️</div>}
-          {equippedAuraString?.includes('outfit_tophat') && <div className="pt-outfit pt-tophat">🎩</div>}
-          {equippedAuraString?.includes('outfit_crown') && <div className="pt-outfit pt-crown">👑</div>}
           
           {/* Action-specific overlays */}
           {animatingAction === 'sleep' && <div className="pt-floating-zzz">Zzz...</div>}
@@ -400,84 +309,12 @@ export default function ParthPage() {
           <span>Sleep</span>
         </button>
         
-        {/* Wardrobe is disabled in social view */}
-        <button className={`pt-action-btn ${isSocialView ? 'disabled' : ''}`} onClick={() => !isSocialView && setIsWardrobeOpen(true)}>
-          <div className="pt-action-icon" style={{color: 'var(--accent-primary)'}}><Shirt size={24} /></div>
-          <span>Dress</span>
-        </button>
-        
         <button className="pt-action-btn" onClick={handleDance}>
           <div className="pt-action-icon"><Music size={24} /></div>
           <span>Dance</span>
         </button>
       </div>
 
-      {/* 5. WARDROBE OVERLAY (Slide-up panel) */}
-      <div className={`pt-wardrobe-overlay ${isWardrobeOpen ? 'open' : ''}`}>
-        <div className="pt-wardrobe-header glass">
-          <h3>👗 Wardrobe & Black Market</h3>
-          <button className="pt-close-btn" onClick={() => setIsWardrobeOpen(false)}>
-             <ChevronUp size={24} />
-          </button>
-        </div>
-
-        <div className="pt-wardrobe-body">
-          <div className="pt-wardrobe-tabs">
-            <button className={activeTab === 'outfits' ? 'active' : ''} onClick={() => setActiveTab('outfits')}>Outfits</button>
-            <button className={activeTab === 'auras' ? 'active' : ''} onClick={() => setActiveTab('auras')}>Auras</button>
-            <button className={activeTab === 'converter' ? 'active' : ''} onClick={() => setActiveTab('converter')}>Token Shop</button>
-          </div>
-
-          <div className="pt-wardrobe-grid">
-            {activeTab === 'outfits' && PARTH_OUTFITS.map(item => {
-              const isOwned = (profile?.parth_outfits || []).includes(item.id);
-              const isEquipped = (profile?.parth_equipped || '').includes(item.id);
-              return (
-                <div key={item.id} className={`pt-w-card ${isEquipped ? 'equipped' : ''}`}>
-                  <div className="pt-w-emoji">{item.icon}</div>
-                  <div className="pt-w-name">{item.name}</div>
-                  {isEquipped ? (
-                    <button className="btn btn-secondary btn-sm" disabled><Check size={14}/> On</button>
-                  ) : isOwned ? (
-                    <button className="btn btn-primary btn-sm" onClick={() => handleBuyOrEquip(item)}>Equip</button>
-                  ) : (
-                    <button className="btn btn-primary btn-sm" onClick={() => handleBuyOrEquip(item)}>{item.cost} 🐯</button>
-                  )}
-                </div>
-              );
-            })}
-
-            {activeTab === 'auras' && PARTH_AURAS.map(item => {
-              const isOwned = (profile?.parth_outfits || []).includes(item.id);
-              const isEquipped = (profile?.parth_equipped || '').includes(item.id);
-              return (
-                <div key={item.id} className={`pt-w-card ${isEquipped ? 'equipped' : ''}`}>
-                  <div className="pt-w-emoji">{item.icon}</div>
-                  <div className="pt-w-name">{item.name}</div>
-                  {isEquipped ? (
-                    <button className="btn btn-secondary btn-sm" disabled><Check size={14}/> On</button>
-                  ) : isOwned ? (
-                    <button className="btn btn-primary btn-sm" onClick={() => handleBuyOrEquip(item)}>Equip</button>
-                  ) : (
-                    <button className="btn btn-primary btn-sm" onClick={() => handleBuyOrEquip(item)}>{item.cost} 🐯</button>
-                  )}
-                </div>
-              );
-            })}
-
-            {activeTab === 'converter' && (
-              <div className="pt-converter-box glass-sm">
-                <h3>💎 The Black Market</h3>
-                <p>Convert your city coins into premium Tiger Tokens to buy exclusive outfits!</p>
-                <div className="pt-exchange-line">250 Coins ➡️ 5 Tiger Tokens</div>
-                <button className="btn btn-primary" onClick={handleConvertCoinsToTokens}>
-                  <BatteryCharging size={16} /> Buy 5 Tokens
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
