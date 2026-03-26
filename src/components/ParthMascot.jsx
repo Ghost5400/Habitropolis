@@ -53,13 +53,13 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   }, [completedToday, totalHabits, bestStreak, hunger, reaction, forceMood]);
 
   const MOOD_IMAGES = {
-    sad: '/parth-sad.png',
-    starving: '/parth-sad.png',
+    sad: '/parth-depressed.png',
+    starving: '/parth-starving.png',
     sleeping: '/parth.png',
     neutral: '/parth.png',
-    happy: '/parth-waving.png',
-    ecstatic: '/parth-waving.png',
-    fire: '/parth-waving.png'
+    happy: '/parth.png',
+    ecstatic: '/parth.png',
+    fire: '/parth.png'
   };
 
   const REACTIONS = [
@@ -99,7 +99,6 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
           alt={`Parth is ${mood}`} 
           className={`parth-mascot-img ${animating ? 'pet-bounce' : ''}`}
         />
-        {mood === 'sleeping' && <div className="floating-zzz">Zzz...</div>}
         {mood === 'ecstatic' && <div className="confetti-burst" />}
         {mood === 'sad' && <div className="tear-drop" />}
         

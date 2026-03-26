@@ -1,22 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, Shirt, BatteryCharging, Smile, Droplets, Zap, Moon, Music, ChevronUp, X, Check } from 'lucide-react';
+import { ArrowLeft, Smile, Droplets, Zap, Music } from 'lucide-react';
 import soundManager from '../lib/SoundManager';
 import './ParthPage.css';
-
-const MOOD_IMAGES = {
-  sad: '/parth-sad.png',
-  starving: '/parth-sad.png',
-  dirty: '/parth-sad.png',
-  sleeping: '/parth.png',
-  neutral: '/parth.png',
-  happy: '/parth-waving.png',
-  ecstatic: '/parth-waving.png',
-  fire: '/parth-waving.png'
-};
 
 export default function ParthPage() {
   const { userId } = useParams();
@@ -29,7 +18,7 @@ export default function ParthPage() {
   const [loadingFriend, setLoadingFriend] = useState(false);
   const isSocialView = Boolean(userId && userId !== user?.id);
 
-  // Stats (Using DB columns or falling back to 50/1 if not yet created)
+  // Stats
   const [hunger, setHunger] = useState(50);
   const [happiness, setHappiness] = useState(50);
   const [hygiene, setHygiene] = useState(50);
@@ -39,8 +28,10 @@ export default function ParthPage() {
 
   // UI State
   const [message, setMessage] = useState('');
-  const [animatingAction, setAnimatingAction] = useState(null);
-  const [floatingEmojis, setFloatingEmojis] = useState([]);
+  const [activeAction, setActiveAction] = useState(null); // 'pet', 'wash', 'eat', 'dance', 'flyingkiss'
+  const [isDancing, setIsDancing] = useState(false);
+  const [danceFrame, setDanceFrame] = useState(1);
+  const audioRef = useRef(null);
 
   // Fetch true state
   useEffect(() => {
@@ -79,23 +70,14 @@ export default function ParthPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const spawnEmojis = (emojiType) => {
-    const id = Date.now();
-    setFloatingEmojis(prev => [...prev, { id, type: emojiType }]);
-    setTimeout(() => {
-      setFloatingEmojis(prev => prev.filter(e => e.id !== id));
-    }, 1500);
-  };
-
   // Helper to commit stat updates + XP progression
   const commitStats = async (updates, xpGain = 0) => {
-    if (isSocialView) return; // Can't update friends
+    if (isSocialView) return;
 
     let newXp = xp + xpGain;
     let newLevel = level;
     let xpNeeded = newLevel * 50;
 
-    // Level up logic!
     if (newXp >= xpNeeded) {
       newLevel += 1;
       newXp = newXp - xpNeeded;
@@ -111,7 +93,6 @@ export default function ParthPage() {
 
     try {
       await updateProfile(payload);
-      // Sync local state immediately
       if (updates.parth_happiness !== undefined) setHappiness(updates.parth_happiness);
       if (updates.parth_hygiene !== undefined) setHygiene(updates.parth_hygiene);
       if (updates.parth_hunger !== undefined) setHunger(updates.parth_hunger);
@@ -123,30 +104,63 @@ export default function ParthPage() {
     }
   };
 
+  // Audio cleanup and dance interval
+  useEffect(() => {
+    return () => stopDance();
+  }, []);
+
+  useEffect(() => {
+    let interval;
+    if (isDancing) {
+       interval = setInterval(() => {
+           setDanceFrame(f => f === 1 ? 2 : 1);
+       }, 400);
+    }
+    return () => clearInterval(interval);
+  }, [isDancing]);
+
+  const stopDance = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsDancing(false);
+    if (activeAction === 'dance') {
+       setActiveAction(null);
+    }
+  };
+
   // -------------------------
-  // ACTION BUTTONS (The loop)
+  // ACTION BUTTONS 
   // -------------------------
   
   const handlePet = () => {
+    if (isDancing) return;
     soundManager.playNav();
-    spawnEmojis('💕');
-    setAnimatingAction('pet');
-    setTimeout(() => setAnimatingAction(null), 500);
+    
+    if (happiness === 100 && hunger === 100 && hygiene === 100) {
+       setActiveAction('flyingkiss');
+       setTimeout(() => setActiveAction(null), 2000);
+    } else {
+       setActiveAction('pet');
+       setTimeout(() => setActiveAction(null), 1500);
+    }
+    
     if (!isSocialView) {
       const newHappiness = Math.min(100, happiness + 5);
-      commitStats({ parth_happiness: newHappiness }, 1); // 1 XP for playing
+      commitStats({ parth_happiness: newHappiness }, 1);
     }
   };
 
   const handleWash = () => {
+    if (isDancing) return;
     if (!isSocialView && tigerTokens < 2) {
       showMessage('Need 2 🐯 to wash Parth!');
       return;
     }
     soundManager.playSuccess();
-    spawnEmojis('🧼');
-    setAnimatingAction('wash');
-    setTimeout(() => setAnimatingAction(null), 1000);
+    setActiveAction('wash');
+    setTimeout(() => setActiveAction(null), 2000);
     
     if (!isSocialView) {
       const newHygiene = Math.min(100, hygiene + 30);
@@ -155,14 +169,14 @@ export default function ParthPage() {
   };
 
   const handleFeed = () => {
+    if (isDancing) return;
     if (!isSocialView && tigerTokens < 5) {
       showMessage('Need 5 🐯 to feed Parth!');
       return;
     }
     soundManager.playSuccess();
-    spawnEmojis('🍔');
-    setAnimatingAction('eat');
-    setTimeout(() => setAnimatingAction(null), 600);
+    setActiveAction('eat');
+    setTimeout(() => setActiveAction(null), 2000);
     
     if (!isSocialView) {
       const newHunger = Math.min(100, hunger + 30);
@@ -170,57 +184,86 @@ export default function ParthPage() {
     }
   };
 
-  const handleSleep = () => {
-    soundManager.playAmbient();
-    spawnEmojis('💤');
-    setAnimatingAction('sleep');
-    // Screen visually dims in CSS
-    setTimeout(() => setAnimatingAction(null), 2500);
-
-    if (!isSocialView) {
-      commitStats({ parth_happiness: 100, parth_hygiene: 100, parth_hunger: 100 }, 10);
-      showMessage('Parth is fully rested!');
-    }
-  };
-
   const handleDance = () => {
-    soundManager.playNav();
-    spawnEmojis('🎵');
-    setAnimatingAction('dance');
-    setTimeout(() => setAnimatingAction(null), 2000);
+    if (isDancing) {
+      stopDance();
+      return;
+    }
     
+    // Cancel other actions
+    setActiveAction(null);
+    
+    soundManager.playNav();
+    setActiveAction('dance');
+    setIsDancing(true);
+    showMessage('Now Playing 🎵');
+    
+    const songNum = Math.floor(Math.random() * 10) + 1;
+    const audio = new Audio(`/songs/song-${songNum}.mp3`);
+    audioRef.current = audio;
+    
+    audio.play().catch(e => {
+        console.warn('Audio play failed, playing silently.', e);
+    });
+    
+    audio.onended = () => {
+      stopDance();
+    };
+
     if (!isSocialView) {
       const newHappiness = Math.min(100, happiness + 15);
       commitStats({ parth_happiness: newHappiness }, 3);
     }
   };
 
-
-  // Determine Room BG based on level
+  // Determine Room BG
   let roomClass = 'room-bg-1';
   if (level >= 3) roomClass = 'room-bg-2';
   if (level >= 5) roomClass = 'room-bg-3';
   if (level >= 8) roomClass = 'room-bg-4';
   if (level >= 12) roomClass = 'room-bg-5';
 
-  // Calculate composite mood (lowest stat drags him down)
-  let mascotMood = 'neutral';
-  if (hunger <= 10) mascotMood = 'starving';
-  else if (hygiene <= 20) mascotMood = 'dirty';
-  else if (happiness <= 30 || hunger <= 20) mascotMood = 'sad';
-  else if (hygiene <= 25) mascotMood = 'sad';
-  else if (happiness >= 80 && hunger >= 80 && hygiene >= 80) mascotMood = 'ecstatic';
-  else if (happiness >= 80 && hunger >= 80) mascotMood = 'happy';
+  // Sprite Swapper
+  let baseSprite = '/parth.png';
+  if (happiness === 100 && hunger === 100 && hygiene === 100) baseSprite = '/parth-maxed.png';
+  else if (hunger <= 20) baseSprite = '/parth-starving.png';
+  else if (hygiene <= 20) baseSprite = '/parth-dirty.png';
+  else if (happiness <= 20) baseSprite = '/parth-depressed.png';
 
-  // SPRITE SWAPPER: Which PNG to show right now?
-  let currentSprite = MOOD_IMAGES[mascotMood] || MOOD_IMAGES.neutral;
+  let currentSprite = baseSprite;
+  let actionClass = '';
+
+  if (activeAction === 'pet') {
+     currentSprite = '/parth-pet.png';
+     actionClass = 'anim-pop-in';
+  } else if (activeAction === 'wash') {
+     currentSprite = '/parth-bath.png';
+     actionClass = 'anim-pop-in';
+  } else if (activeAction === 'eat') {
+     currentSprite = '/parth-eating.png';
+     actionClass = 'anim-pop-in';
+  } else if (activeAction === 'dance') {
+     currentSprite = danceFrame === 1 ? '/parth-dance1.png' : '/parth-dance2.png';
+     actionClass = 'anim-pulse';
+  } else if (activeAction === 'flyingkiss') {
+     currentSprite = '/parth-flyingkiss.png';
+     actionClass = 'anim-pop-in pt-heart-burst';
+  }
+
+  // State-specific classes
+  if (!activeAction) {
+     if (baseSprite === '/parth-maxed.png') actionClass = 'pt-shimmer';
+     else if (baseSprite === '/parth-starving.png') actionClass = 'anim-tremble';
+     else if (baseSprite === '/parth-dirty.png') actionClass = 'anim-wiggle-small';
+     else if (baseSprite === '/parth-depressed.png') actionClass = 'anim-sad-breath';
+  }
 
   if (isSocialView && loadingFriend) return <div className="parth-page-container">Loading Pet...</div>;
 
   return (
-    <div className={`parth-page-container ${roomClass} ${animatingAction === 'sleep' ? 'room-dimmed' : ''}`}>
+    <div className={`parth-page-container ${roomClass}`}>
       
-      {/* 1. TOP HEADER - CURRENCY & LEVEL */}
+      {/* 1. TOP HEADER */}
       <div className="pt-header">
         <button className="pt-back-btn glass-sm" onClick={() => navigate(-1)}>
           <ArrowLeft size={16} />
@@ -238,25 +281,27 @@ export default function ParthPage() {
         </div>
       </div>
 
+      {isDancing && (
+        <div className="pt-now-playing-bar glass-sm">
+          🎤 Now Playing...
+        </div>
+      )}
+
       {message && <div className="pt-toast">{message}</div>}
 
       {/* 2. MAIN STAGE / CHARACTER */}
-      <div className={`pt-stage ${animatingAction ? `anim-${animatingAction}` : ''}`} onClick={handlePet}>
-        
-        {floatingEmojis.map(e => (
-          <div key={e.id} className="pt-floating-emoji">{e.type}</div>
-        ))}
-        
+      <div className="pt-stage" onClick={handlePet}>
         <div className="pt-character-container">
           <img 
             src={currentSprite} 
             alt="Parth" 
-            className={`pt-character-img ${hygiene <= 25 ? 'dirty-filter' : ''} ${animatingAction === 'sleep' ? 'dim-filter' : ''}`}
+            className={`pt-character-img pt-image-crossfade ${actionClass}`}
           />
-          
-          {/* Action-specific overlays */}
-          {animatingAction === 'sleep' && <div className="pt-floating-zzz">Zzz...</div>}
-          {animatingAction === 'wash'  && <div className="pt-rain">💧 💧 💧</div>}
+          {activeAction === 'flyingkiss' && (
+             <div className="heart-particles">
+               <span>💖</span><span>💕</span><span>💖</span>
+             </div>
+          )}
         </div>
       </div>
 
@@ -281,7 +326,7 @@ export default function ParthPage() {
           </div>
         </div>
         
-        {/* XP Progress Bar below */}
+        {/* XP Progress Bar */}
         <div className="pt-xp-row">
           <div className="pt-xp-label">XP: {xp}/{level*50}</div>
           <div className="pt-xp-bar-wrapper">
@@ -290,7 +335,7 @@ export default function ParthPage() {
         </div>
       </div>
 
-      {/* 4. ACTION BAR (The 6 interaction buttons) */}
+      {/* 4. ACTION BAR */}
       <div className="pt-action-bar glass">
         <button className="pt-action-btn" onClick={handlePet}>
           <div className="pt-action-icon"><Smile size={24} /></div>
@@ -304,14 +349,9 @@ export default function ParthPage() {
           <div className="pt-action-icon"><Zap size={24} /></div>
           <span>Feed <small>(5🐯)</small></span>
         </button>
-        <button className="pt-action-btn" onClick={handleSleep}>
-          <div className="pt-action-icon"><Moon size={24} /></div>
-          <span>Sleep</span>
-        </button>
-        
-        <button className="pt-action-btn" onClick={handleDance}>
+        <button className={`pt-action-btn ${isDancing ? 'active-dance' : ''}`} onClick={handleDance}>
           <div className="pt-action-icon"><Music size={24} /></div>
-          <span>Dance</span>
+          <span>{isDancing ? 'Stop' : 'Dance'}</span>
         </button>
       </div>
 

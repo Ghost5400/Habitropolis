@@ -12,7 +12,7 @@ export default function ParthBanner({ show = true }) {
 
   return (
     <div className="parth-banner glass-sm">
-      <img src="/parth-construction.png" alt="Parth building" className="parth-banner-img" />
+      <img src="/parth.png" alt="Parth building" className="parth-banner-img" />
       <div className="parth-banner-text">
         <strong>🚧 Parth is building something!</strong>
         <p>New features dropping soon — stay tuned!</p>

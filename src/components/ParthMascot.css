@@ -39,27 +39,8 @@
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.mood-sleeping .parth-mascot-img {
-  animation: sleepingBreathe 4s ease-in-out infinite;
-}
-
 .mood-happy .parth-mascot-img {
   animation: float 3s ease-in-out infinite;
-}
-
-.mood-fire .parth-mascot-img {
-  filter: drop-shadow(0 0 20px #f97316) drop-shadow(0 0 40px #ef4444);
-  animation: powerAura 2s infinite alternate;
-}
-
-@keyframes powerAura {
-  0% { transform: scale(1); filter: drop-shadow(0 0 15px #f97316); }
-  100% { transform: scale(1.05); filter: drop-shadow(0 0 35px #ef4444); }
-}
-
-@keyframes sleepingBreathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05, 0.95); }
 }
 
 /* Animations that trigger when clicking him */
@@ -146,22 +127,6 @@
   background: linear-gradient(90deg, #10b981, #34d399);
 }
 
-.floating-zzz {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-weight: 700;
-  color: #fff;
-  opacity: 0.7;
-  animation: floatZ 3s infinite;
-}
-
-@keyframes floatZ {
-  0% { transform: translateY(0) scale(0.8); opacity: 0; }
-  20% { opacity: 0.8; }
-  80% { transform: translateY(-30px) scale(1.2); opacity: 0; }
-  100% { opacity: 0; }
-}
 
 @media (max-width: 640px) {
   .parth-mascot-container {
