@@ -32,8 +32,8 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
       setInternalMood('starving');
       newMsg = "*Stomach rumbles* I'm starving... please do a habit...";
     } else if (completedToday === 0) {
-      setInternalMood('sleeping');
-      newMsg = "Zzz... Wake me up by completing a habit...";
+      setInternalMood('neutral');
+      newMsg = "No habits done yet — let's get started! 🐯";
     } else if (completionPercent === 1) {
       setInternalMood('ecstatic');
       newMsg = "PERFECT DAY! You're an absolute legend! 🤩";
@@ -55,7 +55,6 @@ export default function ParthMascot({ habits, todayLogs, bestStreak, hunger = 50
   const MOOD_IMAGES = {
     sad: '/parth-depressed.png',
     starving: '/parth-starving.png',
-    sleeping: '/parth.png',
     neutral: '/parth.png',
     happy: '/parth.png',
     ecstatic: '/parth.png',

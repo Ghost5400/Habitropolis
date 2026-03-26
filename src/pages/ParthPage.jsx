@@ -123,11 +123,10 @@ export default function ParthPage() {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
     setIsDancing(false);
-    if (activeAction === 'dance') {
-       setActiveAction(null);
-    }
+    setActiveAction(null);
   };
 
   // -------------------------
@@ -258,6 +257,9 @@ export default function ParthPage() {
      else if (baseSprite === '/parth-depressed.png') actionClass = 'anim-sad-breath';
   }
 
+  // DEBUG: Check browser console (F12) to verify state changes
+  console.log('[Parth Debug]', { activeAction, currentSprite, isDancing, danceFrame, hunger, happiness, hygiene, tigerTokens });
+
   if (isSocialView && loadingFriend) return <div className="parth-page-container">Loading Pet...</div>;
 
   return (
@@ -293,6 +295,7 @@ export default function ParthPage() {
       <div className="pt-stage" onClick={handlePet}>
         <div className="pt-character-container">
           <img 
+            key={currentSprite}
             src={currentSprite} 
             alt="Parth" 
             className={`pt-character-img pt-image-crossfade ${actionClass}`}
