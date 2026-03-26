@@ -33,6 +33,7 @@ export default function ParthPage() {
   const [danceFrame, setDanceFrame] = useState(1);
   const [showDanceHint, setShowDanceHint] = useState(true);
   const audioRef = useRef(null);
+  const playlistRef = useRef([]);
 
   // Fetch true state
   useEffect(() => {
@@ -185,7 +186,15 @@ export default function ParthPage() {
   };
 
   const playNextDanceSong = () => {
-    const songNum = Math.floor(Math.random() * 20) + 1;
+    // If playlist is empty, refill it with songs 1 through 20
+    if (playlistRef.current.length === 0) {
+      playlistRef.current = Array.from({ length: 20 }, (_, i) => i + 1);
+    }
+    
+    // Pick a random index, remove it from the unplayed array
+    const randomIndex = Math.floor(Math.random() * playlistRef.current.length);
+    const songNum = playlistRef.current.splice(randomIndex, 1)[0];
+    
     const audio = new Audio(`/songs/song-${songNum}.mp3`);
     audioRef.current = audio;
     
