@@ -9,15 +9,20 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 );
 
-// Register Service Worker for PWA
+// Unregister Service Worker in development to prevent stale caches
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((reg) => {
-        console.log('SW registered:', reg.scope);
-      })
-      .catch((err) => {
-        console.log('SW registration failed:', err);
-      });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
   });
+  
+  // Also clear window caches
+  if (caches) {
+    caches.keys().then((names) => {
+      for (let name of names) {
+        caches.delete(name);
+      }
+    });
+  }
 }

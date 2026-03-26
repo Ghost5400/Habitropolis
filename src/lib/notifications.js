@@ -87,9 +87,17 @@ export const notifyAchievementUnlocked = (achievementName, coins) => {
   });
 };
 
-// Register service worker for future web push support
+// Unregister service worker for future web push support in dev mode to avoid cache issues
 export const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
+    if (import.meta.env.DEV) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let r of registrations) {
+        await r.unregister();
+      }
+      return null;
+    }
+    
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered:', registration.scope);
