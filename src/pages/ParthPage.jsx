@@ -183,6 +183,20 @@ export default function ParthPage() {
     }
   };
 
+  const playNextDanceSong = () => {
+    const songNum = Math.floor(Math.random() * 20) + 1;
+    const audio = new Audio(`/songs/song-${songNum}.mp3`);
+    audioRef.current = audio;
+    
+    audio.play().catch(e => {
+        console.warn('Audio play failed, playing silently.', e);
+    });
+    
+    audio.onended = () => {
+      playNextDanceSong();
+    };
+  };
+
   const handleDance = () => {
     if (isDancing) {
       stopDance();
@@ -195,19 +209,8 @@ export default function ParthPage() {
     soundManager.playNav();
     setActiveAction('dance');
     setIsDancing(true);
-    showMessage('Now Playing 🎵');
     
-    const songNum = Math.floor(Math.random() * 10) + 1;
-    const audio = new Audio(`/songs/song-${songNum}.mp3`);
-    audioRef.current = audio;
-    
-    audio.play().catch(e => {
-        console.warn('Audio play failed, playing silently.', e);
-    });
-    
-    audio.onended = () => {
-      stopDance();
-    };
+    playNextDanceSong();
 
     if (!isSocialView) {
       const newHappiness = Math.min(100, happiness + 15);
@@ -283,11 +286,7 @@ export default function ParthPage() {
         </div>
       </div>
 
-      {isDancing && (
-        <div className="pt-now-playing-bar glass-sm">
-          🎤 Now Playing...
-        </div>
-      )}
+
 
       {message && <div className="pt-toast">{message}</div>}
 
