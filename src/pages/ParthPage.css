@@ -385,3 +385,61 @@
   from { transform: translate(-50%, -20px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
+
+/* Dance Hint Tooltip */
+.pt-dance-wrapper {
+  position: relative;
+}
+
+.pt-dance-hint {
+  position: absolute;
+  bottom: 80px; 
+  right: -20px;
+  width: 260px;
+  background: rgba(20, 20, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: slideAnim 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.pt-dance-hint-content {
+  color: white;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.pt-dance-subtext {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: #adb5bd;
+}
+
+.pt-dance-hint-arrow {
+  position: absolute;
+  bottom: -20px;
+  right: 40px;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.pt-dance-hint-arrow::after {
+  content: '↓';
+  display: block;
+  animation: bounceArrow 1s infinite;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes slideAnim {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

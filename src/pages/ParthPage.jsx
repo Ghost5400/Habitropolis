@@ -31,6 +31,7 @@ export default function ParthPage() {
   const [activeAction, setActiveAction] = useState(null); // 'pet', 'wash', 'eat', 'dance', 'flyingkiss'
   const [isDancing, setIsDancing] = useState(false);
   const [danceFrame, setDanceFrame] = useState(1);
+  const [showDanceHint, setShowDanceHint] = useState(true);
   const audioRef = useRef(null);
 
   // Fetch true state
@@ -205,6 +206,7 @@ export default function ParthPage() {
     
     // Cancel other actions
     setActiveAction(null);
+    setShowDanceHint(false);
     
     soundManager.playNav();
     setActiveAction('dance');
@@ -351,10 +353,23 @@ export default function ParthPage() {
           <div className="pt-action-icon"><Zap size={24} /></div>
           <span>Feed <small>(5🐯)</small></span>
         </button>
-        <button className={`pt-action-btn ${isDancing ? 'active-dance' : ''}`} onClick={handleDance}>
-          <div className="pt-action-icon"><Music size={24} /></div>
-          <span>{isDancing ? 'Stop' : 'Dance'}</span>
-        </button>
+        
+        <div className="pt-dance-wrapper">
+          {showDanceHint && !isDancing && (
+            <div className="pt-dance-hint">
+              <div className="pt-dance-hint-content">
+                🎵 <strong>We hacked Parth's playlist!</strong><br/>
+                Listen to his songs.<br/>
+                <span className="pt-dance-subtext">Click to start. Loops automatically.<br/>Click again to stop manually.</span>
+              </div>
+              <div className="pt-dance-hint-arrow"></div>
+            </div>
+          )}
+          <button className={`pt-action-btn ${isDancing ? 'active-dance' : ''}`} onClick={handleDance}>
+            <div className="pt-action-icon"><Music size={24} /></div>
+            <span>{isDancing ? 'Stop' : 'Dance'}</span>
+          </button>
+        </div>
       </div>
 
     </div>
