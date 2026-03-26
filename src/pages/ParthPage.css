@@ -107,14 +107,14 @@
 }
 
 .pt-character-img {
-  max-width: 220px;
+  max-width: 340px;
   height: auto;
   filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
   transform-origin: bottom center;
 }
 
 @media (max-width: 600px) {
-  .pt-character-img { max-width: 180px; }
+  .pt-character-img { max-width: 260px; }
 }
 
 /* 3. New Animations for Character States */
@@ -130,6 +130,34 @@
   0% { transform: scale(0.8); opacity: 0.5; }
   50% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.anim-pet-react {
+  animation: petReact 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes petReact {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15) translateY(-15px); }
+  60% { transform: scale(0.95, 1.1) translateY(0); }
+  100% { transform: scale(1); }
+}
+
+.anim-feed-eat {
+  animation: feedEat 0.8s ease-in-out;
+}
+@keyframes feedEat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scaleX(1.1) scaleY(0.9); }
+  50% { transform: scaleX(0.9) scaleY(1.1); }
+  75% { transform: scaleX(1.1) scaleY(0.95); }
+}
+
+.anim-wash-shake {
+  animation: washShake 0.6s ease-in-out infinite alternate;
+}
+@keyframes washShake {
+  0% { transform: rotate(-5deg) translateX(-5px); }
+  100% { transform: rotate(5deg) translateX(5px); }
 }
 
 .anim-pulse {

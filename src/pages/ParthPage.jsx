@@ -139,10 +139,10 @@ export default function ParthPage() {
     
     if (happiness === 100 && hunger === 100 && hygiene === 100) {
        setActiveAction('flyingkiss');
-       setTimeout(() => setActiveAction(null), 2000);
+       setTimeout(() => setActiveAction(null), 3000);
     } else {
        setActiveAction('pet');
-       setTimeout(() => setActiveAction(null), 1500);
+       setTimeout(() => setActiveAction(null), 3000);
     }
     
     if (!isSocialView) {
@@ -159,7 +159,7 @@ export default function ParthPage() {
     }
     soundManager.playSuccess();
     setActiveAction('wash');
-    setTimeout(() => setActiveAction(null), 2000);
+    setTimeout(() => setActiveAction(null), 3000);
     
     if (!isSocialView) {
       const newHygiene = Math.min(100, hygiene + 30);
@@ -175,7 +175,7 @@ export default function ParthPage() {
     }
     soundManager.playSuccess();
     setActiveAction('eat');
-    setTimeout(() => setActiveAction(null), 2000);
+    setTimeout(() => setActiveAction(null), 3000);
     
     if (!isSocialView) {
       const newHunger = Math.min(100, hunger + 30);
@@ -234,19 +234,19 @@ export default function ParthPage() {
 
   if (activeAction === 'pet') {
      currentSprite = '/parth-pet.png';
-     actionClass = 'anim-pop-in';
+     actionClass = 'anim-pet-react';
   } else if (activeAction === 'wash') {
      currentSprite = '/parth-bath.png';
-     actionClass = 'anim-pop-in';
+     actionClass = 'anim-wash-shake';
   } else if (activeAction === 'eat') {
      currentSprite = '/parth-eating.png';
-     actionClass = 'anim-pop-in';
+     actionClass = 'anim-feed-eat';
   } else if (activeAction === 'dance') {
      currentSprite = danceFrame === 1 ? '/parth-dance1.png' : '/parth-dance2.png';
      actionClass = 'anim-pulse';
   } else if (activeAction === 'flyingkiss') {
      currentSprite = '/parth-flyingkiss.png';
-     actionClass = 'anim-pop-in pt-heart-burst';
+     actionClass = 'anim-pet-react pt-heart-burst';
   }
 
   // State-specific classes
