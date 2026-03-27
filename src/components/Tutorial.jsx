@@ -20,39 +20,59 @@ export default function Tutorial() {
   const steps = [
     {
       target: 'body',
-      content: 'Welcome to Habitropolis! Let me show you how to build your perfect city.',
+      content: 'Welcome to Habitropolis! 🏙️ Let me give you the grand tour of your new city.',
       placement: 'center',
     },
     {
       target: '.tour-new-habit',
-      content: 'Start by creating a Habit here. You can set Goals, Timers, or even Bad Habit Stoppers!',
+      content: 'Start here! Create Habits — set Goals, use Timers, or add Bad Habit Stoppers to break the cycle.',
       placement: 'bottom',
     },
     {
       target: '.tour-dashboard-stats',
-      content: 'Your Dashboard tracks how many habits you complete, your active streaks, and the coins you earn.',
+      content: 'Your Dashboard shows habits completed today, your best streak, and your coin balance. Complete daily bounties from Parth to earn Tiger Tokens! 🐯',
       placement: 'bottom',
     },
     {
       target: '.tour-city-link',
-      content: 'As you complete habits, you earn buildings! Click here to visit your City.',
+      content: 'Every habit you complete earns you a building! Drag them onto your isometric grid and watch your city grow. Buildings level-up as your streaks get longer!',
       placement: 'right',
     },
     {
-      target: '.town-builder-viewport', // will attach if they happen to navigate there, but standard works on dom presence
-      content: 'Here, you can drag your unplaced buildings onto the isometric grid. Buildings grow taller as your streaks get longer!',
-      placement: 'center',
+      target: '.tour-parth-link',
+      content: "Meet Parth — your city mascot! 🐯 Pet him, feed him, wash him, or make him dance. Keep him happy and he'll reward you!",
+      placement: 'right',
     },
     {
       target: '.tour-shop-link',
-      content: 'Got coins? Head to the Shop to buy Custom Decorations or Streak Shields to protect you on a bad day.',
+      content: 'Spend coins on Decorations, Streak Shields, or try your luck with the Mystery Chest — 5% chance for a LEGENDARY drop! 🎁',
       placement: 'right',
     },
     {
       target: '.tour-leaderboard-link',
-      content: 'Finally, check out the Leaderboard! Earn Weekly XP to promote through 28 crazy Leagues.',
+      content: 'Compete with other mayors! Earn Weekly XP and climb through 28 unique Leagues with promotions and demotions each week. 🏅',
       placement: 'right',
-    }
+    },
+    {
+      target: '.tour-achievements-link',
+      content: 'Unlock Achievements as you hit milestones — completing habits, building your city, and reaching new leagues! 🏆',
+      placement: 'right',
+    },
+    {
+      target: '.tour-stats-link',
+      content: 'Dive into your Stats to see completion rates, streak histories, and detailed analytics on your progress. 📊',
+      placement: 'right',
+    },
+    {
+      target: '.tour-social-link',
+      content: 'Visit other mayors\' cities, send them decoration gifts, and see who\'s been checking out your city! 👀',
+      placement: 'right',
+    },
+    {
+      target: '.tour-settings-link',
+      content: 'Customize your profile, tweak your preferences, and send us feedback from Settings. That\'s the full tour — now go build your Habitropolis! 🚀',
+      placement: 'right',
+    },
   ];
 
   const handleJoyrideCallback = (data) => {

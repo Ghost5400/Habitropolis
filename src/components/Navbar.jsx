@@ -39,16 +39,16 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', tourClass: 'tour-dashboard-link' },
     { to: '/habits', icon: Target, label: 'Habits', tourClass: 'tour-habits-link' },
     { to: '/city', icon: Building2, label: 'City', tourClass: 'tour-city-link' },
     { to: '/parth', icon: Sparkles, label: 'Parth', tourClass: 'tour-parth-link' },
     { to: '/shop', icon: ShoppingBag, label: 'Shop', tourClass: 'tour-shop-link' },
     { to: '/leaderboard', icon: Medal, label: 'Leagues', tourClass: 'tour-leaderboard-link' },
-    { to: '/achievements', icon: Trophy, label: 'Achievements' },
-    { to: '/stats', icon: BarChart3, label: 'Stats' },
-    { to: '/social', icon: Users, label: 'Social' },
-    { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/achievements', icon: Trophy, label: 'Achievements', tourClass: 'tour-achievements-link' },
+    { to: '/stats', icon: BarChart3, label: 'Stats', tourClass: 'tour-stats-link' },
+    { to: '/social', icon: Users, label: 'Social', tourClass: 'tour-social-link' },
+    { to: '/settings', icon: Settings, label: 'Settings', tourClass: 'tour-settings-link' },
   ];
 
   return (
