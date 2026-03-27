@@ -249,10 +249,10 @@ export default function LeaderboardPage() {
               <span className="hero-stat-label">Competitors</span>
             </div>
             {totalUsers > 0 && (
-              <div className="hero-stat">
+              <div className="hero-stat hero-stat-global">
                 <Globe size={18} />
                 <span className="hero-stat-value">+{totalUsers}</span>
-                <span className="hero-stat-label">Total Mayors</span>
+                <span className="hero-stat-label">Citizens</span>
               </div>
             )}
           </div>

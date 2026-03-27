@@ -112,12 +112,131 @@
 }
 
 @keyframes slideDownFade {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================= */
+/* UX Upgrades: Quotes, Features, Buttons    */
+/* ========================================= */
+
+.auth-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.auth-shimmer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+  animation: rotateShimmer 15s linear infinite;
+  z-index: -1;
+}
+
+@keyframes rotateShimmer {
+  100% { transform: rotate(360deg); }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.mascot-enhanced {
+  width: 140px;
+  height: 140px;
+  filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.4)) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+}
+
+.auth-quote {
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  border-left: 3px solid var(--accent-primary);
+  display: flex;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), transparent);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.quote-icon {
+  color: var(--accent-gold);
+  opacity: 0.7;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.quote-text {
+  font-style: italic;
+  font-family: var(--font-inter);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.auth-features {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.feature-pill {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  opacity: 0;
+  animation: slideInPill 0.5s ease-out forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes slideInPill {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.google-btn {
+  height: 3.5rem;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  transition: all 0.3s ease;
+  padding: 0 1rem;
+}
+
+.google-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.google-icon-wrapper {
+  background: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+.google-icon-wrapper img {
+  width: 20px;
+  height: 20px;
 }
