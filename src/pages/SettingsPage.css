@@ -224,7 +224,7 @@
 .about-modal {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 500px;
   border-radius: var(--radius-lg);
   padding: 2.5rem 2rem 2rem;
   text-align: center;

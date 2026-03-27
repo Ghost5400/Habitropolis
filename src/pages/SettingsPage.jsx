@@ -192,7 +192,6 @@ export default function SettingsPage() {
               <X size={20} />
             </button>
             <div className="about-content">
-              <div className="about-logo">🏙️</div>
               <h2>Habitropolis</h2>
               <p className="about-version">Version 1.0.0</p>
               <p className="about-tagline">Build your city, build your habits.</p>
@@ -201,7 +200,7 @@ export default function SettingsPage() {
                 <img src="/my_photo.png" alt="Aditya Gothe" className="about-dev-photo" />
                 <span className="about-dev-label">Developed by</span>
                 <span className="about-dev-name">Aditya Gothe</span>
-                <p className="about-dev-search">To know more, " SEARCH WHO IS ADITYA GOTHE ON GOOGLE"</p>
+                <p className="about-dev-search">To know more "SEARCH WHO IS ADITYA GOTHE IN MUSIC" on google</p>
               </div>
               <p className="about-copy">&copy; 2026 Habitropolis. All rights reserved.</p>
             </div>
