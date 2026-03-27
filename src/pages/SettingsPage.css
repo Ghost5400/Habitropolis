@@ -196,3 +196,132 @@
     opacity: 1;
   }
 }
+
+/* Setting row chevron / icon */
+.setting-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.setting-row.clickable:hover .setting-chevron {
+  color: var(--accent-primary);
+}
+
+/* About Modal */
+.about-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+  padding: 1rem;
+}
+
+.about-modal {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+  animation: scaleIn 0.25s ease-out;
+}
+
+.about-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-short);
+}
+
+.about-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.about-content h2 {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.about-logo {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.about-version {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+}
+
+.about-tagline {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem;
+  font-style: italic;
+}
+
+.about-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0 auto 1.25rem;
+  width: 60%;
+}
+
+.about-dev {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.about-dev-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.about-dev-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary, #a855f7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.about-copy {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

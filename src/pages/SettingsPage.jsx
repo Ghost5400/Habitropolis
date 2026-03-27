@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
-import { Settings, User, Bell, Palette, LogOut } from 'lucide-react';
+import { Settings, User, Bell, Palette, LogOut, Info, MessageSquareText, ExternalLink, X } from 'lucide-react';
 import { requestNotificationPermission } from '../lib/notifications';
 import './SettingsPage.css';
 
@@ -10,6 +10,9 @@ export default function SettingsPage() {
   const { coins } = useGame();
   const [notifications, setNotifications] = useState(Notification.permission === 'granted');
   const [message, setMessage] = useState('');
+  const [showAbout, setShowAbout] = useState(false);
+
+  const FEEDBACK_URL = 'https://forms.gle/6xs8gG8EFrKYrjsS6';
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [tempName, setTempName] = useState('');
@@ -161,10 +164,48 @@ export default function SettingsPage() {
         <p className="setting-hint">Get reminders for your habits and streak alerts.</p>
       </div>
 
+      <div className="settings-section glass">
+        <div className="section-header">
+          <Info size={20} />
+          <h3>About & Feedback</h3>
+        </div>
+        <div className="setting-row clickable" onClick={() => setShowAbout(true)}>
+          <span className="setting-label">About Habitropolis</span>
+          <Info size={18} className="setting-chevron" />
+        </div>
+        <div className="setting-row clickable" onClick={() => window.open(FEEDBACK_URL, '_blank')}>
+          <span className="setting-label">Give Feedback</span>
+          <ExternalLink size={18} className="setting-chevron" />
+        </div>
+        <p className="setting-hint">Help us improve by sharing your thoughts!</p>
+      </div>
+
       <button className="btn btn-danger logout-settings-btn" onClick={handleSignOut}>
         <LogOut size={18} />
         Sign Out
       </button>
+
+      {showAbout && (
+        <div className="about-overlay" onClick={() => setShowAbout(false)}>
+          <div className="about-modal glass" onClick={e => e.stopPropagation()}>
+            <button className="about-close" onClick={() => setShowAbout(false)}>
+              <X size={20} />
+            </button>
+            <div className="about-content">
+              <div className="about-logo">🏙️</div>
+              <h2>Habitropolis</h2>
+              <p className="about-version">Version 1.0.0</p>
+              <p className="about-tagline">Build your city, build your habits.</p>
+              <div className="about-divider" />
+              <div className="about-dev">
+                <span className="about-dev-label">Developed by</span>
+                <span className="about-dev-name">Aditya Gothe</span>
+              </div>
+              <p className="about-copy">&copy; 2026 Habitropolis. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
