@@ -2,8 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLeague, getLeagueBracketRules } from '../hooks/useLeague';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2, UserPlus, UserCheck, Globe } from 'lucide-react';
+import { Trophy, ChevronUp, ChevronDown, Minus, Medal, Crown, Shield, Swords, RefreshCw, Sparkles, Star, Zap, Building2, UserPlus, UserCheck, Globe, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useTotalUsers } from '../hooks/useTotalUsers';
 import './LeaderboardPage.css';
 
 const TIER_ICONS = {
@@ -35,6 +36,8 @@ export default function LeaderboardPage() {
     settlementLevel,
   } = useLeague();
   
+  const { totalUsers } = useTotalUsers();
+
   const navigate = useNavigate();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -245,6 +248,13 @@ export default function LeaderboardPage() {
               <span className="hero-stat-value">{leaderboard.length}</span>
               <span className="hero-stat-label">Competitors</span>
             </div>
+            {totalUsers > 0 && (
+              <div className="hero-stat">
+                <Globe size={18} />
+                <span className="hero-stat-value">+{totalUsers}</span>
+                <span className="hero-stat-label">Total Mayors</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
