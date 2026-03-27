@@ -33,6 +33,10 @@ export const recordDailyVisit = (userId) => {
   const key = `daily_visits_${today}_${userId}`;
   const visits = parseInt(localStorage.getItem(key) || '0') + 1;
   localStorage.setItem(key, visits.toString());
+  
+  const totalKey = `total_visits_${userId}`;
+  const totalVisits = parseInt(localStorage.getItem(totalKey) || '0') + 1;
+  localStorage.setItem(totalKey, totalVisits.toString());
 };
 
 export const useBounties = (habits, todayLogs) => {
@@ -296,6 +300,10 @@ export const useBounties = (habits, todayLogs) => {
         .eq('user_id', user.id);
 
       if (error) throw error;
+      
+      const lifetimeKey = `total_bounties_${user.id}`;
+      const lifetimeCount = parseInt(localStorage.getItem(lifetimeKey) || '0') + 1;
+      localStorage.setItem(lifetimeKey, lifetimeCount.toString());
       
       setBounties(newBounties);
       setTigerTokens(newTokens);
