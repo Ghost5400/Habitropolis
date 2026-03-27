@@ -198,8 +198,10 @@ export default function SettingsPage() {
               <p className="about-tagline">Build your city, build your habits.</p>
               <div className="about-divider" />
               <div className="about-dev">
+                <img src="/my_photo.png" alt="Aditya Gothe" className="about-dev-photo" />
                 <span className="about-dev-label">Developed by</span>
                 <span className="about-dev-name">Aditya Gothe</span>
+                <p className="about-dev-search">To know more, " SEARCH WHO IS ADITYA GOTHE ON GOOGLE"</p>
               </div>
               <p className="about-copy">&copy; 2026 Habitropolis. All rights reserved.</p>
             </div>
