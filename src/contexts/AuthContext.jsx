@@ -1,10 +1,29 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { clearSupabaseAuthSession, isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
+let initialSessionRequest = null;
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+function isAuthNetworkError(error) {
+  return (
+    error?.name === 'AuthRetryableFetchError' ||
+    error?.message?.includes('Failed to fetch') ||
+    error?.cause?.message?.includes('Failed to fetch')
+  );
+}
+
+function getInitialSession() {
+  if (!initialSessionRequest) {
+    initialSessionRequest = supabase.auth.getSession().finally(() => {
+      initialSessionRequest = null;
+    });
+  }
+
+  return initialSessionRequest;
 }
 
 export function AuthProvider({ children }) {
@@ -12,36 +31,18 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        ensureProfile(session.user);
-      }
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        ensureProfile(session.user);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const ensureProfile = async (sessionUser) => {
+  const ensureProfile = useCallback(async (sessionUser) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', sessionUser.id)
         .single();
 
+      if (error && error.code !== 'PGRST116') throw error;
+
       if (!data) {
-        const { data: newProfile } = await supabase.from('profiles').insert({
+        const { data: newProfile, error: insertError } = await supabase.from('profiles').insert({
           user_id: sessionUser.id,
           display_name: sessionUser.user_metadata?.full_name || sessionUser.email?.split('@')[0] || 'Habitronaut',
           avatar_url: sessionUser.user_metadata?.avatar_url || 'default',
@@ -52,19 +53,84 @@ export function AuthProvider({ children }) {
           bio: '',
           gecko_active: false,
         }).select().single();
-        setProfile(newProfile);
-      } else {
-        setProfile(data);
+
+        if (insertError) throw insertError;
+        return newProfile;
       }
+
+      return data;
     } catch (err) {
       if (err.code !== 'PGRST116') {
         console.error('Error ensuring profile:', err);
-      } else {
-        // Fallback if missing
-        setProfile({ display_name: sessionUser.email?.split('@')[0], avatar_url: 'default' });
+      }
+
+      return { display_name: sessionUser.email?.split('@')[0], avatar_url: 'default' };
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let subscription = null;
+
+    async function applySession(session) {
+      const nextUser = session?.user ?? null;
+      const nextProfile = nextUser ? await ensureProfile(nextUser) : null;
+
+      if (!isMounted) return;
+
+      setUser(nextUser);
+      setProfile(nextProfile);
+      setLoading(false);
+    }
+
+    async function loadInitialSession() {
+      if (!isSupabaseConfigured) {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return false;
+      }
+
+      try {
+        const { data: { session }, error } = await getInitialSession();
+
+        if (error) throw error;
+        await applySession(session);
+        return true;
+      } catch (err) {
+        console.warn('Unable to restore Supabase session:', err);
+
+        if (isAuthNetworkError(err)) {
+          clearSupabaseAuthSession();
+        }
+
+        if (!isMounted) return;
+
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return false;
       }
     }
-  };
+
+    async function startAuth() {
+      const sessionLoaded = await loadInitialSession();
+
+      if (!isMounted || !sessionLoaded) return;
+
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        applySession(session);
+      });
+      subscription = data.subscription;
+    }
+
+    startAuth();
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
+  }, [ensureProfile]);
 
   const updateProfile = async (updates) => {
     if (!user) return;
